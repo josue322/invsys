@@ -6,6 +6,7 @@
 class Ubicacion extends Model
 {
     protected string $table = 'ubicaciones';
+    protected string $activeColumn = 'activa';
 
     /**
      * Obtener todas las ubicaciones activas.

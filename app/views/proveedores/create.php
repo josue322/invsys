@@ -5,8 +5,8 @@
                 <h5 class="fw-800 mb-0">Registrar Nuevo Proveedor</h5>
             </div>
             <div class="card-body">
-                <form action="<?= url('proveedores/store') ?>" method="POST" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
+                <form action="<?= url('proveedores/crear') ?>" method="POST" class="needs-validation" novalidate>
+                    <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                     
                     <div class="row g-3">
                         <div class="col-md-8">

@@ -5,8 +5,8 @@
                 <h5 class="fw-800 mb-0">Registrar Ubicación</h5>
             </div>
             <div class="card-body">
-                <form action="<?= url('ubicaciones/store') ?>" method="POST" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
+                <form action="<?= url('ubicaciones/crear') ?>" method="POST" class="needs-validation" novalidate>
+                    <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                     
                     <div class="mb-3">
                         <label class="form-label">Nombre de la Ubicación (ej. Pasillo A) <span class="text-danger">*</span></label>

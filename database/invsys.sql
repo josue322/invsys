@@ -340,6 +340,16 @@ INSERT INTO `permisos` (`modulo`, `accion`, `descripcion`) VALUES
 ('categorias', 'crear', 'Crear categorías'),
 ('categorias', 'editar', 'Editar categorías'),
 ('categorias', 'eliminar', 'Eliminar categorías'),
+-- Proveedores
+('proveedores', 'ver', 'Ver proveedores'),
+('proveedores', 'crear', 'Crear proveedores'),
+('proveedores', 'editar', 'Editar proveedores'),
+('proveedores', 'eliminar', 'Eliminar proveedores'),
+-- Ubicaciones
+('ubicaciones', 'ver', 'Ver ubicaciones'),
+('ubicaciones', 'crear', 'Crear ubicaciones'),
+('ubicaciones', 'editar', 'Editar ubicaciones'),
+('ubicaciones', 'eliminar', 'Eliminar ubicaciones'),
 -- Movimientos
 ('movimientos', 'ver', 'Ver movimientos de inventario'),
 ('movimientos', 'crear', 'Registrar movimientos'),
@@ -368,7 +378,7 @@ SELECT 1, `id` FROM `permisos`;
 -- Asignar permisos al Supervisor (todo excepto usuarios, configuración y seguridad)
 INSERT INTO `rol_permiso` (`rol_id`, `permiso_id`)
 SELECT 2, `id` FROM `permisos`
-WHERE `modulo` IN ('dashboard', 'productos', 'categorias', 'movimientos', 'alertas', 'reportes');
+WHERE `modulo` IN ('dashboard', 'productos', 'categorias', 'proveedores', 'ubicaciones', 'movimientos', 'alertas', 'reportes');
 
 -- Asignar permisos al Operador (solo ver y operaciones básicas)
 INSERT INTO `rol_permiso` (`rol_id`, `permiso_id`)

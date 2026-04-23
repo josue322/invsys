@@ -59,7 +59,7 @@ class Middleware
 
         // Verificar si la sesión ha expirado
         if (isset($_SESSION['last_activity'])) {
-            $maxLifetime = 3600; // 1 hora por defecto
+            $maxLifetime = (int) sysConfig('session_lifetime', '3600');
             if ((time() - $_SESSION['last_activity']) > $maxLifetime) {
                 // Sesión expirada
                 session_unset();
