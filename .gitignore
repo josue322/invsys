@@ -1,0 +1,35 @@
+# =====================================================
+# InvSys - .gitignore
+# =====================================================
+
+# Variables de entorno (NUNCA subir al repositorio)
+.env
+
+# Directorio de almacenamiento
+storage/logs/*.log
+storage/uploads/*
+!storage/uploads/.gitkeep
+!storage/logs/.gitkeep
+
+# Imágenes de productos subidas por usuarios
+public/assets/img/productos/*
+!public/assets/img/productos/.gitkeep
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencias (si se usan en el futuro)
+/vendor/
+/node_modules/
+
+# Archivos de documentación generados
+/hunt/

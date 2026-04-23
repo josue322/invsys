@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# =====================================================
+# InvSys — Redirección al directorio public
+# =====================================================
+# Si se despliega en un subdirectorio (ej: /invsys/),
+# ajustar la condición para que coincida.
+#
+# Para despliegue en la RAÍZ del dominio, usar:
+#   RewriteCond %{REQUEST_URI} !^/public/
+#   RewriteRule ^(.*)$ public/$1 [L]
+#
+# Para despliegue en SUBDIRECTORIO /invsys/, usar:
+#   RewriteCond %{REQUEST_URI} !^/invsys/public/
+#   RewriteRule ^(.*)$ public/$1 [L]
+# =====================================================
+
+RewriteCond %{REQUEST_URI} !^/invsys/public/
+RewriteRule ^(.*)$ public/$1 [L]
