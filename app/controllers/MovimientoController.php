@@ -97,7 +97,7 @@ class MovimientoController extends Controller
         $numeroLote = $this->input('numero_lote', '');
         $fechaVencimiento = $this->input('fecha_vencimiento', '');
 
-        // Validaciones Básicas
+        // Validaciones Básicas (antes de la transacción)
         $errors = [];
         if ($productoId <= 0)
             $errors[] = 'Debe seleccionar un producto.';
@@ -106,12 +106,13 @@ class MovimientoController extends Controller
         if ($cantidad <= 0)
             $errors[] = 'La cantidad debe ser mayor a 0.';
 
-        $producto = $productoId > 0 ? $this->productoModel->findById($productoId) : null;
-        if (!$producto && $productoId > 0)
+        // Verificar que el producto existe (lectura rápida sin lock)
+        $productoCheck = $productoId > 0 ? $this->productoModel->findById($productoId) : null;
+        if (!$productoCheck && $productoId > 0)
             $errors[] = 'Producto no encontrado.';
 
         // Validaciones Lotes (Entradas)
-        if ($producto && $producto->es_perecedero && $tipo === 'entrada') {
+        if ($productoCheck && $productoCheck->es_perecedero && $tipo === 'entrada') {
             if (empty($numeroLote))
                 $errors[] = 'El producto es perecedero. Requiere un Número de Lote.';
             if (empty($fechaVencimiento))
@@ -124,21 +125,35 @@ class MovimientoController extends Controller
             return;
         }
 
-        $stockAnterior = $producto->stock;
-
-        // Validar stock negativo
-        if ($tipo === 'salida' && ($stockAnterior - $cantidad < 0)) {
-            $permitirNegativo = filter_var(sysConfig('permitir_stock_negativo', '0'), FILTER_VALIDATE_BOOLEAN);
-            if (!$permitirNegativo) {
-                $this->setFlash('error', "Stock insuficiente. Actual: {$stockAnterior}, Solicitado: {$cantidad}.");
-                $this->redirect('movimientos/crear');
-                return;
-            }
-        }
-
+        // ─── INICIO DE TRANSACCIÓN CON BLOQUEO ───
         $this->movimientoModel->beginTransaction();
 
         try {
+            // Obtener producto con bloqueo de fila (FOR UPDATE).
+            // Esto impide que otro usuario modifique el stock de este
+            // producto hasta que esta transacción termine (commit/rollback).
+            $producto = $this->productoModel->findByIdForUpdate($productoId);
+
+            if (!$producto) {
+                $this->movimientoModel->rollback();
+                $this->setFlash('error', 'Producto no encontrado.');
+                $this->redirect('movimientos/crear');
+                return;
+            }
+
+            $stockAnterior = $producto->stock;
+
+            // Validar stock negativo (con datos bloqueados, 100% confiable)
+            if ($tipo === 'salida' && ($stockAnterior - $cantidad < 0)) {
+                $permitirNegativo = filter_var(sysConfig('permitir_stock_negativo', '0'), FILTER_VALIDATE_BOOLEAN);
+                if (!$permitirNegativo) {
+                    $this->movimientoModel->rollback();
+                    $this->setFlash('error', "Stock insuficiente. Actual: {$stockAnterior}, Solicitado: {$cantidad}.");
+                    $this->redirect('movimientos/crear');
+                    return;
+                }
+            }
+
             if ($tipo === 'entrada') {
                 // ENTRADA
                 $stockNuevo = $stockAnterior + $cantidad;
@@ -273,7 +288,7 @@ class MovimientoController extends Controller
 
             $this->movimientoModel->commit();
 
-            // Alertas
+            // Alertas (fuera de la transacción para no bloquear más de lo necesario)
             $this->alertService->checkStock($productoId);
 
             $this->securityService->logAction(currentUserId(), "movimiento_{$tipo}", 'movimientos', "Se registró un movimiento de {$cantidad} para {$producto->nombre}");

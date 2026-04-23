@@ -109,6 +109,20 @@ class Producto extends Model
     }
 
     /**
+     * Obtener un producto por ID con bloqueo de fila (FOR UPDATE).
+     * Debe usarse DENTRO de una transacción activa para evitar
+     * condiciones de carrera al modificar stock concurrentemente.
+     *
+     * @param int $id ID del producto
+     * @return object|false
+     */
+    public function findByIdForUpdate(int $id): object|false
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE {$this->primaryKey} = :id LIMIT 1 FOR UPDATE";
+        return $this->query($sql, ['id' => $id])->fetch();
+    }
+
+    /**
      * Obtener total de productos activos.
      */
     public function countActive(): int
