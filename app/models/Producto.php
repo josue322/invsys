@@ -17,6 +17,15 @@ class Producto extends Model
     }
 
     /**
+     * Buscar producto por SKU (exacto).
+     */
+    public function findBySku(string $sku): object|false
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE sku = :sku LIMIT 1";
+        return $this->query($sql, ['sku' => $sku])->fetch();
+    }
+
+    /**
      * Obtener productos con categoría (paginado y con filtros).
      */
     public function getAllWithCategory(

@@ -133,6 +133,18 @@ class Model
     }
 
     /**
+     * Ejecutar consulta SQL pública (para queries personalizadas desde controllers).
+     *
+     * @param string $sql Consulta SQL con placeholders
+     * @param array $params Parámetros para la consulta
+     * @return array
+     */
+    public function rawQuery(string $sql, array $params = []): array
+    {
+        return $this->query($sql, $params)->fetchAll();
+    }
+
+    /**
      * Obtener todos los registros de la tabla.
      *
      * @param string $orderBy Columna para ordenar

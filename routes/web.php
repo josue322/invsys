@@ -312,6 +312,84 @@ return [
     ],
 
     // =====================================================
+    // ESCÁNER DE CÓDIGOS
+    // =====================================================
+    [
+        'method'     => 'GET',
+        'path'       => 'escaner',
+        'controller' => 'EscanerController',
+        'action'     => 'index',
+        'middleware'  => ['auth', 'permiso:productos.ver'],
+    ],
+    [
+        'method'     => 'GET',
+        'path'       => 'escaner/buscar/{codigo}',
+        'controller' => 'EscanerController',
+        'action'     => 'buscar',
+        'middleware'  => ['auth', 'permiso:productos.ver'],
+    ],
+
+    // =====================================================
+    // CONTEO FÍSICO (Auditoría de Inventario)
+    // =====================================================
+    [
+        'method'     => 'GET',
+        'path'       => 'conteos',
+        'controller' => 'ConteoController',
+        'action'     => 'index',
+        'middleware'  => ['auth', 'permiso:movimientos.ver'],
+    ],
+    [
+        'method'     => 'GET',
+        'path'       => 'conteos/crear',
+        'controller' => 'ConteoController',
+        'action'     => 'create',
+        'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'conteos/crear',
+        'controller' => 'ConteoController',
+        'action'     => 'store',
+        'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method'     => 'GET',
+        'path'       => 'conteos/{id}',
+        'controller' => 'ConteoController',
+        'action'     => 'show',
+        'middleware'  => ['auth', 'permiso:movimientos.ver'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'conteos/item',
+        'controller' => 'ConteoController',
+        'action'     => 'updateItem',
+        'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'conteos/cerrar/{id}',
+        'controller' => 'ConteoController',
+        'action'     => 'close',
+        'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'conteos/aplicar/{id}',
+        'controller' => 'ConteoController',
+        'action'     => 'apply',
+        'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'conteos/eliminar/{id}',
+        'controller' => 'ConteoController',
+        'action'     => 'destroy',
+        'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+
+    // =====================================================
     // MOVIMIENTOS
     // =====================================================
     [

@@ -25,6 +25,14 @@ class Categoria extends Model
     }
 
     /**
+     * Alias de getAllActive para consistencia con otros modelos.
+     */
+    public function findAllActive(): array
+    {
+        return $this->getAllActive();
+    }
+
+    /**
      * Obtener categorías paginadas con conteo de productos y filtro de búsqueda.
      */
     public function getAllPaginated(int $page = 1, int $perPage = 15, string $search = '', string $status = ''): array

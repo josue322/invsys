@@ -152,9 +152,27 @@
                 </form>
             </div>
         </div>
+
+        <!-- Barcode Section -->
+        <div class="card animate-fadeIn mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-upc me-2"></i>Código de Barras</h6>
+                <button class="btn btn-sm btn-outline-primary" id="btnPrintBarcode">
+                    <i class="bi bi-printer me-1"></i>Imprimir Etiqueta
+                </button>
+            </div>
+            <div class="card-body text-center">
+                <svg id="barcode"></svg>
+                <div class="mt-2">
+                    <strong><?= htmlspecialchars($producto->sku) ?></strong>
+                    <br><small class="text-muted"><?= htmlspecialchars($producto->nombre) ?></small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Lotes toggle hint
@@ -226,6 +244,44 @@ document.addEventListener('DOMContentLoaded', function() {
                   messages: { required: 'El SKU es obligatorio', pattern: 'Solo letras, números, guiones y guiones bajos' } },
         precio: { required: true, min: 0, messages: { required: 'El precio es obligatorio' } },
         stock_minimo: { min: 0 }
+    });
+
+    // === Barcode Generation ===
+    try {
+        JsBarcode("#barcode", "<?= htmlspecialchars($producto->sku) ?>", {
+            format: "CODE128",
+            width: 2,
+            height: 60,
+            displayValue: false,
+            margin: 10,
+        });
+    } catch(e) {
+        console.warn('Barcode error:', e);
+    }
+
+    // === Print Barcode ===
+    document.getElementById('btnPrintBarcode')?.addEventListener('click', function() {
+        const svg = document.getElementById('barcode');
+        const nombre = <?= json_encode($producto->nombre) ?>;
+        const sku = <?= json_encode($producto->sku) ?>;
+        const w = window.open('', '_blank', 'width=400,height=300');
+        w.document.write(`
+            <html><head><title>Etiqueta - ${sku}</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+                .label { border: 1px dashed #ccc; padding: 15px; display: inline-block; }
+                .name { font-size: 12px; margin-top: 5px; }
+                .sku { font-size: 14px; font-weight: bold; margin-top: 3px; }
+                @media print { .label { border: none; } }
+            </style></head><body>
+            <div class="label">
+                ${svg.outerHTML}
+                <div class="sku">${sku}</div>
+                <div class="name">${nombre}</div>
+            </div>
+            <script>window.onload = function() { window.print(); }<\/script>
+            </body></html>`);
+        w.document.close();
     });
 });
 </script>

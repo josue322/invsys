@@ -62,6 +62,18 @@
                 <?php endif; ?>
             </a>
             <?php endif; ?>
+
+            <a href="<?= url('escaner') ?>" class="nav-link <?= isRoutePrefix('escaner') ? 'active' : '' ?>" id="nav-escaner">
+                <i class="bi bi-upc-scan"></i>
+                <span>Escáner</span>
+            </a>
+
+            <?php if (hasPermission('movimientos.ver')): ?>
+            <a href="<?= url('conteos') ?>" class="nav-link <?= isRoutePrefix('conteos') ? 'active' : '' ?>" id="nav-conteos">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Conteo Físico</span>
+            </a>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
 
