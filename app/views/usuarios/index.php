@@ -72,18 +72,10 @@
             </table>
         </div>
 
-        <?php if ($usuarios['pages'] > 1): ?>
-        <div class="d-flex justify-content-center py-3">
-            <nav>
-                <ul class="pagination mb-0">
-                    <?php for ($i = 1; $i <= $usuarios['pages']; $i++): ?>
-                    <li class="page-item <?= $i == $usuarios['current'] ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= url("usuarios?page={$i}") ?>"><?= $i ?></a>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
-        </div>
-        <?php endif; ?>
+        <?php
+            $pg = $usuarios;
+            $baseUrl = 'usuarios';
+            include APP_PATH . '/views/layouts/_pagination.php';
+        ?>
     </div>
 </div>

@@ -25,7 +25,7 @@ class UbicacionController extends Controller
     {
         $page = (int) $this->query('page', 1);
         $search = $this->query('search', '');
-        $data = $this->ubicacionModel->getAll($page, (int) sysConfig('registros_por_pagina', '15'), $search);
+        $data = $this->ubicacionModel->getAll($page, $this->getPerPage(), $search);
 
         $this->view('ubicaciones/index', [
             'titulo'      => 'Ubicaciones de Almacén',
@@ -33,6 +33,7 @@ class UbicacionController extends Controller
             'total'       => $data['total'],
             'pages'       => $data['pages'],
             'current'     => $data['current'],
+            'pagination'  => $data,
             'search'      => $search,
             'flash'       => $this->getFlash(),
             'csrfToken'   => $this->generateCSRF()

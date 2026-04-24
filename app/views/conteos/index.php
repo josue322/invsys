@@ -132,6 +132,13 @@
                     </tbody>
                 </table>
             </div>
+
+        <!-- Pagination -->
+        <?php
+            $pg = $pagination;
+            $baseUrl = 'conteos';
+            include APP_PATH . '/views/layouts/_pagination.php';
+        ?>
         <?php endif; ?>
     </div>
 </div>

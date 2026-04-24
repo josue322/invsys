@@ -149,22 +149,11 @@
         </div>
 
         <!-- Pagination -->
-        <?php if ($categorias['pages'] > 1): ?>
-        <div class="d-flex justify-content-between align-items-center px-3 py-3">
-            <small class="text-muted">
-                Mostrando <?= count($categorias['data']) ?> de <?= $categorias['total'] ?> registros
-            </small>
-            <nav>
-                <ul class="pagination mb-0">
-                    <?php for ($i = 1; $i <= $categorias['pages']; $i++): ?>
-                    <li class="page-item <?= $i == $categorias['current'] ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= url("categorias?page={$i}&search=" . urlencode($search) . "&estado={$status}") ?>"><?= $i ?></a>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
-        </div>
-        <?php endif; ?>
+        <?php
+            $pg = $categorias;
+            $baseUrl = 'categorias?search=' . urlencode($search) . '&estado=' . $status;
+            include APP_PATH . '/views/layouts/_pagination.php';
+        ?>
         <?php endif; ?>
     </div>
 </div>

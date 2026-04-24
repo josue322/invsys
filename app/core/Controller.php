@@ -143,6 +143,25 @@ class Controller
     }
 
     /**
+     * Obtener cantidad de registros por página desde el query string.
+     * Valida contra opciones permitidas (10, 15, 25, 50).
+     * Fallback: configuración del sistema o 15.
+     *
+     * @return int
+     */
+    protected function getPerPage(): int
+    {
+        $allowed = [10, 15, 25, 50];
+        $perPage = (int) $this->query('per_page', 0);
+
+        if (in_array($perPage, $allowed)) {
+            return $perPage;
+        }
+
+        return (int) sysConfig('registros_por_pagina', '15');
+    }
+
+    /**
      * Validar token CSRF.
      *
      * @return bool

@@ -44,7 +44,7 @@ class ProductoController extends Controller
         $categoriaId = (int) $this->query('categoria', 0);
         $stockFilter = $this->query('stock', '');
 
-        $productos = $this->productoModel->getAllWithCategory($page, (int) sysConfig('registros_por_pagina', '15'), $search, $categoriaId, $stockFilter);
+        $productos = $this->productoModel->getAllWithCategory($page, $this->getPerPage(), $search, $categoriaId, $stockFilter);
         $categorias = $this->categoriaModel->getAllActive();
 
         $csrfToken = $this->generateCSRF();

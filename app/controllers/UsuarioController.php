@@ -19,7 +19,7 @@ class UsuarioController extends Controller
     public function index(): void
     {
         $page = (int) $this->query('page', 1);
-        $usuarios = $this->usuarioModel->getAllWithRole($page, (int) sysConfig('registros_por_pagina', '15'));
+        $usuarios = $this->usuarioModel->getAllWithRole($page, $this->getPerPage());
         $flash = $this->getFlash();
         $csrfToken = $this->generateCSRF();
 

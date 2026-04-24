@@ -27,7 +27,7 @@ class CategoriaController extends Controller
         $search = $this->query('search', '');
         $status = $this->query('estado', '');
 
-        $categorias = $this->categoriaModel->getAllPaginated($page, (int) sysConfig('registros_por_pagina', '15'), $search, $status);
+        $categorias = $this->categoriaModel->getAllPaginated($page, $this->getPerPage(), $search, $status);
         $totalActivas = $this->categoriaModel->countActive();
 
         $csrfToken = $this->generateCSRF();

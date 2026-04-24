@@ -75,43 +75,11 @@
             </div>
             <?php endforeach; ?>
 
-            <?php if ($alertas['pages'] > 1): ?>
             <?php
                 $pg = $alertas;
                 $baseUrl = 'alertas?filter=' . urlencode($filter);
-                $range = 2;
-                $startPage = max(1, $pg['current'] - $range);
-                $endPage = min($pg['pages'], $pg['current'] + $range);
+                include APP_PATH . '/views/layouts/_pagination.php';
             ?>
-            <div class="d-flex justify-content-between align-items-center px-3 py-3">
-                <small class="text-muted">
-                    Mostrando <?= (($pg['current'] - 1) * $pg['perPage']) + 1 ?>–<?= min($pg['current'] * $pg['perPage'], $pg['total']) ?> de <?= $pg['total'] ?> alertas
-                </small>
-                <nav>
-                    <ul class="pagination mb-0">
-                        <li class="page-item <?= $pg['current'] <= 1 ? 'disabled' : '' ?>">
-                            <a class="page-link" href="<?= url($baseUrl . '&page=' . ($pg['current'] - 1)) ?>" aria-label="Anterior"><i class="bi bi-chevron-left"></i></a>
-                        </li>
-                        <?php if ($startPage > 1): ?>
-                            <li class="page-item"><a class="page-link" href="<?= url($baseUrl . '&page=1') ?>">1</a></li>
-                            <?php if ($startPage > 2): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
-                        <?php endif; ?>
-                        <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-                        <li class="page-item <?= $i == $pg['current'] ? 'active' : '' ?>">
-                            <a class="page-link" href="<?= url($baseUrl . '&page=' . $i) ?>"><?= $i ?></a>
-                        </li>
-                        <?php endfor; ?>
-                        <?php if ($endPage < $pg['pages']): ?>
-                            <?php if ($endPage < $pg['pages'] - 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
-                            <li class="page-item"><a class="page-link" href="<?= url($baseUrl . '&page=' . $pg['pages']) ?>"><?= $pg['pages'] ?></a></li>
-                        <?php endif; ?>
-                        <li class="page-item <?= $pg['current'] >= $pg['pages'] ? 'disabled' : '' ?>">
-                            <a class="page-link" href="<?= url($baseUrl . '&page=' . ($pg['current'] + 1)) ?>" aria-label="Siguiente"><i class="bi bi-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

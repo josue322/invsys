@@ -16,7 +16,7 @@ class SeguridadController extends Controller
         $modulo = $this->query('modulo', '');
         $fecha = $this->query('fecha', '');
 
-        $logs = $logModel->getAllWithUser($page, 20, $modulo, $fecha);
+        $logs = $logModel->getAllWithUser($page, $this->getPerPage(), $modulo, $fecha);
         $modulos = $logModel->getDistinctModules();
         $flash = $this->getFlash();
 

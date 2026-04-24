@@ -120,22 +120,11 @@
             </div>
 
         <!-- Pagination -->
-        <?php if ($pages > 1): ?>
-        <div class="d-flex justify-content-between align-items-center px-3 py-3">
-            <small class="text-muted">
-                Mostrando <?= count($proveedores) ?> de <?= $total ?> registros
-            </small>
-            <nav>
-                <ul class="pagination mb-0">
-                    <?php for ($i = 1; $i <= $pages; $i++): ?>
-                    <li class="page-item <?= $i == $current ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= url("proveedores?page={$i}&search=" . urlencode($search)) ?>"><?= $i ?></a>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
-        </div>
-        <?php endif; ?>
+        <?php
+            $pg = $pagination;
+            $baseUrl = 'proveedores?search=' . urlencode($search);
+            include APP_PATH . '/views/layouts/_pagination.php';
+        ?>
         <?php endif; ?>
     </div>
 </div>

@@ -36,7 +36,7 @@ class MovimientoController extends Controller
 
         $movimientos = $this->movimientoModel->getAllWithDetails(
             $page,
-            (int) sysConfig('registros_por_pagina', '15'),
+            $this->getPerPage(),
             $tipo,
             $fechaDesde,
             $fechaHasta,

@@ -130,10 +130,10 @@ class ExportService
      * Construir el HTML completo para el reporte PDF/imprimible.
      */
     private function buildPDFHtml(
-        string $title, 
-        string $systemName, 
-        string $fecha, 
-        string $usuario, 
+        string $title,
+        string $systemName,
+        string $fecha,
+        string $usuario,
         array $sections,
         array $meta
     ): string {
@@ -320,7 +320,7 @@ HTML;
             $html .= '<tr>';
             foreach ($keys as $ki => $key) {
                 $value = is_object($row) ? ($row->$key ?? '') : ($row[$key] ?? '');
-                
+
                 // Apply formatter if exists
                 if (isset($formatters[$key]) && is_callable($formatters[$key])) {
                     $html .= '<td>' . $formatters[$key]($value, $row, $index) . '</td>';

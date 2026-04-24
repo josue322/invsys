@@ -35,8 +35,8 @@ class ConteoController extends Controller
      */
     public function index(): void
     {
-        $page = (int) ($_GET['page'] ?? 1);
-        $result = $this->conteoModel->getAllPaginated($page);
+        $page = (int) $this->query('page', 1);
+        $result = $this->conteoModel->getAllPaginated($page, $this->getPerPage());
 
         $this->view('conteos/index', [
             'titulo'     => 'Conteo Físico',

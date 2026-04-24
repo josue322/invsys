@@ -23,7 +23,7 @@ class AlertaController extends Controller
         $filter = $this->query('filter', 'todas');
         
         $alertaModel = new Alerta();
-        $alertas = $alertaModel->getAllWithProduct($page, (int) sysConfig('registros_por_pagina', '15'), $filter);
+        $alertas = $alertaModel->getAllWithProduct($page, $this->getPerPage(), $filter);
 
         $csrfToken = $this->generateCSRF();
         $flash = $this->getFlash();

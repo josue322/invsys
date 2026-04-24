@@ -25,7 +25,7 @@ class ProveedorController extends Controller
     {
         $page = (int) $this->query('page', 1);
         $search = $this->query('search', '');
-        $data = $this->proveedorModel->getAll($page, (int) sysConfig('registros_por_pagina', '15'), $search);
+        $data = $this->proveedorModel->getAll($page, $this->getPerPage(), $search);
 
         $this->view('proveedores/index', [
             'titulo'      => 'Proveedores',
@@ -33,6 +33,7 @@ class ProveedorController extends Controller
             'total'       => $data['total'],
             'pages'       => $data['pages'],
             'current'     => $data['current'],
+            'pagination'  => $data,
             'search'      => $search,
             'flash'       => $this->getFlash(),
             'csrfToken'   => $this->generateCSRF()
