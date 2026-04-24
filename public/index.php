@@ -157,6 +157,16 @@ set_exception_handler(function (Throwable $exception): void {
     exit;
 });
 
+// =====================================================
+// CONFIGURAR ZONA HORARIA DESDE BD
+// =====================================================
+try {
+    $tz = sysConfig('zona_horaria', 'America/Lima');
+    date_default_timezone_set($tz);
+} catch (\Throwable) {
+    date_default_timezone_set('America/Lima');
+}
+
 // Cargar rutas
 $routes = require_once ROOT_PATH . '/routes/web.php';
 
