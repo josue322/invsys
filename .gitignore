@@ -8,8 +8,10 @@
 # Directorio de almacenamiento
 storage/logs/*.log
 storage/uploads/*
+storage/backups/*
 !storage/uploads/.gitkeep
 !storage/logs/.gitkeep
+!storage/backups/.gitkeep
 
 # Imágenes de productos subidas por usuarios
 public/assets/img/productos/*

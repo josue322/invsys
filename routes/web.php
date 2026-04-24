@@ -529,6 +529,38 @@ return [
     ],
 
     // =====================================================
+    // COPIAS DE SEGURIDAD (solo Admin)
+    // =====================================================
+    [
+        'method'     => 'GET',
+        'path'       => 'backups',
+        'controller' => 'BackupController',
+        'action'     => 'index',
+        'middleware'  => ['auth', 'permiso:configuracion.editar'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'backups/crear',
+        'controller' => 'BackupController',
+        'action'     => 'create',
+        'middleware'  => ['auth', 'permiso:configuracion.editar'],
+    ],
+    [
+        'method'     => 'GET',
+        'path'       => 'backups/descargar/{id}',
+        'controller' => 'BackupController',
+        'action'     => 'download',
+        'middleware'  => ['auth', 'permiso:configuracion.editar'],
+    ],
+    [
+        'method'     => 'POST',
+        'path'       => 'backups/eliminar/{id}',
+        'controller' => 'BackupController',
+        'action'     => 'destroy',
+        'middleware'  => ['auth', 'permiso:configuracion.editar'],
+    ],
+
+    // =====================================================
     // TEMA (AJAX)
     // =====================================================
     [

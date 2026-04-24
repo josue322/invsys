@@ -121,6 +121,13 @@
                 <span>Seguridad</span>
             </a>
             <?php endif; ?>
+
+            <?php if (hasPermission('configuracion.editar')): ?>
+            <a href="<?= url('backups') ?>" class="nav-link <?= isRoutePrefix('backups') ? 'active' : '' ?>" id="nav-backups">
+                <i class="bi bi-database-fill-gear"></i>
+                <span>Backups</span>
+            </a>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
     </nav>
