@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `productos` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `nombre` VARCHAR(200) NOT NULL,
     `descripcion` TEXT DEFAULT NULL,
-    `sku` VARCHAR(50) NOT NULL,
+    `sku` VARCHAR(16) NOT NULL,
     `categoria_id` INT UNSIGNED DEFAULT NULL,
     `unidad_medida` VARCHAR(20) NOT NULL DEFAULT 'Unidad',
     `ubicacion_id` INT UNSIGNED DEFAULT NULL,

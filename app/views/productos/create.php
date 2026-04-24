@@ -31,7 +31,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="sku" class="form-label">SKU *</label>
-                                    <input type="text" class="form-control" id="sku" name="sku" required maxlength="50" 
+                                    <input type="text" class="form-control" id="sku" name="sku" required maxlength="16" 
                                            style="text-transform:uppercase" placeholder="ELEC-001">
                                 </div>
                                 <div class="col-12">
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // === Form Validation ===
     FormValidator.init('#formCrearProducto', {
         nombre: { required: true, maxlength: 200, messages: { required: 'El nombre del producto es obligatorio' } },
-        sku:    { required: true, maxlength: 50, pattern: '^[A-Za-z0-9\\-_]+$',
+        sku:    { required: true, maxlength: 16, pattern: '^[A-Za-z0-9\\-_]+$',
                   messages: { required: 'El SKU es obligatorio', pattern: 'Solo letras, números, guiones y guiones bajos' } },
         precio: { required: true, min: 0, messages: { required: 'El precio es obligatorio' } },
         stock:  { min: 0 },

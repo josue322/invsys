@@ -419,8 +419,8 @@ class ProductoController extends Controller
 
         if (empty($data['sku'])) {
             $errors[] = 'El SKU es obligatorio.';
-        } elseif (mb_strlen($data['sku']) > 50) {
-            $errors[] = 'El SKU no puede exceder 50 caracteres.';
+        } elseif (mb_strlen($data['sku']) > 16) {
+            $errors[] = 'El SKU no puede exceder 16 caracteres.';
         }
 
         if ($data['precio'] < 0) {
