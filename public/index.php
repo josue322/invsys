@@ -49,7 +49,7 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header('Permissions-Policy: camera=(self), microphone=(), geolocation=()');
 
 if (IS_PRODUCTION) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
@@ -61,7 +61,7 @@ header("Content-Security-Policy: "
     . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
     . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
     . "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
-    . "img-src 'self' data: blob:; "
+    . "img-src 'self' data: blob: https://images.openfoodfacts.org https://*.upcitemdb.com; "
     . "connect-src 'self'; "
     . "frame-ancestors 'self';"
 );

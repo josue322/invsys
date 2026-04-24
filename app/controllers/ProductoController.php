@@ -64,6 +64,8 @@ class ProductoController extends Controller
 
     /**
      * Formulario de creación.
+     * Acepta query params opcionales para pre-llenar desde el escáner:
+     * ?sku=XXX&nombre=XXX&descripcion=XXX&from_scanner=1
      */
     public function create(): void
     {
@@ -71,11 +73,21 @@ class ProductoController extends Controller
         $ubicaciones = $this->ubicacionModel->findAllActive();
         $csrfToken = $this->generateCSRF();
 
+        // Datos pre-llenados (desde el escáner o enlace directo)
+        $prefill = [
+            'sku'         => $this->query('sku', ''),
+            'nombre'      => $this->query('nombre', ''),
+            'descripcion' => $this->query('descripcion', ''),
+        ];
+        $fromScanner = (bool) $this->query('from_scanner', '');
+
         $this->view('productos/create', [
-            'titulo' => 'Nuevo Producto',
-            'categorias' => $categorias,
+            'titulo'      => 'Nuevo Producto',
+            'categorias'  => $categorias,
             'ubicaciones' => $ubicaciones,
-            'csrfToken' => $csrfToken,
+            'csrfToken'   => $csrfToken,
+            'prefill'     => $prefill,
+            'fromScanner' => $fromScanner,
         ]);
     }
 

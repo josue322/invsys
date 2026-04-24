@@ -328,6 +328,13 @@ return [
         'action'     => 'buscar',
         'middleware'  => ['auth', 'permiso:productos.ver'],
     ],
+    [
+        'method'     => 'GET',
+        'path'       => 'escaner/lookup/{codigo}',
+        'controller' => 'EscanerController',
+        'action'     => 'lookupExterno',
+        'middleware'  => ['auth', 'permiso:productos.ver'],
+    ],
 
     // =====================================================
     // CONTEO FÍSICO (Auditoría de Inventario)
@@ -387,6 +394,20 @@ return [
         'controller' => 'ConteoController',
         'action'     => 'destroy',
         'middleware'  => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method'     => 'GET',
+        'path'       => 'conteos/exportar-pdf/{id}',
+        'controller' => 'ConteoController',
+        'action'     => 'exportPDF',
+        'middleware'  => ['auth', 'permiso:movimientos.ver'],
+    ],
+    [
+        'method'     => 'GET',
+        'path'       => 'conteos/exportar-csv/{id}',
+        'controller' => 'ConteoController',
+        'action'     => 'exportCSV',
+        'middleware'  => ['auth', 'permiso:movimientos.ver'],
     ],
 
     // =====================================================

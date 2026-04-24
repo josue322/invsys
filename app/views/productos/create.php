@@ -4,6 +4,18 @@
             <div class="card-header">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-plus-circle me-2"></i>Nuevo Producto</h6>
             </div>
+            <?php if (!empty($fromScanner)): ?>
+            <div class="alert alert-info mb-0 rounded-0 border-start-0 border-end-0 d-flex align-items-center gap-2 py-2">
+                <i class="bi bi-upc-scan fs-5"></i>
+                <div>
+                    <strong>Registro desde Escáner</strong>
+                    <small class="d-block text-body-secondary">Los datos fueron capturados automáticamente. Complete los campos restantes.</small>
+                </div>
+                <a href="<?= url('escaner') ?>" class="btn btn-sm btn-outline-info ms-auto">
+                    <i class="bi bi-arrow-left me-1"></i>Volver al Escáner
+                </a>
+            </div>
+            <?php endif; ?>
             <div class="card-body">
                 <form method="POST" action="<?= url('productos/crear') ?>" id="formCrearProducto" enctype="multipart/form-data">
                     <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
@@ -27,16 +39,18 @@
                             <div class="row g-3">
                                 <div class="col-md-8">
                                     <label for="nombre" class="form-label">Nombre del Producto *</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="200">
+                                    <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="200"
+                                           value="<?= htmlspecialchars($prefill['nombre'] ?? '') ?>">
                                 </div>
                                 <div class="col-md-4">
                                     <label for="sku" class="form-label">SKU *</label>
                                     <input type="text" class="form-control" id="sku" name="sku" required maxlength="16" 
-                                           style="text-transform:uppercase" placeholder="ELEC-001">
+                                           style="text-transform:uppercase" placeholder="ELEC-001"
+                                           value="<?= htmlspecialchars($prefill['sku'] ?? '') ?>">
                                 </div>
                                 <div class="col-12">
                                     <label for="descripcion" class="form-label">Descripción</label>
-                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3"><?= htmlspecialchars($prefill['descripcion'] ?? '') ?></textarea>
                                 </div>
                             </div>
                         </div>

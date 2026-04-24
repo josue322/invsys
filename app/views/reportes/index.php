@@ -5,13 +5,13 @@
         <small class="text-muted">Visualiza y exporta datos de tu inventario</small>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        <!-- Export Dropdown CSV -->
+        <!-- Export Dropdown Excel -->
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="btnExportCSV" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i>Exportar CSV
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i>Exportar Excel
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnExportCSV">
-                <li><h6 class="dropdown-header"><i class="bi bi-table me-1"></i>Exportar a CSV</h6></li>
+                <li><h6 class="dropdown-header"><i class="bi bi-table me-1"></i>Exportar a Excel</h6></li>
                 <li>
                     <a class="dropdown-item" href="<?= url('reportes/exportar/inventario/csv') ?>">
                         <i class="bi bi-box-seam me-2 text-primary"></i>Inventario General
@@ -79,10 +79,10 @@
     <div class="col-md-4">
         <a href="<?= url('reportes/exportar/inventario/csv') ?>" class="export-card" id="export-inventario-csv">
             <div class="export-card-icon export-csv">
-                <i class="bi bi-filetype-csv"></i>
+                <i class="bi bi-file-earmark-spreadsheet"></i>
             </div>
             <div class="export-card-body">
-                <h6>Inventario CSV</h6>
+                <h6>Inventario Excel</h6>
                 <small>Todos los productos activos con precios, stock y categorías</small>
             </div>
             <i class="bi bi-download export-card-arrow"></i>
@@ -106,7 +106,7 @@
                 <i class="bi bi-arrow-left-right"></i>
             </div>
             <div class="export-card-body">
-                <h6>Movimientos CSV</h6>
+                <h6>Movimientos Excel</h6>
                 <small>Historial completo de entradas, salidas y ajustes</small>
             </div>
             <i class="bi bi-download export-card-arrow"></i>
@@ -166,8 +166,8 @@
             <!-- Botones de exportar -->
             <div class="col-md-3">
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-primary flex-fill" id="btnExportFechaCSV" title="Exportar CSV">
-                        <i class="bi bi-filetype-csv me-1"></i>CSV
+                    <button type="button" class="btn btn-outline-primary flex-fill" id="btnExportFechaCSV" title="Exportar Excel">
+                        <i class="bi bi-file-earmark-spreadsheet me-1"></i>Excel
                     </button>
                     <button type="button" class="btn btn-primary flex-fill" id="btnExportFechaPDF" title="Exportar PDF">
                         <i class="bi bi-filetype-pdf me-1"></i>PDF
@@ -192,7 +192,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart-fill me-2"></i>Distribución por Categoría</h6>
-                <a href="<?= url('reportes/exportar/categorias/csv') ?>" class="btn-export-inline" title="Exportar CSV">
+                <a href="<?= url('reportes/exportar/categorias/csv') ?>" class="btn-export-inline" title="Exportar Excel">
                     <i class="bi bi-download"></i>
                 </a>
             </div>
@@ -206,7 +206,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-trophy-fill me-2 text-warning"></i>Top 10 Productos Más Movidos</h6>
-                <a href="<?= url('reportes/exportar/top-productos/csv') ?>" class="btn-export-inline" title="Exportar CSV">
+                <a href="<?= url('reportes/exportar/top-productos/csv') ?>" class="btn-export-inline" title="Exportar Excel">
                     <i class="bi bi-download"></i>
                 </a>
             </div>
@@ -256,8 +256,8 @@
                     <span class="badge bg-warning text-dark"><?= count($productosStockBajo) ?></span>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="<?= url('reportes/exportar/stock-bajo/csv') ?>" class="btn-export-inline" title="Exportar CSV">
-                        <i class="bi bi-filetype-csv"></i>
+                    <a href="<?= url('reportes/exportar/stock-bajo/csv') ?>" class="btn-export-inline" title="Exportar Excel">
+                        <i class="bi bi-file-earmark-spreadsheet"></i>
                     </a>
                     <a href="<?= url('reportes/exportar/stock-bajo/pdf') ?>" class="btn-export-inline" target="_blank" title="Exportar PDF">
                         <i class="bi bi-filetype-pdf"></i>

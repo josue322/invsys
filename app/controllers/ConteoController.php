@@ -347,6 +347,156 @@ class ConteoController extends Controller
     }
 
     // =========================================================
+    // EXPORTACIÓN
+    // =========================================================
+
+    /**
+     * Exportar sesión de conteo a PDF.
+     */
+    public function exportPDF(string $id): void
+    {
+        $conteoId = (int) $id;
+        $conteo = $this->conteoModel->findWithMeta($conteoId);
+
+        if (!$conteo) {
+            $this->setFlash('error', 'Sesión de conteo no encontrada.');
+            $this->redirect('conteos');
+            return;
+        }
+
+        $items = $this->detalleModel->getByConteo($conteoId);
+        $summary = $this->conteoModel->getSummary($conteoId);
+        $export = new ExportService();
+        $currentUser = currentUser();
+
+        // Nombre del filtro
+        $filtroNombre = 'Todos los productos';
+        if ($conteo->filtro_tipo === 'categoria' && $conteo->filtro_id) {
+            $cat = $this->categoriaModel->findById($conteo->filtro_id);
+            $filtroNombre = 'Categoría: ' . ($cat->nombre ?? 'N/A');
+        } elseif ($conteo->filtro_tipo === 'ubicacion' && $conteo->filtro_id) {
+            $ub = $this->ubicacionModel->findById($conteo->filtro_id);
+            $filtroNombre = 'Ubicación: ' . ($ub->nombre ?? 'N/A');
+        }
+
+        $estadoLabel = match($conteo->estado) {
+            'abierto'  => 'Abierto',
+            'cerrado'  => 'Cerrado',
+            'ajustado' => 'Ajustado',
+            default    => ucfirst($conteo->estado),
+        };
+
+        // Formatear filas
+        $rows = array_map(function ($item) {
+            $hasCount = $item->stock_fisico !== null;
+            $diff = $hasCount ? ($item->stock_fisico - $item->stock_sistema) : null;
+
+            return [
+                'sku'             => $item->sku,
+                'nombre'          => $item->producto_nombre,
+                'categoria'       => $item->categoria_nombre ?? '—',
+                'unidad'          => $item->unidad_medida ?? 'Und',
+                'stock_sistema'   => $item->stock_sistema,
+                'stock_fisico'    => $hasCount ? $item->stock_fisico : '—',
+                'diferencia'      => $hasCount ? ($diff >= 0 ? ($diff > 0 ? "+{$diff}" : '0') : (string) $diff) : '—',
+                'observaciones'   => $item->observaciones ?? '',
+            ];
+        }, $items);
+
+        $this->securityService->logAction(
+            currentUserId(), 'exportar_conteo_pdf', 'conteos',
+            "Exportación PDF del conteo #{$conteoId} ({$conteo->nombre})"
+        );
+
+        $pct = $summary->total > 0 ? round(($summary->contados / $summary->total) * 100) : 0;
+
+        $export->exportPDF(
+            "Conteo Físico: {$conteo->nombre}",
+            "conteo_fisico_{$conteoId}",
+            [
+                [
+                    'title'   => "Detalle del Conteo — {$filtroNombre} ({$summary->total} productos)",
+                    'headers' => ['SKU', 'Producto', 'Categoría', 'Unidad', 'Stock Sistema', 'Stock Físico', 'Diferencia', 'Observaciones'],
+                    'rows'    => $rows,
+                    'keys'    => ['sku', 'nombre', 'categoria', 'unidad', 'stock_sistema', 'stock_fisico', 'diferencia', 'observaciones'],
+                    'formatters' => [
+                        'sku' => fn($v) => '<span class="text-mono">' . htmlspecialchars($v) . '</span>',
+                        'nombre' => fn($v) => '<span class="text-bold">' . htmlspecialchars($v) . '</span>',
+                        'diferencia' => function ($v) {
+                            if ($v === '—') return '<span style="color:#94a3b8;">—</span>';
+                            if ($v === '0') return '<span class="badge-ok">✓ 0</span>';
+                            if (str_starts_with($v, '+')) return '<span class="badge-warn">' . $v . '</span>';
+                            return '<span class="badge-danger">' . $v . '</span>';
+                        },
+                        'stock_fisico' => function ($v) {
+                            if ($v === '—') return '<span style="color:#94a3b8;">Pendiente</span>';
+                            return '<span class="text-bold">' . $v . '</span>';
+                        },
+                    ],
+                ],
+            ],
+            [
+                'usuario' => $currentUser['nombre'] ?? 'Sistema',
+                'summary' => [
+                    ['label' => 'Estado', 'value' => $estadoLabel],
+                    ['label' => 'Progreso', 'value' => "{$summary->contados}/{$summary->total} ({$pct}%)"],
+                    ['label' => 'Coinciden', 'value' => $summary->iguales],
+                    ['label' => 'Con Diferencia', 'value' => ($summary->sobrantes + $summary->faltantes)],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Exportar sesión de conteo a CSV (compatible con Excel).
+     */
+    public function exportCSV(string $id): void
+    {
+        $conteoId = (int) $id;
+        $conteo = $this->conteoModel->findWithMeta($conteoId);
+
+        if (!$conteo) {
+            $this->setFlash('error', 'Sesión de conteo no encontrada.');
+            $this->redirect('conteos');
+            return;
+        }
+
+        $items = $this->detalleModel->getByConteo($conteoId);
+
+        // Formatear filas
+        $rows = array_map(function ($item) {
+            $hasCount = $item->stock_fisico !== null;
+            $diff = $hasCount ? ($item->stock_fisico - $item->stock_sistema) : null;
+
+            return [
+                'sku'             => $item->sku,
+                'nombre'          => $item->producto_nombre,
+                'categoria'       => $item->categoria_nombre ?? 'Sin categoría',
+                'ubicacion'       => $item->ubicacion_nombre ?? 'Sin ubicación',
+                'unidad'          => $item->unidad_medida ?? 'Und',
+                'stock_sistema'   => $item->stock_sistema,
+                'stock_fisico'    => $hasCount ? $item->stock_fisico : '',
+                'diferencia'      => $hasCount ? $diff : '',
+                'estado'          => $hasCount ? ($diff === 0 ? 'Coincide' : ($diff > 0 ? 'Sobrante' : 'Faltante')) : 'Pendiente',
+                'observaciones'   => $item->observaciones ?? '',
+            ];
+        }, $items);
+
+        $this->securityService->logAction(
+            currentUserId(), 'exportar_conteo_csv', 'conteos',
+            "Exportación CSV del conteo #{$conteoId} ({$conteo->nombre})"
+        );
+
+        $export = new ExportService();
+        $export->exportCSV(
+            "conteo_fisico_{$conteoId}",
+            ['SKU', 'Producto', 'Categoría', 'Ubicación', 'Unidad', 'Stock Sistema', 'Stock Físico', 'Diferencia', 'Estado', 'Observaciones'],
+            $rows,
+            ['sku', 'nombre', 'categoria', 'ubicacion', 'unidad', 'stock_sistema', 'stock_fisico', 'diferencia', 'estado', 'observaciones']
+        );
+    }
+
+    // =========================================================
     // PRIVADOS
     // =========================================================
 

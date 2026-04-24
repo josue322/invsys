@@ -9,7 +9,9 @@
 class ExportService
 {
     /**
-     * Exportar datos como CSV y enviarlos al navegador.
+     * Exportar datos como Excel (.xls) y enviarlos al navegador.
+     * Genera una tabla HTML estilizada que Excel abre nativamente
+     * con columnas, bordes, colores y formato profesional.
      *
      * @param string $filename  Nombre del archivo (sin extensión)
      * @param array  $headers   Encabezados de columnas
@@ -18,36 +20,68 @@ class ExportService
      */
     public function exportCSV(string $filename, array $headers, array $rows, array $keys = []): void
     {
-        $filename = $this->sanitizeFilename($filename) . '_' . date('Y-m-d_His') . '.csv';
+        $filename = $this->sanitizeFilename($filename) . '_' . date('Y-m-d_His') . '.xls';
+        $systemName = systemName();
+        $fecha = date('d/m/Y H:i');
+        $colCount = count($headers);
 
-        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Pragma: no-cache');
         header('Expires: 0');
 
-        $output = fopen('php://output', 'w');
+        // Build HTML Excel document
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        $html .= '<head><meta charset="utf-8">';
+        $html .= '<style>';
+        $html .= 'table { border-collapse: collapse; width: 100%; font-family: Calibri, Arial, sans-serif; font-size: 11pt; }';
+        $html .= 'th { background-color: #6366f1; color: #ffffff; font-weight: bold; padding: 10px 12px; text-align: left; border: 1px solid #4f46e5; font-size: 11pt; }';
+        $html .= 'td { padding: 8px 12px; border: 1px solid #d1d5db; vertical-align: top; font-size: 11pt; }';
+        $html .= 'tr:nth-child(even) td { background-color: #f3f4f6; }';
+        $html .= '.title-row td { background-color: #6366f1; color: #ffffff; font-size: 14pt; font-weight: bold; border: none; padding: 12px; }';
+        $html .= '.meta-row td { background-color: #eef2ff; color: #4338ca; font-size: 10pt; border: none; padding: 6px 12px; }';
+        $html .= '.spacer td { border: none; height: 8px; }';
+        $html .= '</style>';
+        $html .= '</head><body>';
+        $html .= '<table>';
 
-        // BOM para que Excel reconozca UTF-8
-        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        // Title row
+        $html .= '<tr class="title-row"><td colspan="' . $colCount . '">' . htmlspecialchars($systemName) . ' — Reporte exportado</td></tr>';
+        $html .= '<tr class="meta-row"><td colspan="' . $colCount . '">Generado el ' . $fecha . '</td></tr>';
+        $html .= '<tr class="spacer"><td colspan="' . $colCount . '"></td></tr>';
 
-        // Escribir encabezados
-        fputcsv($output, $headers);
+        // Header row
+        $html .= '<tr>';
+        foreach ($headers as $h) {
+            $html .= '<th>' . htmlspecialchars($h) . '</th>';
+        }
+        $html .= '</tr>';
 
-        // Escribir filas
+        // Data rows
         foreach ($rows as $row) {
-            $rowData = [];
+            $html .= '<tr>';
             if (!empty($keys)) {
                 foreach ($keys as $key) {
                     $value = is_object($row) ? ($row->$key ?? '') : ($row[$key] ?? '');
-                    $rowData[] = $value;
+                    // Force text format for SKU-like values to prevent Excel from converting to numbers
+                    $cellStyle = '';
+                    if (is_string($value) && preg_match('/^[0-9E+\-\.]+$/', $value) && !is_numeric($value)) {
+                        $cellStyle = ' style="mso-number-format:\'\\@\'"';
+                    }
+                    $html .= '<td' . $cellStyle . '>' . htmlspecialchars((string) $value) . '</td>';
                 }
             } else {
                 $rowData = is_object($row) ? (array) $row : $row;
+                foreach ($rowData as $value) {
+                    $html .= '<td>' . htmlspecialchars((string) $value) . '</td>';
+                }
             }
-            fputcsv($output, $rowData);
+            $html .= '</tr>';
         }
 
-        fclose($output);
+        $html .= '</table></body></html>';
+
+        echo $html;
         exit;
     }
 

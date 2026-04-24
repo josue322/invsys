@@ -3,7 +3,8 @@
  * InvSys - EscanerController
  * 
  * Escáner de códigos de barras/QR por cámara.
- * Permite buscar productos escaneando su SKU.
+ * Permite buscar productos escaneando su SKU, y si no existe,
+ * consulta APIs externas para obtener información del producto.
  */
 
 class EscanerController extends Controller
@@ -29,6 +30,7 @@ class EscanerController extends Controller
 
     /**
      * AJAX: Buscar producto por código (SKU).
+     * Si no se encuentra, intenta consultar APIs externas para datos del producto.
      */
     public function buscar(string $codigo): void
     {
@@ -53,7 +55,8 @@ class EscanerController extends Controller
             );
 
             if (empty($productos)) {
-                echo json_encode(['found' => false, 'error' => "No se encontró producto con código: {$codigo}"]);
+                // Producto no encontrado — ofrecer creación
+                $this->respondNotFound($codigo);
                 return;
             }
 
@@ -90,5 +93,71 @@ class EscanerController extends Controller
                 'urlMovimiento' => url("movimientos/crear"),
             ],
         ]);
+    }
+
+    /**
+     * AJAX: Consultar APIs externas para obtener información de un código de barras.
+     */
+    public function lookupExterno(string $codigo): void
+    {
+        header('Content-Type: application/json');
+
+        $codigo = trim(urldecode($codigo));
+
+        if (empty($codigo)) {
+            echo json_encode(['found' => false, 'error' => 'Código vacío']);
+            return;
+        }
+
+        $lookupService = new BarcodeLookupService();
+        $info = $lookupService->lookup($codigo);
+
+        if ($info) {
+            echo json_encode([
+                'found'  => true,
+                'lookup' => $info,
+            ]);
+        } else {
+            echo json_encode([
+                'found' => false,
+                'error' => 'No se encontró información externa para este código.',
+            ]);
+        }
+    }
+
+    /**
+     * Responder con datos de lookup externo cuando el producto no existe en el sistema.
+     */
+    private function respondNotFound(string $codigo): void
+    {
+        $response = [
+            'found'     => false,
+            'notInSystem' => true,
+            'codigo'    => $codigo,
+            'canCreate' => $this->userCanCreate(),
+            'createUrl' => url("productos/crear"),
+        ];
+
+        // Intentar consultar APIs externas para obtener info del producto
+        try {
+            $lookupService = new BarcodeLookupService();
+            $info = $lookupService->lookup($codigo);
+
+            if ($info) {
+                $response['lookup'] = $info;
+            }
+        } catch (\Throwable $e) {
+            error_log("BarcodeLookup error: {$e->getMessage()}");
+        }
+
+        echo json_encode($response);
+    }
+
+    /**
+     * Verificar si el usuario actual tiene permiso para crear productos.
+     */
+    private function userCanCreate(): bool
+    {
+        return hasPermission('productos.crear');
     }
 }

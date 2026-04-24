@@ -65,6 +65,25 @@
         </form>
         <?php endif; ?>
 
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" 
+                    aria-expanded="false" title="Exportar resultados">
+                <i class="bi bi-download me-1"></i>Exportar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item" href="<?= url("conteos/exportar-pdf/{$conteo->id}") ?>" target="_blank">
+                        <i class="bi bi-file-earmark-pdf text-danger me-2"></i>Exportar PDF
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="<?= url("conteos/exportar-csv/{$conteo->id}") ?>">
+                        <i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Exportar Excel (CSV)
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <a href="<?= url('conteos') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Volver
         </a>
