@@ -97,7 +97,7 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <small class="text-muted"><?= formatDate($cat->created_at, 'd/m/Y') ?></small>
+                            <small class="text-muted"><?= formatDate($cat->created_at, false) ?></small>
                         </td>
                         <td>
                             <div class="d-flex gap-1">

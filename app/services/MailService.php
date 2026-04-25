@@ -116,7 +116,7 @@ class MailService
     public function sendTestEmail(string $toEmail): array
     {
         $subject = "[{$this->systemName}] Correo de prueba SMTP";
-        $date = date('d/m/Y H:i:s');
+        $date = formatDate(date('Y-m-d H:i:s'));
         $mode = $this->smtpActive ? 'SMTP (' . $this->smtpConfig['host'] . ':' . $this->smtpConfig['port'] . ')' : 'mail() nativo';
         
         $html = <<<HTML

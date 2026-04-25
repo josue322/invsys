@@ -591,7 +591,7 @@ class ReporteController extends Controller
         return array_map(function ($m) {
             return [
                 'id' => $m->id,
-                'fecha' => formatDate($m->created_at, 'd/m/Y H:i'),
+                'fecha' => formatDate($m->created_at),
                 'tipo' => ucfirst($m->tipo),
                 'producto_nombre' => $m->producto_nombre,
                 'producto_sku' => $m->producto_sku,
@@ -611,23 +611,23 @@ class ReporteController extends Controller
     private function buildEmptyMessage(array $fechas): string
     {
         if ($fechas['exacta']) {
-            $fechaFmt = date('d/m/Y', strtotime($fechas['desde']));
+            $fechaFmt = formatDate($fechas['desde'], false);
             return "No se encontraron movimientos para el día <strong>{$fechaFmt}</strong>. No hubo actividad registrada en esa fecha.";
         }
 
         if (!empty($fechas['desde']) && !empty($fechas['hasta'])) {
-            $desdeFmt = date('d/m/Y', strtotime($fechas['desde']));
-            $hastaFmt = date('d/m/Y', strtotime($fechas['hasta']));
+            $desdeFmt = formatDate($fechas['desde'], false);
+            $hastaFmt = formatDate($fechas['hasta'], false);
             return "No se encontraron movimientos entre <strong>{$desdeFmt}</strong> y <strong>{$hastaFmt}</strong>. No hubo actividad registrada en ese período.";
         }
 
         if (!empty($fechas['desde'])) {
-            $desdeFmt = date('d/m/Y', strtotime($fechas['desde']));
+            $desdeFmt = formatDate($fechas['desde'], false);
             return "No se encontraron movimientos desde <strong>{$desdeFmt}</strong>.";
         }
 
         if (!empty($fechas['hasta'])) {
-            $hastaFmt = date('d/m/Y', strtotime($fechas['hasta']));
+            $hastaFmt = formatDate($fechas['hasta'], false);
             return "No se encontraron movimientos hasta <strong>{$hastaFmt}</strong>.";
         }
 
@@ -643,16 +643,16 @@ class ReporteController extends Controller
     private function buildDateLabel(array $fechas): string
     {
         if ($fechas['exacta']) {
-            return ' — ' . date('d/m/Y', strtotime($fechas['desde']));
+            return ' — ' . formatDate($fechas['desde'], false);
         }
         if (!empty($fechas['desde']) && !empty($fechas['hasta'])) {
-            return ' — ' . date('d/m/Y', strtotime($fechas['desde'])) . ' a ' . date('d/m/Y', strtotime($fechas['hasta']));
+            return ' — ' . formatDate($fechas['desde'], false) . ' a ' . formatDate($fechas['hasta'], false);
         }
         if (!empty($fechas['desde'])) {
-            return ' — desde ' . date('d/m/Y', strtotime($fechas['desde']));
+            return ' — desde ' . formatDate($fechas['desde'], false);
         }
         if (!empty($fechas['hasta'])) {
-            return ' — hasta ' . date('d/m/Y', strtotime($fechas['hasta']));
+            return ' — hasta ' . formatDate($fechas['hasta'], false);
         }
         return '';
     }
@@ -681,7 +681,7 @@ class ReporteController extends Controller
                 'stock_minimo' => $p->stock_minimo,
                 'estado' => $estado,
                 'perecedero' => !empty($p->es_perecedero) ? 'Sí' : 'No',
-                'vencimiento' => !empty($p->fecha_vencimiento) ? formatDate($p->fecha_vencimiento, 'd/m/Y') : '—',
+                'vencimiento' => !empty($p->fecha_vencimiento) ? formatDate($p->fecha_vencimiento, false) : '—',
             ];
         }, $productos);
     }

@@ -189,7 +189,7 @@ class BackupController extends Controller
                     'filename' => $filename,
                     'size'     => $this->formatFileSize(filesize($file)),
                     'bytes'    => filesize($file),
-                    'date'     => date('d/m/Y H:i:s', filemtime($file)),
+                    'date'     => formatDate(date('Y-m-d H:i:s', filemtime($file))),
                     'timestamp' => filemtime($file),
                 ];
             }

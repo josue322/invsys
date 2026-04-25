@@ -138,14 +138,14 @@ class AlertService
                 $this->createAlert(
                     $productoId,
                     'otro',
-                    "🚫 LOTE VENCIDO: El Lote {$lote->numero_lote} de \"{$producto->nombre}\" (SKU: {$producto->sku}) venció el " . date('d/m/Y', $fechaVencimiento) . ". Stock comprometido: {$lote->stock_actual} und."
+                    "🚫 LOTE VENCIDO: El Lote {$lote->numero_lote} de \"{$producto->nombre}\" (SKU: {$producto->sku}) venció el " . formatDate(date('Y-m-d', $fechaVencimiento), false) . ". Stock comprometido: {$lote->stock_actual} und."
                 );
             } elseif ($diasRestantes <= $diasAlerta) {
                 // Producto próximo a vencer
                 $this->createAlert(
                     $productoId,
                     'otro',
-                    "⏰ LOTE POR VENCER: El Lote {$lote->numero_lote} de \"{$producto->nombre}\" (SKU: {$producto->sku}) vence el " . date('d/m/Y', $fechaVencimiento) . " ({$diasRestantes} días restantes)."
+                    "⏰ LOTE POR VENCER: El Lote {$lote->numero_lote} de \"{$producto->nombre}\" (SKU: {$producto->sku}) vence el " . formatDate(date('Y-m-d', $fechaVencimiento), false) . " ({$diasRestantes} días restantes)."
                 );
             }
         }

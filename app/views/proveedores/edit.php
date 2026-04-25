@@ -60,11 +60,11 @@
                                         </div>
                                         <div class="col-4">
                                             <small class="text-muted d-block">Fecha de Creación</small>
-                                            <strong><?= formatDate($proveedor->created_at, 'd/m/Y') ?></strong>
+                                            <strong><?= formatDate($proveedor->created_at, false) ?></strong>
                                         </div>
                                         <div class="col-4">
                                             <small class="text-muted d-block">Última Modificación</small>
-                                            <strong><?= $proveedor->updated_at ? formatDate($proveedor->updated_at, 'd/m/Y H:i') : '—' ?></strong>
+                                            <strong><?= $proveedor->updated_at ? formatDate($proveedor->updated_at) : '—' ?></strong>
                                         </div>
                                     </div>
                                 </div>

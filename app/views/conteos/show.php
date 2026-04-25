@@ -28,7 +28,7 @@
         </h5>
         <small class="text-muted">
             Creado por <?= htmlspecialchars($conteo->usuario_nombre ?? 'N/A') ?> 
-            el <?= date('d/m/Y H:i', strtotime($conteo->created_at)) ?>
+            el <?= formatDate($conteo->created_at) ?>
             · Filtro: <?= htmlspecialchars($filtroNombre) ?>
         </small>
     </div>

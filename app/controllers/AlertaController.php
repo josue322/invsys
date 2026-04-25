@@ -93,7 +93,7 @@ class AlertaController extends Controller
                 'id'      => $a->id,
                 'tipo'    => $a->tipo,
                 'mensaje' => truncate($a->mensaje, 80),
-                'fecha'   => formatDate($a->created_at, 'd/m H:i'),
+                'fecha'   => formatDate($a->created_at, 'short'),
             ];
         }, $alertas);
 

@@ -104,7 +104,7 @@
                                 <?php endif; ?>
                             </td>
                             <td><small><?= htmlspecialchars($c->usuario_nombre ?? '') ?></small></td>
-                            <td><small class="text-muted"><?= date('d/m/Y H:i', strtotime($c->created_at)) ?></small></td>
+                            <td><small class="text-muted"><?= formatDate($c->created_at) ?></small></td>
                             <td>
                                 <div class="d-flex gap-1">
                                     <a href="<?= url("conteos/{$c->id}") ?>" class="btn-action btn-edit" title="Ver / Editar">

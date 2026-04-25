@@ -22,7 +22,7 @@ class ExportService
     {
         $filename = $this->sanitizeFilename($filename) . '_' . date('Y-m-d_His') . '.xls';
         $systemName = systemName();
-        $fecha = date('d/m/Y H:i');
+        $fecha = formatDate(date('Y-m-d H:i:s'));
         $colCount = count($headers);
 
         header('Content-Type: application/vnd.ms-excel; charset=utf-8');
@@ -102,7 +102,7 @@ class ExportService
     {
         $filename = $this->sanitizeFilename($filename) . '_' . date('Y-m-d_His') . '.pdf';
         $systemName = systemName();
-        $fechaGeneracion = date('d/m/Y H:i:s');
+        $fechaGeneracion = formatDate(date('Y-m-d H:i:s'));
         $usuario = $meta['usuario'] ?? 'Sistema';
 
         // Generar HTML del reporte

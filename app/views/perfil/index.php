@@ -19,12 +19,12 @@
                     <div class="perfil-meta">
                         <div class="perfil-meta-item">
                             <i class="bi bi-calendar3"></i>
-                            <span>Registrado: <?= date('d/m/Y', strtotime($usuario->created_at)) ?></span>
+                            <span>Registrado: <?= formatDate($usuario->created_at, false) ?></span>
                         </div>
                         <?php if (!empty($usuario->ultimo_login)): ?>
                         <div class="perfil-meta-item">
                             <i class="bi bi-clock-history"></i>
-                            <span>Último acceso: <?= date('d/m/Y H:i', strtotime($usuario->ultimo_login)) ?></span>
+                            <span>Último acceso: <?= formatDate($usuario->ultimo_login) ?></span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -176,7 +176,7 @@
                                         <?php endif; ?>
                                         <small class="activity-time">
                                             <i class="bi bi-clock me-1"></i>
-                                            <?= date('d/m/Y H:i', strtotime($log->created_at)) ?>
+                                            <?= formatDate($log->created_at) ?>
                                             <?php if (!empty($log->ip)): ?>
                                                 · <i class="bi bi-globe me-1"></i><?= $log->ip ?>
                                             <?php endif; ?>

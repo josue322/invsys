@@ -199,7 +199,7 @@
                                 <td><strong><?= $pv->lote_stock ?></strong></td>
                                 <td style="min-width:180px;">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small class="fw-bold tabular-nums"><i class="bi bi-calendar-event me-1"></i><?= formatDate($pv->fecha_vencimiento, 'd/m/Y') ?></small>
+                                        <small class="fw-bold tabular-nums"><i class="bi bi-calendar-event me-1"></i><?= formatDate($pv->fecha_vencimiento, false) ?></small>
                                         <small class="fw-bold" style="font-size:0.7rem; color: <?= $diasRestantes < 0 ? '#ef4444' : ($diasRestantes <= 15 ? '#f59e0b' : 'currentColor') ?>"><?= $diasRestantes < 0 ? 'VENCIDO' : "$diasRestantes DÍAS" ?></small>
                                     </div>
                                     <?php 

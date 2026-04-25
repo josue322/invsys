@@ -107,15 +107,38 @@ function formatMoney(float $amount): string
 }
 
 /**
- * Formatear fecha en formato legible.
+ * Formatear fecha en formato legible según la configuración del sistema.
+ * Lee la clave 'formato_fecha' (DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD)
+ * y la convierte al formato PHP equivalente.
  *
- * @param string $date Fecha en formato MySQL
- * @param string $format Formato de salida
- * @return string
+ * @param string $date Fecha en formato MySQL (Y-m-d H:i:s)
+ * @param bool|string $withTime true = fecha+hora, false = solo fecha, 'short' = día/mes + hora (sin año)
+ * @return string Fecha formateada según la configuración
  */
-function formatDate(string $date, string $format = 'd/m/Y H:i'): string
+function formatDate(string $date, bool|string $withTime = true): string
 {
-    return date($format, strtotime($date));
+    static $phpFormat = null;
+    static $shortFormat = null;
+    if ($phpFormat === null) {
+        $configFormat = Config::get('formato_fecha', 'DD/MM/YYYY');
+        $phpFormat = match ($configFormat) {
+            'MM/DD/YYYY' => 'm/d/Y',
+            'YYYY-MM-DD' => 'Y-m-d',
+            default      => 'd/m/Y',   // DD/MM/YYYY
+        };
+        $shortFormat = match ($configFormat) {
+            'MM/DD/YYYY' => 'm/d',
+            'YYYY-MM-DD' => 'm-d',
+            default      => 'd/m',
+        };
+    }
+
+    if ($withTime === 'short') {
+        $fmt = $shortFormat . ' H:i';
+    } else {
+        $fmt = $withTime ? $phpFormat . ' H:i' : $phpFormat;
+    }
+    return date($fmt, strtotime($date));
 }
 
 /**
