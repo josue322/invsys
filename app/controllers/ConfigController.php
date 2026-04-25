@@ -23,9 +23,14 @@ class ConfigController extends Controller
         $csrfToken = $this->generateCSRF();
         $flash = $this->getFlash();
 
+        // Roles disponibles (para el selector de rol de registro público)
+        $rolModel = new Rol();
+        $roles = $rolModel->getAllActive();
+
         $this->view('configuracion/index', [
             'titulo'    => 'Configuración del Sistema',
             'configs'   => $configs,
+            'roles'     => $roles,
             'csrfToken' => $csrfToken,
             'flash'     => $flash,
         ]);

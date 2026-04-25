@@ -455,7 +455,8 @@ INSERT INTO `configuraciones` (`clave`, `valor`, `descripcion`, `tipo`) VALUES
 ('permitir_stock_negativo', '0', 'Permitir stock negativo en salidas', 'boolean'),
 ('reorden_automatico', '1', 'Generar alerta al alcanzar stock mínimo', 'boolean'),
 ('retencion_logs', '90', 'Días de retención de logs de auditoría', 'number'),
-('permitir_registro', '0', 'Permitir registro público de nuevos usuarios', 'boolean');
+('permitir_registro', '0', 'Permitir registro público de nuevos usuarios', 'boolean'),
+('rol_registro_publico', '3', 'ID del rol asignado a nuevos usuarios registrados públicamente', 'number');
 
 -- Configuración de preferencias de usuarios demo
 INSERT INTO `user_settings` (`usuario_id`, `clave`, `valor`) VALUES

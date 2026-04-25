@@ -151,13 +151,13 @@ class AuthController extends Controller
             return;
         }
 
-        // Crear usuario con rol Operador (menos privilegios) por defecto
-        $rolOperador = 3; // ID del rol Operador en la BD
+        // Crear usuario con el rol configurado para registro público
+        $rolRegistro = (int) sysConfig('rol_registro_publico', '3');
         $id = $usuarioModel->create([
             'nombre'   => $nombre,
             'email'    => $email,
             'password' => password_hash($password, PASSWORD_DEFAULT),
-            'rol_id'   => $rolOperador,
+            'rol_id'   => $rolRegistro,
             'activo'   => 1,
         ]);
 

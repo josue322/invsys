@@ -147,7 +147,9 @@
                                 <small class="text-muted">Valor por defecto para nuevos productos</small>
                             </div>
                             <div class="col-sm-6">
-                                <label class="form-label">Registros por página</label>
+                                <label class="form-label">Registros por página
+                                    <i class="bi bi-info-circle text-muted ms-1" data-bs-toggle="tooltip" title="Valor por defecto global. Cada usuario puede ajustar temporalmente la cantidad de registros desde el selector en cada listado."></i>
+                                </label>
                                 <select class="form-select" name="config[registros_por_pagina]">
                                     <?php $rp = $cfg['registros_por_pagina'] ?? '15'; ?>
                                     <option value="10" <?= $rp === '10' ? 'selected' : '' ?>>10 registros</option>
@@ -364,6 +366,22 @@
                                     <span class="toggle-thumb"></span>
                                 </span>
                             </div>
+                        </div>
+
+                        <!-- Rol asignado al registro público (visible solo si el registro está activo) -->
+                        <div class="config-item mt-3" id="rolRegistroWrapper" style="display: <?= ($cfg['permitir_registro'] ?? '0') === '1' ? 'block' : 'none' ?>;">
+                            <label class="form-label"><i class="bi bi-person-badge me-1"></i>Rol para usuarios registrados</label>
+                            <select class="form-select" name="config[rol_registro_publico]">
+                                <?php
+                                    $rolRegistro = $cfg['rol_registro_publico'] ?? '3';
+                                    foreach ($roles as $rol):
+                                ?>
+                                <option value="<?= $rol->id ?>" <?= (string)$rol->id === $rolRegistro ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($rol->nombre) ?> — <?= htmlspecialchars($rol->descripcion ?? '') ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="text-muted">Rol asignado automáticamente a nuevos usuarios que se registren de forma pública</small>
                         </div>
                     </div>
                 </div>
@@ -585,6 +603,20 @@ function updateSmtpVisibility() {
 updateSmtpVisibility();
 document.querySelector('[data-config="smtp_activo"]')?.addEventListener('click', () => {
     setTimeout(updateSmtpVisibility, 50);
+});
+
+// ===== Registration Role Selector Visibility =====
+function updateRegistroRolVisibility() {
+    const regToggle = document.querySelector('[data-config="permitir_registro"]');
+    const rolWrapper = document.getElementById('rolRegistroWrapper');
+    if (regToggle && rolWrapper) {
+        const isActive = regToggle.querySelector('.toggle-track').classList.contains('active');
+        rolWrapper.style.display = isActive ? 'block' : 'none';
+    }
+}
+updateRegistroRolVisibility();
+document.querySelector('[data-config="permitir_registro"]')?.addEventListener('click', () => {
+    setTimeout(updateRegistroRolVisibility, 50);
 });
 
 // ===== SMTP Password Toggle =====
