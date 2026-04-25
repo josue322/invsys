@@ -3,9 +3,12 @@
  * InvSys - MailService
  * 
  * Servicio de envío de correos electrónicos.
- * Utiliza la función mail() nativa de PHP.
- * Para producción, asegurar que el servidor tenga
- * configurado un MTA (sendmail, postfix) o SMTP relay.
+ * Soporta dos modos:
+ *   1. mail() nativo de PHP (por defecto)
+ *   2. SMTP directo vía socket (cuando smtp_activo = 1 en configuración)
+ * 
+ * La configuración SMTP se lee de la tabla `configuraciones` (panel visual),
+ * con fallback a las variables de .env para retrocompatibilidad.
  */
 
 class MailService
@@ -22,11 +25,32 @@ class MailService
     /** @var string Nombre del remitente */
     private string $fromName;
 
+    /** @var bool Si SMTP está activo */
+    private bool $smtpActive;
+
+    /** @var array Configuración SMTP */
+    private array $smtpConfig;
+
     private function __construct()
     {
         $this->systemName = Config::get('nombre_sistema', 'InvSys');
-        $this->fromEmail  = EnvLoader::get('MAIL_FROM_ADDRESS', 'noreply@invsys.com');
-        $this->fromName   = EnvLoader::get('MAIL_FROM_NAME', $this->systemName);
+        
+        // Leer de BD primero, fallback a .env
+        $this->fromEmail = Config::get('mail_from_address') 
+            ?: EnvLoader::get('MAIL_FROM_ADDRESS', 'noreply@invsys.com');
+        $this->fromName = Config::get('mail_from_name') 
+            ?: EnvLoader::get('MAIL_FROM_NAME', $this->systemName);
+
+        // SMTP config from DB
+        $this->smtpActive = Config::get('smtp_activo', '0') === '1';
+        $this->smtpConfig = [
+            'host'       => Config::get('smtp_host', ''),
+            'port'       => (int) Config::get('smtp_port', '587'),
+            'encryption' => Config::get('smtp_encryption', 'tls'),
+            'auth'       => Config::get('smtp_auth', '1') === '1',
+            'username'   => Config::get('smtp_username', ''),
+            'password'   => Config::get('smtp_password', ''),
+        ];
     }
 
     /**
@@ -40,6 +64,14 @@ class MailService
             self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    /**
+     * Reiniciar singleton (útil después de cambiar configuración).
+     */
+    public static function reset(): void
+    {
+        self::$instance = null;
     }
 
     /**
@@ -76,7 +108,69 @@ class MailService
     }
 
     /**
+     * Enviar un correo de prueba al admin actual.
+     *
+     * @param string $toEmail Email del admin
+     * @return array ['success' => bool, 'message' => string]
+     */
+    public function sendTestEmail(string $toEmail): array
+    {
+        $subject = "[{$this->systemName}] Correo de prueba SMTP";
+        $date = date('d/m/Y H:i:s');
+        $mode = $this->smtpActive ? 'SMTP (' . $this->smtpConfig['host'] . ':' . $this->smtpConfig['port'] . ')' : 'mail() nativo';
+        
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0; padding:0; background:#f4f4f8; font-family:'Segoe UI',Tahoma,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f8; padding:40px 0;">
+        <tr><td align="center">
+            <table width="520" cellpadding="0" cellspacing="0" style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+                <tr><td style="background:linear-gradient(135deg,#6366f1,#8b5cf6); padding:28px; text-align:center;">
+                    <h2 style="color:#fff; margin:0; font-size:20px;">✅ Correo de prueba exitoso</h2>
+                </td></tr>
+                <tr><td style="padding:28px;">
+                    <p style="color:#4a4a68; font-size:14px; line-height:1.7;">
+                        Este correo confirma que la configuración de correo de <strong>{$this->systemName}</strong> funciona correctamente.
+                    </p>
+                    <div style="background:#f8f8fc; border-radius:8px; padding:16px; margin:16px 0; border-left:3px solid #6366f1;">
+                        <p style="color:#6b6b8d; font-size:13px; margin:0 0 6px;">
+                            <strong>Modo:</strong> {$mode}<br>
+                            <strong>Fecha:</strong> {$date}<br>
+                            <strong>Remitente:</strong> {$this->fromName} &lt;{$this->fromEmail}&gt;
+                        </p>
+                    </div>
+                    <p style="color:#9999b0; font-size:12px; margin:16px 0 0;">
+                        Este es un correo automático de prueba. No es necesario responder.
+                    </p>
+                </td></tr>
+            </table>
+        </td></tr>
+    </table>
+</body>
+</html>
+HTML;
+
+        try {
+            $result = $this->send($toEmail, $subject, $html);
+            return [
+                'success' => $result,
+                'message' => $result 
+                    ? "Correo de prueba enviado a {$toEmail}" 
+                    : 'No se pudo enviar el correo. Verifica la configuración SMTP.'
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Enviar un correo electrónico con contenido HTML.
+     * Usa SMTP si está configurado, sino mail() nativo.
      *
      * @param string $to      Dirección del destinatario
      * @param string $subject Asunto del correo
@@ -84,6 +178,18 @@ class MailService
      * @return bool
      */
     public function send(string $to, string $subject, string $body): bool
+    {
+        if ($this->smtpActive && !empty($this->smtpConfig['host'])) {
+            return $this->sendViaSmtp($to, $subject, $body);
+        }
+
+        return $this->sendViaMail($to, $subject, $body);
+    }
+
+    /**
+     * Enviar usando mail() nativo de PHP.
+     */
+    private function sendViaMail(string $to, string $subject, string $body): bool
     {
         $headers  = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
         $headers .= "Reply-To: {$this->fromEmail}\r\n";
@@ -93,26 +199,148 @@ class MailService
 
         try {
             $result = @mail($to, $subject, $body, $headers);
-
-            // Log del intento de envío
-            $this->logMailAttempt($to, $subject, $result);
-
+            $this->logMailAttempt($to, $subject, $result, '', 'mail()');
             return $result;
         } catch (\Throwable $e) {
-            $this->logMailAttempt($to, $subject, false, $e->getMessage());
+            $this->logMailAttempt($to, $subject, false, $e->getMessage(), 'mail()');
             return false;
         }
     }
 
     /**
-     * Registrar intento de envío de correo en el log del sistema.
-     *
-     * @param string $to      Destinatario
-     * @param string $subject Asunto
-     * @param bool   $success Si se envió correctamente
-     * @param string $error   Mensaje de error (si aplica)
+     * Enviar usando conexión SMTP directa vía socket.
+     * Soporta TLS/SSL con autenticación.
      */
-    private function logMailAttempt(string $to, string $subject, bool $success, string $error = ''): void
+    private function sendViaSmtp(string $to, string $subject, string $body): bool
+    {
+        $host = $this->smtpConfig['host'];
+        $port = $this->smtpConfig['port'];
+        $encryption = $this->smtpConfig['encryption'];
+        $auth = $this->smtpConfig['auth'];
+        $username = $this->smtpConfig['username'];
+        $password = $this->smtpConfig['password'];
+
+        $errorMsg = '';
+
+        try {
+            // Construir dirección de conexión
+            $address = $host;
+            if ($encryption === 'ssl') {
+                $address = 'ssl://' . $host;
+            }
+
+            $context = stream_context_create([
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ]
+            ]);
+
+            $socket = @stream_socket_client(
+                "{$address}:{$port}",
+                $errno,
+                $errstr,
+                15, // timeout
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+
+            if (!$socket) {
+                $errorMsg = "No se pudo conectar a {$host}:{$port} — {$errstr}";
+                $this->logMailAttempt($to, $subject, false, $errorMsg, 'SMTP');
+                return false;
+            }
+
+            // Leer saludo del servidor
+            $this->smtpRead($socket);
+
+            // EHLO
+            $this->smtpCommand($socket, "EHLO " . gethostname());
+
+            // STARTTLS si es TLS
+            if ($encryption === 'tls') {
+                $this->smtpCommand($socket, "STARTTLS");
+                if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT)) {
+                    // Fallback a TLS 1.0/1.1
+                    @stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+                }
+                $this->smtpCommand($socket, "EHLO " . gethostname());
+            }
+
+            // Autenticación
+            if ($auth && !empty($username)) {
+                $this->smtpCommand($socket, "AUTH LOGIN");
+                $this->smtpCommand($socket, base64_encode($username));
+                $this->smtpCommand($socket, base64_encode($password));
+            }
+
+            // Remitente y destinatario
+            $this->smtpCommand($socket, "MAIL FROM:<{$this->fromEmail}>");
+            $this->smtpCommand($socket, "RCPT TO:<{$to}>");
+
+            // Datos
+            $this->smtpCommand($socket, "DATA");
+
+            // Construir headers del mensaje
+            $message  = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
+            $message .= "To: {$to}\r\n";
+            $message .= "Subject: {$subject}\r\n";
+            $message .= "MIME-Version: 1.0\r\n";
+            $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $message .= "X-Mailer: {$this->systemName}\r\n";
+            $message .= "\r\n";
+            $message .= $body;
+            $message .= "\r\n.\r\n";
+
+            fwrite($socket, $message);
+            $this->smtpRead($socket);
+
+            // QUIT
+            $this->smtpCommand($socket, "QUIT");
+            fclose($socket);
+
+            $this->logMailAttempt($to, $subject, true, '', 'SMTP');
+            return true;
+
+        } catch (\Throwable $e) {
+            $errorMsg = $e->getMessage();
+            $this->logMailAttempt($to, $subject, false, $errorMsg, 'SMTP');
+            if (isset($socket) && is_resource($socket)) {
+                @fclose($socket);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Enviar un comando SMTP y leer la respuesta.
+     */
+    private function smtpCommand($socket, string $command): string
+    {
+        fwrite($socket, $command . "\r\n");
+        return $this->smtpRead($socket);
+    }
+
+    /**
+     * Leer respuesta del servidor SMTP.
+     */
+    private function smtpRead($socket): string
+    {
+        $response = '';
+        stream_set_timeout($socket, 10);
+        while ($line = fgets($socket, 515)) {
+            $response .= $line;
+            // Si el 4to carácter es un espacio, es la última línea
+            if (isset($line[3]) && $line[3] === ' ') break;
+        }
+        return $response;
+    }
+
+    /**
+     * Registrar intento de envío de correo en el log del sistema.
+     */
+    private function logMailAttempt(string $to, string $subject, bool $success, string $error = '', string $method = 'mail()'): void
     {
         $logDir  = STORAGE_PATH . '/logs';
         $logFile = $logDir . '/mail.log';
@@ -123,9 +351,10 @@ class MailService
 
         $status = $success ? 'OK' : 'FAIL';
         $entry  = sprintf(
-            "[%s] [%s] To: %s | Subject: %s%s\n",
+            "[%s] [%s] [%s] To: %s | Subject: %s%s\n",
             date('Y-m-d H:i:s'),
             $status,
+            $method,
             $to,
             $subject,
             $error ? " | Error: {$error}" : ''
@@ -136,12 +365,9 @@ class MailService
 
     /**
      * Construir la URL de login.
-     *
-     * @return string
      */
     private function getLoginUrl(): string
     {
-        // Intentar construir una URL absoluta
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $base     = rtrim(BASE_URL, '/');
@@ -151,13 +377,6 @@ class MailService
 
     /**
      * Construir el HTML del email de bienvenida.
-     *
-     * @param string $name         Nombre del usuario
-     * @param string $introMessage Mensaje introductorio
-     * @param string $loginUrl     URL de login
-     * @param string $color        Color principal del sistema
-     * @param string $year         Año actual
-     * @return string HTML completo del email
      */
     private function buildWelcomeHtml(
         string $name,

@@ -33,8 +33,9 @@ class PerfilController extends Controller
             return;
         }
 
-        // Obtener historial de actividad del usuario (últimas 15)
-        $actividad = $this->logModel->getByUserId($userId, 1, 15);
+        // Obtener historial de actividad del usuario
+        $page = (int) $this->query('page', 1);
+        $actividad = $this->logModel->getByUserId($userId, $page, $this->getPerPage());
 
         $csrfToken = $this->generateCSRF();
         $flash = $this->getFlash();

@@ -615,6 +615,13 @@ return [
         'action'     => 'update',
         'middleware'  => ['auth', 'permiso:configuracion.editar'],
     ],
+    [
+        'method'     => 'POST',
+        'path'       => 'configuracion/test-mail',
+        'controller' => 'ConfigController',
+        'action'     => 'testMail',
+        'middleware'  => ['auth', 'permiso:configuracion.editar'],
+    ],
 
     // =====================================================
     // SEGURIDAD / AUDITORÍA (solo Admin)

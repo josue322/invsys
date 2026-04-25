@@ -186,20 +186,11 @@
                             <?php endforeach; ?>
                         </div>
 
-                        <?php if ($actividad['pages'] > 1): ?>
-                        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top">
-                            <small class="text-muted">Mostrando <?= count($actividad['data']) ?> de <?= $actividad['total'] ?></small>
-                            <nav>
-                                <ul class="pagination pagination-sm mb-0">
-                                    <?php for ($i = 1; $i <= min($actividad['pages'], 5); $i++): ?>
-                                    <li class="page-item <?= $i == $actividad['current'] ? 'active' : '' ?>">
-                                        <a class="page-link" href="<?= url("perfil?page={$i}") ?>"><?= $i ?></a>
-                                    </li>
-                                    <?php endfor; ?>
-                                </ul>
-                            </nav>
-                        </div>
-                        <?php endif; ?>
+                        <?php
+                            $pg = $actividad;
+                            $baseUrl = 'perfil';
+                            include APP_PATH . '/views/layouts/_pagination.php';
+                        ?>
                     <?php endif; ?>
                 </div>
             </div>

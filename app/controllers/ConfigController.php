@@ -122,4 +122,37 @@ class ConfigController extends Controller
             $this->setFlash('error', 'Error al subir el logo. Verifique los permisos del directorio.');
         }
     }
+
+    /**
+     * Enviar correo de prueba SMTP (AJAX).
+     */
+    public function testMail(): void
+    {
+        if (!$this->validateCSRF()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Token CSRF inválido.']);
+            return;
+        }
+
+        header('Content-Type: application/json');
+
+        // Resetear el singleton para que lea la config más reciente
+        MailService::reset();
+        $mailService = MailService::getInstance();
+
+        $adminEmail = $_SESSION['user_email'] ?? '';
+        if (empty($adminEmail)) {
+            echo json_encode(['success' => false, 'message' => 'No se encontró el email del admin.']);
+            return;
+        }
+
+        $result = $mailService->sendTestEmail($adminEmail);
+
+        $this->securityService->logAction(
+            currentUserId(), 'test_smtp', 'configuracion',
+            ($result['success'] ? 'Correo de prueba enviado a ' : 'Fallo al enviar correo de prueba a ') . $adminEmail
+        );
+
+        echo json_encode($result);
+    }
 }

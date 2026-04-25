@@ -368,6 +368,116 @@
                     </div>
                 </div>
 
+                <!-- Correo Electrónico (SMTP) -->
+                <div class="config-section">
+                    <div class="config-section-header">
+                        <div class="config-section-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="bi bi-envelope-at"></i>
+                        </div>
+                        <div>
+                            <h6 class="config-section-title">Correo electrónico (SMTP)</h6>
+                            <p class="config-section-desc">Configuración del servidor de correo saliente</p>
+                        </div>
+                    </div>
+
+                    <div class="config-section-body">
+                        <!-- Toggle: Usar SMTP personalizado -->
+                        <div class="config-toggle-item mb-3">
+                            <div>
+                                <span class="config-toggle-label">Usar servidor SMTP</span>
+                                <span class="config-toggle-desc">Activar para usar un servidor SMTP en vez del mail() nativo de PHP</span>
+                            </div>
+                            <div class="toggle-switch" data-config="smtp_activo" data-checked="<?= ($cfg['smtp_activo'] ?? '0') === '1' ? '1' : '0' ?>">
+                                <input type="hidden" name="config[smtp_activo]" value="<?= ($cfg['smtp_activo'] ?? '0') === '1' ? '1' : '0' ?>">
+                                <span class="toggle-track <?= ($cfg['smtp_activo'] ?? '0') === '1' ? 'active' : '' ?>">
+                                    <span class="toggle-thumb"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div id="smtpFields">
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-8">
+                                    <label class="form-label">Servidor SMTP</label>
+                                    <input type="text" class="form-control" name="config[smtp_host]"
+                                           value="<?= htmlspecialchars($cfg['smtp_host'] ?? '') ?>" placeholder="smtp.gmail.com">
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label">Puerto</label>
+                                    <select class="form-select" name="config[smtp_port]">
+                                        <?php $sp = $cfg['smtp_port'] ?? '587'; ?>
+                                        <option value="25" <?= $sp === '25' ? 'selected' : '' ?>>25 (Sin cifrado)</option>
+                                        <option value="465" <?= $sp === '465' ? 'selected' : '' ?>>465 (SSL)</option>
+                                        <option value="587" <?= $sp === '587' ? 'selected' : '' ?>>587 (TLS)</option>
+                                        <option value="2525" <?= $sp === '2525' ? 'selected' : '' ?>>2525 (Alternativo)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label">Encriptación</label>
+                                    <select class="form-select" name="config[smtp_encryption]">
+                                        <?php $se = $cfg['smtp_encryption'] ?? 'tls'; ?>
+                                        <option value="tls" <?= $se === 'tls' ? 'selected' : '' ?>>TLS (Recomendado)</option>
+                                        <option value="ssl" <?= $se === 'ssl' ? 'selected' : '' ?>>SSL</option>
+                                        <option value="none" <?= $se === 'none' ? 'selected' : '' ?>>Sin encriptación</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label">Autenticación</label>
+                                    <select class="form-select" name="config[smtp_auth]">
+                                        <?php $sa = $cfg['smtp_auth'] ?? '1'; ?>
+                                        <option value="1" <?= $sa === '1' ? 'selected' : '' ?>>Sí (usuario/contraseña)</option>
+                                        <option value="0" <?= $sa === '0' ? 'selected' : '' ?>>No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label">Usuario SMTP</label>
+                                    <input type="text" class="form-control" name="config[smtp_username]"
+                                           value="<?= htmlspecialchars($cfg['smtp_username'] ?? '') ?>" placeholder="tu@gmail.com" autocomplete="off">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label">Contraseña SMTP</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" name="config[smtp_password]" id="smtpPass"
+                                               value="<?= htmlspecialchars($cfg['smtp_password'] ?? '') ?>" placeholder="••••••••" autocomplete="new-password">
+                                        <button type="button" class="btn btn-outline-secondary toggle-pass" data-target="smtpPass">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Para Gmail usa una "Contraseña de aplicación"</small>
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label">Email remitente</label>
+                                    <input type="email" class="form-control" name="config[mail_from_address]"
+                                           value="<?= htmlspecialchars($cfg['mail_from_address'] ?? '') ?>" placeholder="noreply@miempresa.com">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label">Nombre remitente</label>
+                                    <input type="text" class="form-control" name="config[mail_from_name]"
+                                           value="<?= htmlspecialchars($cfg['mail_from_name'] ?? '') ?>" placeholder="Mi Empresa">
+                                </div>
+                            </div>
+
+                            <!-- Botón de prueba -->
+                            <div class="d-flex align-items-center gap-2 mt-3 p-3 rounded" style="background: var(--bg-secondary);">
+                                <i class="bi bi-send text-warning"></i>
+                                <small class="text-muted flex-grow-1">Guarda primero, luego envía un correo de prueba para verificar la configuración.</small>
+                                <button type="button" class="btn btn-sm btn-outline-warning" id="btnTestMail" onclick="testSmtp()">
+                                    <i class="bi bi-envelope-check me-1"></i>Probar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -462,4 +572,70 @@ if (uploadArea) {
 FormValidator.init('#formConfig', {
     'config[nombre_sistema]': { required: true, messages: { required: 'El nombre del sistema es obligatorio' } }
 });
+
+// ===== SMTP Toggle Visibility =====
+function updateSmtpVisibility() {
+    const smtpToggle = document.querySelector('[data-config="smtp_activo"]');
+    const smtpFields = document.getElementById('smtpFields');
+    if (smtpToggle && smtpFields) {
+        const isActive = smtpToggle.querySelector('.toggle-track').classList.contains('active');
+        smtpFields.style.display = isActive ? 'block' : 'none';
+    }
+}
+updateSmtpVisibility();
+document.querySelector('[data-config="smtp_activo"]')?.addEventListener('click', () => {
+    setTimeout(updateSmtpVisibility, 50);
+});
+
+// ===== SMTP Password Toggle =====
+document.querySelectorAll('.toggle-pass').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const input = document.getElementById(this.dataset.target);
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    });
+});
+
+// ===== Test SMTP =====
+function testSmtp() {
+    const btn = document.getElementById('btnTestMail');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Enviando...';
+
+    fetch('<?= url("configuracion/test-mail") ?>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: '_csrf_token=<?= $csrfToken ?>'
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.success) {
+            btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>¡Enviado!';
+            btn.classList.remove('btn-outline-warning');
+            btn.classList.add('btn-outline-success');
+        } else {
+            btn.innerHTML = '<i class="bi bi-x-circle me-1"></i>Error';
+            btn.classList.remove('btn-outline-warning');
+            btn.classList.add('btn-outline-danger');
+            alert('Error: ' + (data.message || 'No se pudo enviar el correo'));
+        }
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.className = 'btn btn-sm btn-outline-warning';
+        }, 3000);
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        alert('Error de conexión');
+    });
+}
 </script>
