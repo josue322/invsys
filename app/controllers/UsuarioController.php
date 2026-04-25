@@ -19,15 +19,31 @@ class UsuarioController extends Controller
     public function index(): void
     {
         $page = (int) $this->query('page', 1);
-        $usuarios = $this->usuarioModel->getAllWithRole($page, $this->getPerPage());
+        $search = $this->query('search', '');
+        $rolFilter = (int) $this->query('rol', 0);
+        $estadoFilter = $this->query('estado', '');
+
+        $usuarios = $this->usuarioModel->getAllWithRole(
+            $page,
+            $this->getPerPage(),
+            $search,
+            $rolFilter,
+            $estadoFilter
+        );
+
+        $roles = $this->rolModel->getAllActive();
         $flash = $this->getFlash();
         $csrfToken = $this->generateCSRF();
 
         $this->view('usuarios/index', [
-            'titulo'    => 'Gestión de Usuarios',
-            'usuarios'  => $usuarios,
-            'csrfToken' => $csrfToken,
-            'flash'     => $flash,
+            'titulo'       => 'Gestión de Usuarios',
+            'usuarios'     => $usuarios,
+            'roles'        => $roles,
+            'search'       => $search,
+            'rolFilter'    => $rolFilter,
+            'estadoFilter' => $estadoFilter,
+            'csrfToken'    => $csrfToken,
+            'flash'        => $flash,
         ]);
     }
 
@@ -212,6 +228,52 @@ class UsuarioController extends Controller
         );
 
         $this->setFlash('success', "Usuario {$estadoTexto} exitosamente.");
+        $this->redirect('usuarios');
+    }
+
+    /**
+     * Eliminar usuario (soft-delete: activo = 0).
+     * No permite eliminar al propio usuario ni al último administrador activo.
+     */
+    public function destroy(string $id): void
+    {
+        $id = (int) $id;
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // No permitir eliminarse a uno mismo
+        if ($id === currentUserId()) {
+            $this->setFlash('error', 'No puedes eliminar tu propia cuenta.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        $usuario = $this->usuarioModel->findWithRole($id);
+        if (!$usuario) {
+            $this->setFlash('error', 'Usuario no encontrado.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // No permitir eliminar al último admin activo
+        if ($usuario->rol_id === 1 && $this->usuarioModel->countActiveByRole(1) <= 1) {
+            $this->setFlash('error', 'No se puede eliminar al último administrador activo del sistema.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // Soft-delete: desactivar
+        $this->usuarioModel->update($id, ['activo' => 0]);
+
+        $this->securityService->logAction(
+            currentUserId(), 'eliminar_usuario', 'usuarios',
+            "Usuario eliminado (desactivado): {$usuario->nombre} ({$usuario->email}), ID: {$id}"
+        );
+
+        $this->setFlash('success', "Usuario \"{$usuario->nombre}\" eliminado exitosamente.");
         $this->redirect('usuarios');
     }
 }

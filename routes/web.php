@@ -597,6 +597,13 @@ return [
         'action'     => 'toggleStatus',
         'middleware'  => ['auth', 'permiso:usuarios.editar'],
     ],
+    [
+        'method'     => 'POST',
+        'path'       => 'usuarios/eliminar/{id}',
+        'controller' => 'UsuarioController',
+        'action'     => 'destroy',
+        'middleware'  => ['auth', 'permiso:usuarios.editar'],
+    ],
 
     // =====================================================
     // CONFIGURACIÓN (solo Admin)
