@@ -24,4 +24,17 @@ class Sesion extends Model
         $sql = "SELECT * FROM {$this->table} WHERE usuario_id = :usuario_id AND activa = 1 ORDER BY ultimo_acceso DESC";
         return $this->query($sql, ['usuario_id' => $userId])->fetchAll();
     }
+
+    /**
+     * Eliminar sesiones inactivas más antiguas que N días.
+     * Previene el crecimiento indefinido de la tabla.
+     *
+     * @param int $days Días de retención (por defecto 30)
+     * @return int Cantidad de sesiones eliminadas
+     */
+    public function cleanOld(int $days = 30): int
+    {
+        $sql = "DELETE FROM {$this->table} WHERE activa = 0 AND inicio < DATE_SUB(NOW(), INTERVAL :days DAY)";
+        return $this->query($sql, ['days' => $days])->rowCount();
+    }
 }

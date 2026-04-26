@@ -25,7 +25,7 @@ class ConfigController extends Controller
 
         // Roles disponibles (para el selector de rol de registro público)
         $rolModel = new Rol();
-        $roles = $rolModel->getAllActive();
+        $roles = $rolModel->getAll();
 
         $this->view('configuracion/index', [
             'titulo'    => 'Configuración del Sistema',

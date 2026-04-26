@@ -8,9 +8,9 @@ class Rol extends Model
     protected string $table = 'roles';
 
     /**
-     * Obtener todos los roles activos ordenados por nombre.
+     * Obtener todos los roles ordenados por nombre.
      */
-    public function getAllActive(): array
+    public function getAll(): array
     {
         return $this->findAll('nombre', 'ASC');
     }

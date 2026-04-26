@@ -26,7 +26,7 @@
     <?php endif; ?>
 
     <!-- Custom CSS -->
-    <?php define('ASSET_VERSION', '1.0.0'); ?>
+    <?php define('ASSET_VERSION', filemtime(PUBLIC_PATH . '/assets/css/style.css')); ?>
     <link href="<?= asset('css/style.css') ?>?v=<?= ASSET_VERSION ?>" rel="stylesheet">
     <link href="<?= asset('css/dark-mode.css') ?>?v=<?= ASSET_VERSION ?>" rel="stylesheet">
 </head>

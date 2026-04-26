@@ -31,7 +31,7 @@ class UsuarioController extends Controller
             $estadoFilter
         );
 
-        $roles = $this->rolModel->getAllActive();
+        $roles = $this->rolModel->getAll();
         $flash = $this->getFlash();
         $csrfToken = $this->generateCSRF();
 
@@ -49,7 +49,7 @@ class UsuarioController extends Controller
 
     public function create(): void
     {
-        $roles = $this->rolModel->getAllActive();
+        $roles = $this->rolModel->getAll();
         $csrfToken = $this->generateCSRF();
 
         $this->view('usuarios/create', [
@@ -117,7 +117,7 @@ class UsuarioController extends Controller
             return;
         }
 
-        $roles = $this->rolModel->getAllActive();
+        $roles = $this->rolModel->getAll();
         $csrfToken = $this->generateCSRF();
 
         $this->view('usuarios/edit', [

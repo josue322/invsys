@@ -82,6 +82,10 @@ class BackupController extends Controller
                 "Backup creado: {$filename} ({$size})"
             );
 
+            // Mantenimiento: limpiar sesiones antiguas inactivas
+            $sesionModel = new Sesion();
+            $sesionModel->cleanOld(30);
+
             $this->setFlash('success', "Backup creado exitosamente: {$filename} ({$size})");
         } else {
             // Limpiar archivo vacío si existe
