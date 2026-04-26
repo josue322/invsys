@@ -564,6 +564,13 @@ return [
     ],
     [
         'method'     => 'GET',
+        'path'       => 'usuarios/ver/{id}',
+        'controller' => 'UsuarioController',
+        'action'     => 'show',
+        'middleware'  => ['auth', 'permiso:usuarios.ver'],
+    ],
+    [
+        'method'     => 'GET',
         'path'       => 'usuarios/crear',
         'controller' => 'UsuarioController',
         'action'     => 'create',
@@ -602,7 +609,7 @@ return [
         'path'       => 'usuarios/eliminar/{id}',
         'controller' => 'UsuarioController',
         'action'     => 'destroy',
-        'middleware'  => ['auth', 'permiso:usuarios.editar'],
+        'middleware'  => ['auth', 'permiso:usuarios.eliminar'],
     ],
 
     // =====================================================

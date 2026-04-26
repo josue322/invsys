@@ -44,15 +44,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    FormValidator.init('#formCrearUsuario', {
-        nombre:   { required: true, messages: { required: 'El nombre es obligatorio' } },
-        email:    { required: true, email: true, messages: { required: 'El correo es obligatorio' } },
-        rol_id:   { required: true, messages: { required: 'Seleccione un rol' } },
-        password: { required: true, minlength: 8, messages: { required: 'La contraseña es obligatoria' } }
-    });
 
-    FormValidator.passwordStrength('#password', '#passStrengthCreate');
-});
-</script>
+

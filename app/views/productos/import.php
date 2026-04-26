@@ -93,37 +93,3 @@
         </div>
     </div>
 </div>
-
-<script>
-document.getElementById('csv_file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-        const lines = evt.target.result.split('\n').filter(l => l.trim());
-        if (lines.length < 2) return;
-        
-        const preview = document.getElementById('csv-preview');
-        const thead = document.querySelector('#preview-table thead');
-        const tbody = document.querySelector('#preview-table tbody');
-        
-        // Header
-        const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''));
-        thead.innerHTML = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
-        
-        // Rows (max 5)
-        tbody.innerHTML = '';
-        const maxRows = Math.min(lines.length, 6);
-        for (let i = 1; i < maxRows; i++) {
-            const cols = lines[i].split(',').map(c => c.trim().replace(/['"]/g, ''));
-            tbody.innerHTML += '<tr>' + cols.map(c => '<td><small>' + c + '</small></td>').join('') + '</tr>';
-        }
-        
-        document.getElementById('preview-count').textContent = 
-            `Mostrando ${maxRows - 1} de ${lines.length - 1} filas`;
-        preview.style.display = 'block';
-    };
-    reader.readAsText(file);
-});
-</script>

@@ -100,15 +100,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= asset('js/form-validator.js') ?>?v=<?= time() ?>"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        FormValidator.init('#registerForm', {
-            nombre:           { required: true, minlength: 3, messages: { required: 'Ingrese su nombre completo', minlength: 'El nombre debe tener al menos 3 caracteres' } },
-            email:            { required: true, email: true, messages: { required: 'Ingrese su correo electrónico' } },
-            password:         { required: true, minlength: 8, messages: { required: 'Ingrese una contraseña', minlength: 'Mínimo 8 caracteres' } },
-            password_confirm: { required: true, match: 'password', messages: { required: 'Confirme su contraseña', match: 'Las contraseñas no coinciden' } }
-        });
-    });
-    </script>
+    <script src="<?= asset('js/forms.js') ?>?v=<?= time() ?>"></script>
 </body>
 </html>

@@ -199,41 +199,5 @@
     </div>
 </div>
 
-<script>
-// Toggle password visibility (kept as-is, UI utility)
-document.querySelectorAll('.toggle-pass').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const input = document.getElementById(this.dataset.target);
-        const icon = this.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.className = 'bi bi-eye-slash';
-        } else {
-            input.type = 'password';
-            icon.className = 'bi bi-eye';
-        }
-    });
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-    // === Validación: Datos personales ===
-    FormValidator.init('#formDatos', {
-        nombre: { required: true, minlength: 2, messages: { required: 'El nombre es obligatorio' } },
-        email:  { required: true, email: true, messages: { required: 'El correo es obligatorio' } }
-    });
 
-    // === Validación: Cambio de contraseña ===
-    FormValidator.init('#formPassword', {
-        current_password: { required: true, messages: { required: 'Ingrese su contraseña actual' } },
-        new_password:     { required: true, minlength: 8, messages: { required: 'Ingrese la nueva contraseña' } },
-        confirm_password: {
-            required: true,
-            match: '[name="new_password"]',
-            messages: { required: 'Confirme la nueva contraseña', match: 'Las contraseñas no coinciden' }
-        }
-    });
-
-    // === Indicador de fuerza ===
-    FormValidator.passwordStrength('#newPass', '#passStrength');
-});
-</script>

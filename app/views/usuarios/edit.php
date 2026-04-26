@@ -97,24 +97,5 @@
     </div>
 </div>
 
-<script>
-function copyTempPass() {
-    const input = document.getElementById('tempPass');
-    navigator.clipboard.writeText(input.value).then(() => {
-        const btn = input.nextElementSibling;
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
-        setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
-    });
-}
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    FormValidator.init('#formEditarUsuario', {
-        nombre: { required: true, messages: { required: 'El nombre es obligatorio' } },
-        email:  { required: true, email: true, messages: { required: 'El correo es obligatorio' } },
-        rol_id: { required: true, messages: { required: 'Seleccione un rol' } }
-    });
-});
-</script>
+

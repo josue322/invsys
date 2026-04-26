@@ -78,6 +78,7 @@ class Log extends Model
             'total'   => (int) $total,
             'pages'   => (int) ceil($total / $perPage),
             'current' => $page,
+            'perPage' => $perPage,
         ];
     }
 }

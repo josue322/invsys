@@ -75,36 +75,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const filtroTipo = document.getElementById('filtro_tipo');
-    const filtroCategoria = document.getElementById('filtroCategoria');
-    const filtroUbicacion = document.getElementById('filtroUbicacion');
-    const hiddenId = document.getElementById('filtro_id_hidden');
 
-    filtroTipo.addEventListener('change', function() {
-        filtroCategoria.classList.add('d-none');
-        filtroUbicacion.classList.add('d-none');
-        hiddenId.value = '';
 
-        if (this.value === 'categoria') {
-            filtroCategoria.classList.remove('d-none');
-        } else if (this.value === 'ubicacion') {
-            filtroUbicacion.classList.remove('d-none');
-        }
-    });
-
-    // Sync hidden field on change
-    document.querySelector('[name="filtro_id_categoria"]').addEventListener('change', function() {
-        hiddenId.value = this.value;
-    });
-    document.querySelector('[name="filtro_id_ubicacion"]').addEventListener('change', function() {
-        hiddenId.value = this.value;
-    });
-
-    // Form validation
-    FormValidator.init('#formCrearConteo', {
-        nombre: { required: true, maxlength: 150, messages: { required: 'El nombre es obligatorio' } }
-    });
-});
-</script>

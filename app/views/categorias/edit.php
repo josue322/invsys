@@ -64,10 +64,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    FormValidator.init('#formEditarCategoria', {
-        nombre: { required: true, maxlength: 100, messages: { required: 'El nombre de la categoría es obligatorio' } }
-    });
-});
-</script>
+
+

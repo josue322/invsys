@@ -47,6 +47,75 @@ class UsuarioController extends Controller
         ]);
     }
 
+    /**
+     * Vista detalle de un usuario con sesiones y actividad reciente.
+     */
+    public function show(string $id): void
+    {
+        $userId = (int) $id;
+        $usuario = $this->usuarioModel->findWithRole($userId);
+        if (!$usuario) {
+            $this->setFlash('error', 'Usuario no encontrado.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        $perPage = 10;
+
+        // Sesiones activas
+        $sesionModel = new Sesion();
+        $sesiones = $sesionModel->getActiveByUserId($userId);
+
+        // Actividad (logs) — paginada
+        $pgAct = max(1, (int) $this->query('pg_act', 1));
+        $logModel = new Log();
+        $actividad = $logModel->getByUserId($userId, $pgAct, $perPage);
+
+        // Movimientos — paginados
+        $pgMov = max(1, (int) $this->query('pg_mov', 1));
+        $movimientos = $this->getMovimientosByUser($userId, $pgMov, $perPage);
+
+        $flash = $this->getFlash();
+
+        $this->view('usuarios/show', [
+            'titulo'      => $usuario->nombre,
+            'usuario'     => $usuario,
+            'sesiones'    => $sesiones,
+            'actividad'   => $actividad,
+            'movimientos' => $movimientos,
+            'pgAct'       => $pgAct,
+            'pgMov'       => $pgMov,
+            'flash'       => $flash,
+        ]);
+    }
+
+    /**
+     * Obtener movimientos paginados de un usuario.
+     */
+    private function getMovimientosByUser(int $userId, int $page, int $perPage): array
+    {
+        $offset = ($page - 1) * $perPage;
+
+        $countSql = "SELECT COUNT(*) as total FROM movimientos WHERE usuario_id = :uid";
+        $total = (int) (new Movimiento())->rawQuery($countSql, ['uid' => $userId])[0]->total ?? 0;
+
+        $sql = "SELECT m.*, p.nombre as producto_nombre, p.sku as producto_sku
+                FROM movimientos m
+                INNER JOIN productos p ON m.producto_id = p.id
+                WHERE m.usuario_id = :uid
+                ORDER BY m.created_at DESC
+                LIMIT {$perPage} OFFSET {$offset}";
+        $data = (new Movimiento())->rawQuery($sql, ['uid' => $userId]);
+
+        return [
+            'data'    => $data,
+            'total'   => $total,
+            'pages'   => (int) ceil($total / $perPage),
+            'current' => $page,
+            'perPage' => $perPage,
+        ];
+    }
+
     public function create(): void
     {
         $roles = $this->rolModel->getAll();

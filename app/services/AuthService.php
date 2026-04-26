@@ -31,6 +31,25 @@ class AuthService
      */
     public function login(string $email, string $password): array
     {
+        // 0. Rate limiting por IP (previene fuerza bruta contra múltiples cuentas)
+        $rateLimiter = RateLimiter::getInstance();
+        $clientIP = $this->securityService->getClientIP();
+        $rateCheck = $rateLimiter->check($clientIP, 'login', 20, 900);
+
+        if ($rateCheck['limited']) {
+            $retryMin = (int) ceil($rateCheck['retry_after'] / 60);
+            $this->securityService->logAction(null, 'login_rate_limited', 'auth',
+                "Rate limit alcanzado para IP: {$clientIP}. Reintentar en {$retryMin} minutos."
+            );
+            return [
+                'success' => false,
+                'message' => "Demasiados intentos de login. Intente en {$retryMin} minutos.",
+            ];
+        }
+
+        // Registrar intento de login por IP
+        $rateLimiter->hit($clientIP, 'login');
+
         // 1. Verificar si la cuenta está bloqueada
         $bloqueo = $this->securityService->isBlocked($email);
         if ($bloqueo['blocked']) {
@@ -84,8 +103,9 @@ class AuthService
         // 5. Login exitoso - Iniciar sesión
         $this->startSession($usuario);
 
-        // 6. Resetear intentos fallidos
+        // 6. Resetear intentos fallidos y rate limit por IP
         $this->securityService->resetAttempts($email);
+        $rateLimiter->clear($clientIP, 'login');
 
         // 7. Actualizar último login
         $this->usuarioModel->updateLastLogin($usuario->id);

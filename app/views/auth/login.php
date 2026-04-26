@@ -90,13 +90,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= asset('js/form-validator.js') ?>?v=<?= time() ?>"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        FormValidator.init('#loginForm', {
-            email:    { required: true, email: true, messages: { required: 'Ingrese su correo electrónico' } },
-            password: { required: true, messages: { required: 'Ingrese su contraseña' } }
-        });
-    });
-    </script>
+    <script src="<?= asset('js/forms.js') ?>?v=<?= time() ?>"></script>
 </body>
 </html>

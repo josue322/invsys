@@ -20,5 +20,8 @@
 <!-- App Core (sidebar, theme, toasts, flash) -->
 <script src="<?= asset('js/app.js') ?>?v=<?= ASSET_VERSION ?>"></script>
 
+<!-- Page Form Validators & Simple UI Logic -->
+<script src="<?= asset('js/forms.js') ?>?v=<?= ASSET_VERSION ?>"></script>
+
 </body>
 </html>

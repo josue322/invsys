@@ -87,10 +87,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    FormValidator.init('#formEditarProveedor', {
-        nombre: { required: true, maxlength: 150, messages: { required: 'El nombre del proveedor es obligatorio' } }
-    });
-});
-</script>
+
+

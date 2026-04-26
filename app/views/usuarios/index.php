@@ -91,6 +91,9 @@
                         <td><small class="text-muted"><?= $u->ultimo_login ? formatDate($u->ultimo_login) : 'Nunca' ?></small></td>
                         <td>
                             <div class="d-flex gap-1">
+                            <a href="<?= url("usuarios/ver/{$u->id}") ?>" class="btn-action btn-view" title="Ver detalle">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
                             <?php if (hasPermission('usuarios.editar')): ?>
                             <a href="<?= url("usuarios/editar/{$u->id}") ?>" class="btn-action btn-edit" title="Editar">
                                 <i class="bi bi-pencil-fill"></i>
