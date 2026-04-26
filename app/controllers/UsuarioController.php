@@ -36,14 +36,14 @@ class UsuarioController extends Controller
         $csrfToken = $this->generateCSRF();
 
         $this->view('usuarios/index', [
-            'titulo'       => 'Gestión de Usuarios',
-            'usuarios'     => $usuarios,
-            'roles'        => $roles,
-            'search'       => $search,
-            'rolFilter'    => $rolFilter,
+            'titulo' => 'Gestión de Usuarios',
+            'usuarios' => $usuarios,
+            'roles' => $roles,
+            'search' => $search,
+            'rolFilter' => $rolFilter,
             'estadoFilter' => $estadoFilter,
-            'csrfToken'    => $csrfToken,
-            'flash'        => $flash,
+            'csrfToken' => $csrfToken,
+            'flash' => $flash,
         ]);
     }
 
@@ -78,14 +78,14 @@ class UsuarioController extends Controller
         $flash = $this->getFlash();
 
         $this->view('usuarios/show', [
-            'titulo'      => $usuario->nombre,
-            'usuario'     => $usuario,
-            'sesiones'    => $sesiones,
-            'actividad'   => $actividad,
+            'titulo' => $usuario->nombre,
+            'usuario' => $usuario,
+            'sesiones' => $sesiones,
+            'actividad' => $actividad,
             'movimientos' => $movimientos,
-            'pgAct'       => $pgAct,
-            'pgMov'       => $pgMov,
-            'flash'       => $flash,
+            'pgAct' => $pgAct,
+            'pgMov' => $pgMov,
+            'flash' => $flash,
         ]);
     }
 
@@ -108,9 +108,9 @@ class UsuarioController extends Controller
         $data = (new Movimiento())->rawQuery($sql, ['uid' => $userId]);
 
         return [
-            'data'    => $data,
-            'total'   => $total,
-            'pages'   => (int) ceil($total / $perPage),
+            'data' => $data,
+            'total' => $total,
+            'pages' => (int) ceil($total / $perPage),
             'current' => $page,
             'perPage' => $perPage,
         ];
@@ -122,8 +122,8 @@ class UsuarioController extends Controller
         $csrfToken = $this->generateCSRF();
 
         $this->view('usuarios/create', [
-            'titulo'    => 'Nuevo Usuario',
-            'roles'     => $roles,
+            'titulo' => 'Nuevo Usuario',
+            'roles' => $roles,
             'csrfToken' => $csrfToken,
         ]);
     }
@@ -141,10 +141,14 @@ class UsuarioController extends Controller
         $rolId = (int) $this->input('rol_id');
 
         $errors = [];
-        if (empty($nombre)) $errors[] = 'El nombre es obligatorio.';
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email inválido.';
-        if (strlen($password) < 8) $errors[] = 'La contraseña debe tener al menos 8 caracteres.';
-        if ($rolId <= 0) $errors[] = 'Debe seleccionar un rol.';
+        if (empty($nombre))
+            $errors[] = 'El nombre es obligatorio.';
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))
+            $errors[] = 'Email inválido.';
+        if (strlen($password) < 8)
+            $errors[] = 'La contraseña debe tener al menos 8 caracteres.';
+        if ($rolId <= 0)
+            $errors[] = 'Debe seleccionar un rol.';
 
         if ($this->usuarioModel->emailExists($email)) {
             $errors[] = 'El email ya está registrado.';
@@ -157,15 +161,17 @@ class UsuarioController extends Controller
         }
 
         $id = $this->usuarioModel->create([
-            'nombre'   => $nombre,
-            'email'    => $email,
+            'nombre' => $nombre,
+            'email' => $email,
             'password' => password_hash($password, PASSWORD_DEFAULT),
-            'rol_id'   => $rolId,
-            'activo'   => 1,
+            'rol_id' => $rolId,
+            'activo' => 1,
         ]);
 
         $this->securityService->logAction(
-            currentUserId(), 'crear_usuario', 'usuarios',
+            currentUserId(),
+            'crear_usuario',
+            'usuarios',
             "Usuario creado: {$nombre} ({$email}), ID: {$id}"
         );
 
@@ -190,9 +196,9 @@ class UsuarioController extends Controller
         $csrfToken = $this->generateCSRF();
 
         $this->view('usuarios/edit', [
-            'titulo'    => 'Editar Usuario',
-            'usuario'   => $usuario,
-            'roles'     => $roles,
+            'titulo' => 'Editar Usuario',
+            'usuario' => $usuario,
+            'roles' => $roles,
             'csrfToken' => $csrfToken,
         ]);
     }
@@ -221,7 +227,9 @@ class UsuarioController extends Controller
 
             $usuario = $this->usuarioModel->findById($id);
             $this->securityService->logAction(
-                currentUserId(), 'resetear_password', 'usuarios',
+                currentUserId(),
+                'resetear_password',
+                'usuarios',
                 "Contraseña restablecida para: {$usuario->nombre} (ID: {$id})"
             );
 
@@ -238,7 +246,7 @@ class UsuarioController extends Controller
 
         $data = [
             'nombre' => $nombre,
-            'email'  => $email,
+            'email' => $email,
             'rol_id' => $rolId,
             'activo' => $activo,
         ];
@@ -252,7 +260,9 @@ class UsuarioController extends Controller
         $this->usuarioModel->update($id, $data);
 
         $this->securityService->logAction(
-            currentUserId(), 'editar_usuario', 'usuarios',
+            currentUserId(),
+            'editar_usuario',
+            'usuarios',
             "Usuario editado: {$nombre} (ID: {$id})"
         );
 
@@ -292,7 +302,9 @@ class UsuarioController extends Controller
         $accion = $nuevoEstado ? 'activar_usuario' : 'desactivar_usuario';
 
         $this->securityService->logAction(
-            currentUserId(), $accion, 'usuarios',
+            currentUserId(),
+            $accion,
+            'usuarios',
             "Usuario {$estadoTexto}: {$usuario->nombre} (ID: {$id})"
         );
 
@@ -338,7 +350,9 @@ class UsuarioController extends Controller
         $this->usuarioModel->update($id, ['activo' => 0]);
 
         $this->securityService->logAction(
-            currentUserId(), 'eliminar_usuario', 'usuarios',
+            currentUserId(),
+            'eliminar_usuario',
+            'usuarios',
             "Usuario eliminado (desactivado): {$usuario->nombre} ({$usuario->email}), ID: {$id}"
         );
 
