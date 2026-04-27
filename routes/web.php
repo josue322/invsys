@@ -151,6 +151,21 @@ return [
         'action' => 'search',
         'middleware' => ['auth', 'permiso:productos.ver'],
     ],
+    // Producto-Proveedor (AJAX)
+    [
+        'method' => 'POST',
+        'path' => 'productos/proveedor/add',
+        'controller' => 'ProductoController',
+        'action' => 'addProveedor',
+        'middleware' => ['auth', 'permiso:productos.editar'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'productos/proveedor/remove',
+        'controller' => 'ProductoController',
+        'action' => 'removeProveedor',
+        'middleware' => ['auth', 'permiso:productos.editar'],
+    ],
 
     // =====================================================
     // CATEGORÍAS
@@ -550,6 +565,190 @@ return [
         'controller' => 'ReporteController',
         'action' => 'exportCompletoPDF',
         'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+
+    // --- Fase 2: Kardex ---
+    [
+        'method' => 'GET',
+        'path' => 'reportes/kardex',
+        'controller' => 'ReporteController',
+        'action' => 'kardex',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'reportes/kardex/exportar/csv',
+        'controller' => 'ReporteController',
+        'action' => 'exportKardexCSV',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+
+    // --- Fase 2: Análisis Avanzados ---
+    [
+        'method' => 'GET',
+        'path' => 'reportes/analisis/abc',
+        'controller' => 'ReporteController',
+        'action' => 'analisisABC',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'reportes/analisis/abc/csv',
+        'controller' => 'ReporteController',
+        'action' => 'exportABCcsv',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'reportes/analisis/rotacion',
+        'controller' => 'ReporteController',
+        'action' => 'rotacion',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'reportes/analisis/rotacion/csv',
+        'controller' => 'ReporteController',
+        'action' => 'exportRotacionCSV',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'reportes/analisis/muertos',
+        'controller' => 'ReporteController',
+        'action' => 'productosMuertos',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
+
+    // ==========================================
+    // FASE 3: COMPRAS (ABASTECIMIENTO)
+    // ==========================================
+    [
+        'method' => 'GET',
+        'path' => 'compras',
+        'controller' => 'OrdenCompraController',
+        'action' => 'index',
+        'middleware' => ['auth', 'permiso:compras.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'compras/crear',
+        'controller' => 'OrdenCompraController',
+        'action' => 'crear',
+        'middleware' => ['auth', 'permiso:compras.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'compras/store',
+        'controller' => 'OrdenCompraController',
+        'action' => 'store',
+        'middleware' => ['auth', 'permiso:compras.crear'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'compras/show/{id}',
+        'controller' => 'OrdenCompraController',
+        'action' => 'show',
+        'middleware' => ['auth', 'permiso:compras.ver'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'compras/recibir/{id}',
+        'controller' => 'OrdenCompraController',
+        'action' => 'recibir',
+        'middleware' => ['auth'], // requires validation inside
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'compras/cancelar/{id}',
+        'controller' => 'OrdenCompraController',
+        'action' => 'cancelar',
+        'middleware' => ['auth', 'permiso:compras.crear'],
+    ],
+
+    // ==========================================
+    // FASE 6: DEPARTAMENTOS
+    // ==========================================
+    [
+        'method' => 'GET',
+        'path' => 'departamentos',
+        'controller' => 'DepartamentoController',
+        'action' => 'index',
+        'middleware' => ['auth', 'permiso:departamentos.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'departamentos/create',
+        'controller' => 'DepartamentoController',
+        'action' => 'create',
+        'middleware' => ['auth', 'permiso:departamentos.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'departamentos/store',
+        'controller' => 'DepartamentoController',
+        'action' => 'store',
+        'middleware' => ['auth', 'permiso:departamentos.crear'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'departamentos/edit/{id}',
+        'controller' => 'DepartamentoController',
+        'action' => 'edit',
+        'middleware' => ['auth', 'permiso:departamentos.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'departamentos/update/{id}',
+        'controller' => 'DepartamentoController',
+        'action' => 'update',
+        'middleware' => ['auth', 'permiso:departamentos.crear'],
+    ],
+
+    // ==========================================
+    // FASE 7: REQUISICIONES
+    // ==========================================
+    [
+        'method' => 'GET',
+        'path' => 'requisiciones',
+        'controller' => 'RequisicionController',
+        'action' => 'index',
+        'middleware' => ['auth', 'permiso:requisiciones.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'requisiciones/crear',
+        'controller' => 'RequisicionController',
+        'action' => 'crear',
+        'middleware' => ['auth', 'permiso:requisiciones.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'requisiciones/store',
+        'controller' => 'RequisicionController',
+        'action' => 'store',
+        'middleware' => ['auth', 'permiso:requisiciones.crear'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'requisiciones/show/{id}',
+        'controller' => 'RequisicionController',
+        'action' => 'show',
+        'middleware' => ['auth', 'permiso:requisiciones.ver'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'requisiciones/despachar/{id}',
+        'controller' => 'RequisicionController',
+        'action' => 'despachar',
+        'middleware' => ['auth', 'permiso:requisiciones.despachar'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'requisiciones/cancelar/{id}',
+        'controller' => 'RequisicionController',
+        'action' => 'cancelar',
+        'middleware' => ['auth', 'permiso:requisiciones.crear'],
     ],
 
     // =====================================================

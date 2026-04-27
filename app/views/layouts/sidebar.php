@@ -77,6 +77,27 @@
         </div>
         <?php endif; ?>
 
+        <?php if (hasPermission('compras.ver')): ?>
+        <div class="nav-section">
+            <span class="nav-section-title">Abastecimiento</span>
+            
+            <a href="<?= url('compras') ?>" class="nav-link <?= isRoutePrefix('compras') ? 'active' : '' ?>" id="nav-compras">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Órdenes de Compra</span>
+            </a>
+        </div>
+        <?php endif; ?>
+        <?php if (hasPermission('requisiciones.ver')): ?>
+        <div class="nav-section">
+            <span class="nav-section-title">Despachos</span>
+            
+            <a href="<?= url('requisiciones') ?>" class="nav-link <?= isRoutePrefix('requisiciones') ? 'active' : '' ?>" id="nav-requisiciones">
+                <i class="bi bi-inbox-fill"></i>
+                <span>Requisiciones</span>
+            </a>
+        </div>
+        <?php endif; ?>
+
         <?php if (hasPermission('categorias.ver')): ?>
         <div class="nav-section">
             <span class="nav-section-title">Catálogos</span>
@@ -95,6 +116,13 @@
                 <i class="bi bi-geo-alt-fill"></i>
                 <span>Ubicaciones</span>
             </a>
+
+            <?php if (hasPermission('departamentos.ver')): ?>
+            <a href="<?= url('departamentos') ?>" class="nav-link <?= isRoutePrefix('departamentos') ? 'active' : '' ?>" id="nav-departamentos">
+                <i class="bi bi-building"></i>
+                <span>Departamentos</span>
+            </a>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
 
@@ -102,9 +130,29 @@
         <div class="nav-section">
             <span class="nav-section-title">Análisis</span>
             
-            <a href="<?= url('reportes') ?>" class="nav-link <?= isRoutePrefix('reportes') ? 'active' : '' ?>" id="nav-reportes">
+            <a href="<?= url('reportes') ?>" class="nav-link <?= isRoute('reportes') ? 'active' : '' ?>" id="nav-reportes">
                 <i class="bi bi-graph-up-arrow"></i>
                 <span>Reportes</span>
+            </a>
+
+            <a href="<?= url('reportes/kardex') ?>" class="nav-link <?= isRoute('reportes/kardex') ? 'active' : '' ?>" id="nav-kardex">
+                <i class="bi bi-journal-text"></i>
+                <span>Kardex</span>
+            </a>
+
+            <a href="<?= url('reportes/analisis/abc') ?>" class="nav-link <?= isRoute('reportes/analisis/abc') ? 'active' : '' ?>" id="nav-abc">
+                <i class="bi bi-bar-chart-steps"></i>
+                <span>Análisis ABC</span>
+            </a>
+
+            <a href="<?= url('reportes/analisis/rotacion') ?>" class="nav-link <?= isRoute('reportes/analisis/rotacion') ? 'active' : '' ?>" id="nav-rotacion">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Rotación</span>
+            </a>
+
+            <a href="<?= url('reportes/analisis/muertos') ?>" class="nav-link <?= isRoute('reportes/analisis/muertos') ? 'active' : '' ?>" id="nav-muertos">
+                <i class="bi bi-moon-stars"></i>
+                <span>Inv. Muerto</span>
             </a>
         </div>
         <?php endif; ?>

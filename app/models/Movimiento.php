@@ -48,12 +48,14 @@ class Movimiento extends Model
         $sql = "SELECT m.*, p.nombre as producto_nombre, p.sku as producto_sku, 
                        u.nombre as usuario_nombre,
                        l.numero_lote as lote_numero,
-                       prov.nombre as proveedor_nombre
+                       prov.nombre as proveedor_nombre,
+                       d.nombre as departamento_nombre
                 FROM {$this->table} m 
                 INNER JOIN productos p ON m.producto_id = p.id 
                 INNER JOIN usuarios u ON m.usuario_id = u.id 
                 LEFT JOIN lotes l ON m.lote_id = l.id
                 LEFT JOIN proveedores prov ON m.proveedor_id = prov.id
+                LEFT JOIN departamentos d ON m.departamento_id = d.id
                 WHERE {$where}
                 ORDER BY m.created_at DESC 
                 LIMIT {$perPage} OFFSET {$offset}";
@@ -135,12 +137,14 @@ class Movimiento extends Model
         $sql = "SELECT m.*, p.nombre as producto_nombre, p.sku as producto_sku, 
                        u.nombre as usuario_nombre,
                        l.numero_lote as lote_numero,
-                       prov.nombre as proveedor_nombre
+                       prov.nombre as proveedor_nombre,
+                       d.nombre as departamento_nombre
                 FROM {$this->table} m 
                 INNER JOIN productos p ON m.producto_id = p.id 
                 INNER JOIN usuarios u ON m.usuario_id = u.id 
                 LEFT JOIN lotes l ON m.lote_id = l.id
                 LEFT JOIN proveedores prov ON m.proveedor_id = prov.id
+                LEFT JOIN departamentos d ON m.departamento_id = d.id
                 WHERE {$where}
                 ORDER BY m.created_at DESC 
                 LIMIT {$limit}";

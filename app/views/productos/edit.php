@@ -49,6 +49,12 @@
                                     <input type="text" class="form-control" id="sku" name="sku" required maxlength="16"
                                            style="text-transform:uppercase" value="<?= htmlspecialchars($producto->sku) ?>">
                                 </div>
+                                <div class="col-md-4">
+                                    <label for="codigo_barras" class="form-label"><i class="bi bi-upc-scan me-1"></i>Código de Barras</label>
+                                    <input type="text" class="form-control" id="codigo_barras" name="codigo_barras" maxlength="50" 
+                                           placeholder="EAN-13, UPC, etc."
+                                           value="<?= htmlspecialchars($producto->codigo_barras ?? '') ?>">
+                                </div>
                                 <div class="col-12">
                                     <label for="descripcion" class="form-label">Descripción</label>
                                     <textarea class="form-control" id="descripcion" name="descripcion" rows="3"><?= htmlspecialchars($producto->descripcion ?? '') ?></textarea>
@@ -98,6 +104,14 @@
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" id="precio" name="precio" 
                                        step="0.01" min="0" value="<?= $producto->precio ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="precio_compra" class="form-label"><i class="bi bi-tag me-1"></i>Precio de Compra</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="precio_compra" name="precio_compra" 
+                                       step="0.01" min="0" value="<?= $producto->precio_compra ?? 0 ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -175,6 +189,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script id="page-data" type="application/json"><?= json_encode([
     'sku'    => $producto->sku,
+    'codigo_barras' => $producto->codigo_barras ?? null,
     'nombre' => $producto->nombre,
 ]) ?></script>
 <script src="<?= asset('js/productos.js') ?>?v=<?= ASSET_VERSION ?>"></script>

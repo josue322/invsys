@@ -9,6 +9,8 @@ class ProductoController extends Controller
     private Producto $productoModel;
     private Categoria $categoriaModel;
     private Ubicacion $ubicacionModel;
+    private Proveedor $proveedorModel;
+    private ProductoProveedor $ppModel;
     private SecurityService $securityService;
 
     /** @var string Directorio de imágenes de productos */
@@ -30,6 +32,8 @@ class ProductoController extends Controller
         $this->productoModel = new Producto();
         $this->categoriaModel = new Categoria();
         $this->ubicacionModel = new Ubicacion();
+        $this->proveedorModel = new Proveedor();
+        $this->ppModel = new ProductoProveedor();
         $this->securityService = SecurityService::getInstance();
         $this->imageDir = PUBLIC_PATH . '/assets/img/productos';
     }
@@ -107,10 +111,12 @@ class ProductoController extends Controller
             'nombre' => $this->input('nombre'),
             'descripcion' => $this->input('descripcion'),
             'sku' => strtoupper($this->input('sku')),
+            'codigo_barras' => $this->input('codigo_barras') ?: null,
             'categoria_id' => (int) $this->input('categoria_id') ?: null,
             'ubicacion_id' => (int) $this->input('ubicacion_id') ?: null,
             'unidad_medida' => $this->input('unidad_medida', 'Unidad'),
             'precio' => (float) $this->input('precio', 0),
+            'precio_compra' => (float) $this->input('precio_compra', 0),
             'stock' => (int) $this->input('stock', 0),
             'stock_minimo' => (int) $this->input('stock_minimo', 5),
             'es_perecedero' => $esPerecedero,
@@ -128,6 +134,13 @@ class ProductoController extends Controller
         // Verificar SKU único
         if ($this->productoModel->skuExists($data['sku'])) {
             $this->setFlash('error', 'El SKU ya existe. Use uno diferente.');
+            $this->redirect('productos/crear');
+            return;
+        }
+
+        // Verificar código de barras único
+        if (!empty($data['codigo_barras']) && $this->productoModel->barcodeExists($data['codigo_barras'])) {
+            $this->setFlash('error', 'El código de barras ya existe. Use uno diferente.');
             $this->redirect('productos/crear');
             return;
         }
@@ -211,10 +224,12 @@ class ProductoController extends Controller
             'nombre' => $this->input('nombre'),
             'descripcion' => $this->input('descripcion'),
             'sku' => strtoupper($this->input('sku')),
+            'codigo_barras' => $this->input('codigo_barras') ?: null,
             'categoria_id' => (int) $this->input('categoria_id') ?: null,
             'ubicacion_id' => (int) $this->input('ubicacion_id') ?: null,
             'unidad_medida' => $this->input('unidad_medida', 'Unidad'),
             'precio' => (float) $this->input('precio', 0),
+            'precio_compra' => (float) $this->input('precio_compra', 0),
             'stock_minimo' => (int) $this->input('stock_minimo', 5),
             'activo' => $this->input('activo', 1) ? 1 : 0,
             'es_perecedero' => $esPerecedero,
@@ -231,6 +246,13 @@ class ProductoController extends Controller
         // Verificar SKU único (excluyendo el actual)
         if ($this->productoModel->skuExists($data['sku'], $id)) {
             $this->setFlash('error', 'El SKU ya existe. Use uno diferente.');
+            $this->redirect("productos/editar/{$id}");
+            return;
+        }
+
+        // Verificar código de barras único (excluyendo el actual)
+        if (!empty($data['codigo_barras']) && $this->productoModel->barcodeExists($data['codigo_barras'], $id)) {
+            $this->setFlash('error', 'El código de barras ya existe. Use uno diferente.');
             $this->redirect("productos/editar/{$id}");
             return;
         }
@@ -447,6 +469,15 @@ class ProductoController extends Controller
             $errors[] = 'El stock mínimo no puede ser negativo.';
         }
 
+        // Validar formato de código de barras (si se proporcionó)
+        if (!empty($data['codigo_barras']) && mb_strlen($data['codigo_barras']) > 50) {
+            $errors[] = 'El código de barras no puede exceder 50 caracteres.';
+        }
+
+        if (isset($data['precio_compra']) && $data['precio_compra'] < 0) {
+            $errors[] = 'El precio de compra no puede ser negativo.';
+        }
+
         // Removida la validación de fecha_vencimiento aquí porque ahora es manejada por el Lote.
 
         return $errors;
@@ -472,7 +503,14 @@ class ProductoController extends Controller
         $precioHistorial = $precioHistorialModel->getByProducto((int) $id, 15);
         $precioChartData = $precioHistorialModel->getChartData((int) $id, 30);
 
+        // Proveedores vinculados
+        $proveedores = $this->ppModel->findByProducto((int) $id);
+
+        // Todos los proveedores (para el modal de vincular)
+        $todosProveedores = $this->proveedorModel->findAll('nombre', 'ASC');
+
         $flash = $this->getFlash();
+        $csrfToken = $this->generateCSRF();
 
         $this->view('productos/show', [
             'titulo' => $producto->nombre,
@@ -480,6 +518,9 @@ class ProductoController extends Controller
             'movimientos' => $movimientos,
             'precioHistorial' => $precioHistorial,
             'precioChartData' => $precioChartData,
+            'proveedores' => $proveedores,
+            'todosProveedores' => $todosProveedores,
+            'csrfToken' => $csrfToken,
             'flash' => $flash,
             'loadChartJS' => true,
         ]);
@@ -676,5 +717,97 @@ class ProductoController extends Controller
         }, $productos);
 
         $this->json($results);
+    }
+
+    /**
+     * AJAX: Vincular un proveedor a un producto.
+     */
+    public function addProveedor(): void
+    {
+        if (!$this->validateCSRF()) {
+            $this->json(['success' => false, 'error' => 'Token inválido'], 403);
+            return;
+        }
+
+        $productoId = (int) $this->input('producto_id');
+        $proveedorId = (int) $this->input('proveedor_id');
+        $precioCompra = $this->input('precio_compra') !== null ? (float) $this->input('precio_compra') : null;
+        $codigoProveedor = $this->input('codigo_proveedor', '');
+        $tiempoEntrega = $this->input('tiempo_entrega_dias') !== null ? (int) $this->input('tiempo_entrega_dias') : null;
+        $esPreferido = $this->input('es_preferido') ? 1 : 0;
+        $notas = $this->input('notas', '');
+
+        if ($productoId <= 0 || $proveedorId <= 0) {
+            $this->json(['success' => false, 'error' => 'Datos inválidos'], 400);
+            return;
+        }
+
+        // Verificar que producto y proveedor existen
+        $producto = $this->productoModel->findById($productoId);
+        $proveedor = $this->proveedorModel->findById($proveedorId);
+
+        if (!$producto || !$proveedor) {
+            $this->json(['success' => false, 'error' => 'Producto o proveedor no encontrado'], 404);
+            return;
+        }
+
+        $data = [
+            'codigo_proveedor' => $codigoProveedor ?: null,
+            'precio_compra' => $precioCompra,
+            'tiempo_entrega_dias' => $tiempoEntrega,
+            'es_preferido' => $esPreferido,
+            'notas' => $notas ?: null,
+        ];
+
+        $id = $this->ppModel->vincular($productoId, $proveedorId, $data);
+
+        // Si es preferido, quitar preferido de los demás
+        if ($esPreferido) {
+            $this->ppModel->setPreferido($productoId, $id);
+        }
+
+        $this->securityService->logAction(
+            currentUserId(),
+            'vincular_proveedor',
+            'productos',
+            "Proveedor {$proveedor->nombre} vinculado a producto {$producto->nombre} (ID: {$productoId})"
+        );
+
+        $this->json(['success' => true, 'id' => $id]);
+    }
+
+    /**
+     * AJAX: Desvincular un proveedor de un producto.
+     */
+    public function removeProveedor(): void
+    {
+        if (!$this->validateCSRF()) {
+            $this->json(['success' => false, 'error' => 'Token inválido'], 403);
+            return;
+        }
+
+        $vinculoId = (int) $this->input('vinculo_id');
+
+        if ($vinculoId <= 0) {
+            $this->json(['success' => false, 'error' => 'ID inválido'], 400);
+            return;
+        }
+
+        $vinculo = $this->ppModel->findById($vinculoId);
+        if (!$vinculo) {
+            $this->json(['success' => false, 'error' => 'Vínculo no encontrado'], 404);
+            return;
+        }
+
+        $this->ppModel->desvincular($vinculoId);
+
+        $this->securityService->logAction(
+            currentUserId(),
+            'desvincular_proveedor',
+            'productos',
+            "Proveedor desvinculado del producto (vínculo ID: {$vinculoId})"
+        );
+
+        $this->json(['success' => true]);
     }
 }

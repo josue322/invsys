@@ -48,6 +48,11 @@
                                            style="text-transform:uppercase" placeholder="ELEC-001"
                                            value="<?= htmlspecialchars($prefill['sku'] ?? '') ?>">
                                 </div>
+                                <div class="col-md-4">
+                                    <label for="codigo_barras" class="form-label"><i class="bi bi-upc-scan me-1"></i>Código de Barras</label>
+                                    <input type="text" class="form-control" id="codigo_barras" name="codigo_barras" maxlength="50" 
+                                           placeholder="EAN-13, UPC, etc.">
+                                </div>
                                 <div class="col-12">
                                     <label for="descripcion" class="form-label">Descripción</label>
                                     <textarea class="form-control" id="descripcion" name="descripcion" rows="3"><?= htmlspecialchars($prefill['descripcion'] ?? '') ?></textarea>
@@ -87,18 +92,25 @@
                         </div>
 
                         <!-- Financiero y Stock -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="precio" class="form-label">Precio Referencial *</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" id="precio" name="precio" step="0.01" min="0" value="0.00" required>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label for="precio_compra" class="form-label"><i class="bi bi-tag me-1"></i>Precio de Compra</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="precio_compra" name="precio_compra" step="0.01" min="0" value="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <label for="stock" class="form-label">Stock Inicial Global</label>
                             <input type="number" class="form-control" id="stock" name="stock" min="0" value="0">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="stock_minimo" class="form-label">Alerta Stock Mínimo</label>
                             <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" min="0" value="5">
                         </div>

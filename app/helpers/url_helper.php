@@ -81,6 +81,22 @@ function isRoutePrefix(string $prefix): bool
 }
 
 /**
+ * Check if the current URL matches an exact route path.
+ *
+ * @param string $route Exact route path to match
+ * @return bool
+ */
+function isRoute(string $route): bool
+{
+    $current = trim(parse_url(currentUrl(), PHP_URL_PATH), '/');
+    $currentClean = str_replace(trim(BASE_URL, '/'), '', $current);
+    $currentClean = trim($currentClean, '/');
+    $route = trim($route, '/');
+
+    return $currentClean === $route;
+}
+
+/**
  * Generar token CSRF como campo hidden de formulario.
  *
  * @return string HTML del campo hidden

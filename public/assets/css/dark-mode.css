@@ -357,3 +357,71 @@
 [data-bs-theme="dark"] *:focus-visible {
     outline-color: var(--primary);
 }
+
+/* =====================================================
+   Bootstrap Utility Overrides for Dark Mode
+   bg-white, bg-light, table-light, input-group-text
+   ===================================================== */
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: var(--bg-card) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-bs-theme="dark"] .card-header.bg-white {
+    background-color: var(--bg-card) !important;
+}
+
+[data-bs-theme="dark"] .card-footer.bg-light {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    border-top-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .table-light,
+[data-bs-theme="dark"] .table-light th,
+[data-bs-theme="dark"] .table-light td {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .input-group-text {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-bs-theme="dark"] .form-control[readonly] {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: var(--text-secondary);
+}
+
+[data-bs-theme="dark"] .border {
+    border-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .border-bottom {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .border-top {
+    border-top-color: var(--border-color) !important;
+}
+
+/* Form labels in dark mode */
+[data-bs-theme="dark"] .form-label {
+    color: var(--text-secondary);
+}
+
+[data-bs-theme="dark"] .form-check-label {
+    color: var(--text-primary);
+}
+
+/* Compras: Total card keeps primary bg */
+[data-bs-theme="dark"] .card.bg-primary {
+    background-color: var(--primary) !important;
+}
+

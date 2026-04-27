@@ -26,6 +26,40 @@ class Producto extends Model
     }
 
     /**
+     * Buscar producto por código de barras (exacto).
+     */
+    public function findByBarcode(string $codigo): object|false
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE codigo_barras = :codigo LIMIT 1";
+        return $this->query($sql, ['codigo' => $codigo])->fetch();
+    }
+
+    /**
+     * Buscar producto por SKU o código de barras.
+     * Prioriza barcode, luego SKU.
+     */
+    public function findByCode(string $code): object|false
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE codigo_barras = :code OR sku = :code2 LIMIT 1";
+        return $this->query($sql, ['code' => $code, 'code2' => $code])->fetch();
+    }
+
+    /**
+     * Verificar si un código de barras ya existe (excluyendo un ID).
+     */
+    public function barcodeExists(string $codigo, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE codigo_barras = :codigo";
+        $params = ['codigo' => $codigo];
+
+        if ($excludeId) {
+            $sql .= " AND id != :exclude_id";
+            $params['exclude_id'] = $excludeId;
+        }
+        return (int) $this->query($sql, $params)->fetch()->total > 0;
+    }
+
+    /**
      * Obtener productos con categoría (paginado y con filtros).
      */
     public function getAllWithCategory(
@@ -243,18 +277,19 @@ class Producto extends Model
      */
     public function searchQuick(string $term, int $limit = 10): array
     {
-        $sql = "SELECT p.id, p.nombre, p.sku, p.precio, p.stock, p.imagen, p.unidad_medida,
+        $sql = "SELECT p.id, p.nombre, p.sku, p.codigo_barras, p.precio, p.precio_compra, p.stock, p.imagen, p.unidad_medida,
                        c.nombre as categoria_nombre, u.nombre as ubicacion_nombre
                 FROM {$this->table} p
                 LEFT JOIN categorias c ON p.categoria_id = c.id
                 LEFT JOIN ubicaciones u ON p.ubicacion_id = u.id
                 WHERE p.activo = 1
-                  AND (p.nombre LIKE :term OR p.sku LIKE :term2)
+                  AND (p.nombre LIKE :term OR p.sku LIKE :term2 OR p.codigo_barras LIKE :term3)
                 ORDER BY p.nombre ASC
                 LIMIT {$limit}";
         return $this->query($sql, [
             'term' => "%{$term}%",
             'term2' => "%{$term}%",
+            'term3' => "%{$term}%",
         ])->fetchAll();
     }
 }

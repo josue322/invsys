@@ -685,4 +685,226 @@ class ReporteController extends Controller
             ];
         }, $productos);
     }
+
+    // =================================================================
+    // FASE 2: KARDEX
+    // =================================================================
+
+    /**
+     * Vista del Kardex con filtro de producto y fechas.
+     */
+    public function kardex(): void
+    {
+        $productoModel = new Producto();
+        $kardexModel = new Kardex();
+
+        $productoId = (int) ($_GET['producto_id'] ?? 0);
+        $fechaDesde = $_GET['desde'] ?? null;
+        $fechaHasta = $_GET['hasta'] ?? date('Y-m-d');
+        $valorizado = ($_GET['valorizado'] ?? '0') === '1';
+
+        $productos = $productoModel->findAllActive('nombre', 'ASC');
+        $kardexData = null;
+        $producto = null;
+
+        if ($productoId > 0) {
+            $producto = $productoModel->findById($productoId);
+            if ($producto) {
+                $kardexData = $valorizado
+                    ? $kardexModel->getKardexValorizado($productoId, $fechaDesde, $fechaHasta)
+                    : $kardexModel->getKardex($productoId, $fechaDesde, $fechaHasta);
+            }
+        }
+
+        $this->view('reportes/kardex', [
+            'titulo' => 'Kardex',
+            'productos' => $productos,
+            'productoSeleccionado' => $producto,
+            'kardexData' => $kardexData,
+            'filtros' => [
+                'producto_id' => $productoId,
+                'desde' => $fechaDesde,
+                'hasta' => $fechaHasta,
+                'valorizado' => $valorizado,
+            ],
+            'flash' => $this->getFlash(),
+        ]);
+    }
+
+    /**
+     * Exportar Kardex a CSV.
+     */
+    public function exportKardexCSV(): void
+    {
+        $productoId = (int) ($_GET['producto_id'] ?? 0);
+        if ($productoId <= 0) {
+            $this->setFlash('error', 'Seleccione un producto.');
+            $this->redirect('reportes/kardex');
+            return;
+        }
+
+        $productoModel = new Producto();
+        $producto = $productoModel->findById($productoId);
+        if (!$producto) {
+            $this->setFlash('error', 'Producto no encontrado.');
+            $this->redirect('reportes/kardex');
+            return;
+        }
+
+        $kardexModel = new Kardex();
+        $fechaDesde = $_GET['desde'] ?? null;
+        $fechaHasta = $_GET['hasta'] ?? date('Y-m-d');
+        $valorizado = ($_GET['valorizado'] ?? '0') === '1';
+
+        $data = $valorizado
+            ? $kardexModel->getKardexValorizado($productoId, $fechaDesde, $fechaHasta)
+            : $kardexModel->getKardex($productoId, $fechaDesde, $fechaHasta);
+
+        $export = new ExportService();
+        $fileName = "kardex_{$producto->sku}_" . date('Y-m-d');
+        
+        $headers = ['Fecha', 'Tipo', 'Referencia', 'Entrada', 'Salida', 'Saldo', 'Usuario'];
+        if ($valorizado) {
+            $headers = array_merge($headers, ['Valor Entrada', 'Valor Salida', 'Valor Saldo']);
+        }
+
+        $rows = array_map(function($m) use ($valorizado) {
+            $row = [
+                'fecha' => formatDate($m->fecha),
+                'tipo' => ucfirst($m->tipo),
+                'referencia' => $m->referencia,
+                'entrada' => $m->entrada,
+                'salida' => $m->salida,
+                'saldo' => $m->saldo,
+                'usuario' => $m->usuario,
+            ];
+            if ($valorizado) {
+                $row['valor_entrada'] = number_format($m->valor_entrada, 2);
+                $row['valor_salida'] = number_format($m->valor_salida, 2);
+                $row['valor_saldo'] = number_format($m->valor_saldo, 2);
+            }
+            return $row;
+        }, $data['movimientos']);
+
+        $this->securityService->logAction(currentUserId(), 'export', 'reportes', "Exportó Kardex CSV del producto {$producto->sku}");
+        $export->exportCSV($fileName, $headers, $rows);
+    }
+
+    // =================================================================
+    // FASE 2: ANÁLISIS AVANZADOS
+    // =================================================================
+
+    /**
+     * Vista de Análisis ABC.
+     */
+    public function analisisABC(): void
+    {
+        $analisis = new AnalisisInventario();
+        $data = $analisis->getClasificacionABC();
+
+        $this->view('reportes/analisis-abc', [
+            'titulo' => 'Análisis ABC',
+            'items' => $data['items'],
+            'totals' => $data['totals'],
+            'flash' => $this->getFlash(),
+            'loadChartJS' => true,
+        ]);
+    }
+
+    /**
+     * Vista de Índice de Rotación.
+     */
+    public function rotacion(): void
+    {
+        $dias = (int) ($_GET['dias'] ?? 90);
+        $dias = max(7, min(365, $dias));
+
+        $analisis = new AnalisisInventario();
+        $items = $analisis->getRotacion($dias);
+
+        $this->view('reportes/rotacion', [
+            'titulo' => 'Rotación de Inventario',
+            'items' => $items,
+            'dias' => $dias,
+            'flash' => $this->getFlash(),
+        ]);
+    }
+
+    /**
+     * Vista de Productos sin Movimiento (inventario muerto).
+     */
+    public function productosMuertos(): void
+    {
+        $dias = (int) ($_GET['dias'] ?? 60);
+        $dias = max(7, min(365, $dias));
+
+        $analisis = new AnalisisInventario();
+        $items = $analisis->getProductosSinMovimiento($dias);
+
+        // Calcular valor total retenido
+        $valorRetenido = array_sum(array_map(fn($i) => (float) $i->valor_retenido, $items));
+
+        $this->view('reportes/productos-muertos', [
+            'titulo' => 'Inventario Muerto',
+            'items' => $items,
+            'dias' => $dias,
+            'valorRetenido' => $valorRetenido,
+            'flash' => $this->getFlash(),
+        ]);
+    }
+
+    /**
+     * Exportar Análisis ABC a CSV.
+     */
+    public function exportABCcsv(): void
+    {
+        $analisis = new AnalisisInventario();
+        $data = $analisis->getClasificacionABC();
+
+        $export = new ExportService();
+        $headers = ['Clase', 'SKU', 'Producto', 'Categoría', 'Stock', 'Precio', 'Valor Inventario', '% del Total', '% Acumulado'];
+        
+        $rows = array_map(fn($i) => [
+            'clase' => $i->clase,
+            'sku' => $i->sku,
+            'nombre' => $i->nombre,
+            'categoria' => $i->categoria,
+            'stock' => $i->stock,
+            'precio' => number_format($i->precio, 2),
+            'valor' => number_format($i->valor, 2),
+            'porcentaje' => $i->porcentaje . '%',
+            'porcentaje_acum' => $i->porcentaje_acumulado . '%',
+        ], $data['items']);
+
+        $this->securityService->logAction(currentUserId(), 'export', 'reportes', 'Exportó Análisis ABC a CSV');
+        $export->exportCSV('analisis_abc_' . date('Y-m-d'), $headers, $rows);
+    }
+
+    /**
+     * Exportar Rotación a CSV.
+     */
+    public function exportRotacionCSV(): void
+    {
+        $dias = (int) ($_GET['dias'] ?? 90);
+        $analisis = new AnalisisInventario();
+        $items = $analisis->getRotacion($dias);
+
+        $export = new ExportService();
+        $headers = ['SKU', 'Producto', 'Categoría', 'Stock', 'Salidas', 'Entradas', 'Índice Rotación', 'Velocidad', 'Días de Inventario'];
+
+        $rows = array_map(fn($i) => [
+            'sku' => $i->sku,
+            'nombre' => $i->nombre,
+            'categoria' => $i->categoria,
+            'stock' => $i->stock,
+            'salidas' => $i->salidas,
+            'entradas' => $i->entradas,
+            'rotacion' => $i->rotacion,
+            'velocidad' => ucfirst($i->velocidad),
+            'dias_inventario' => $i->dias_inventario >= 999 ? '+999' : $i->dias_inventario,
+        ], $items);
+
+        $this->securityService->logAction(currentUserId(), 'export', 'reportes', "Exportó Rotación de Inventario CSV ({$dias} días)");
+        $export->exportCSV("rotacion_inventario_{$dias}d_" . date('Y-m-d'), $headers, $rows);
+    }
 }

@@ -43,15 +43,20 @@ class EscanerController extends Controller
             return;
         }
 
-        // Buscar por SKU (exacto)
-        $producto = $this->productoModel->findBySku($codigo);
+        // 1. Buscar por código de barras (exacto)
+        $producto = $this->productoModel->findByBarcode($codigo);
+
+        // 2. Si no se encontró, buscar por SKU (exacto)
+        if (!$producto) {
+            $producto = $this->productoModel->findBySku($codigo);
+        }
 
         if (!$producto) {
-            // Intentar búsqueda parcial
+            // 3. Intentar búsqueda parcial por SKU o código de barras
             $productos = $this->productoModel->rawQuery(
-                "SELECT id, nombre, sku, stock, precio, unidad_medida, activo 
-                 FROM productos WHERE sku LIKE :sku LIMIT 5",
-                ['sku' => "%{$codigo}%"]
+                "SELECT id, nombre, sku, codigo_barras, stock, precio, unidad_medida, activo 
+                 FROM productos WHERE sku LIKE :sku OR codigo_barras LIKE :barcode LIMIT 5",
+                ['sku' => "%{$codigo}%", 'barcode' => "%{$codigo}%"]
             );
 
             if (empty($productos)) {
@@ -71,6 +76,7 @@ class EscanerController extends Controller
                         'id'     => $p->id,
                         'nombre' => $p->nombre,
                         'sku'    => $p->sku,
+                        'barcode' => $p->codigo_barras ?? null,
                         'stock'  => $p->stock,
                         'url'    => url("productos/editar/{$p->id}"),
                     ], $productos),

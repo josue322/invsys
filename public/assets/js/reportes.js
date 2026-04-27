@@ -43,17 +43,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const baseCSV = PAGE_DATA.exportCsvUrl || '';
     const basePDF = PAGE_DATA.exportPdfUrl || '';
 
-    modoSelect.addEventListener('change', function() {
-        if (this.value === 'exacta') {
-            exactaGroup.classList.remove('d-none');
-            desdeGroup.classList.add('d-none');
-            hastaGroup.classList.add('d-none');
-        } else {
-            exactaGroup.classList.add('d-none');
-            desdeGroup.classList.remove('d-none');
-            hastaGroup.classList.remove('d-none');
-        }
-    });
+    if (modoSelect) {
+        modoSelect.addEventListener('change', function() {
+            if (this.value === 'exacta') {
+                exactaGroup.classList.remove('d-none');
+                desdeGroup.classList.add('d-none');
+                hastaGroup.classList.add('d-none');
+            } else {
+                exactaGroup.classList.add('d-none');
+                desdeGroup.classList.remove('d-none');
+                hastaGroup.classList.remove('d-none');
+            }
+        });
+    }
 
     function buildUrl(base) {
         const modo = modoSelect.value;
@@ -78,13 +80,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    btnCSV.addEventListener('click', function() {
-        const url = buildUrl(baseCSV);
-        if (url) window.location.href = url;
-    });
+    if (btnCSV) {
+        btnCSV.addEventListener('click', function() {
+            const url = buildUrl(baseCSV);
+            if (url) window.location.href = url;
+        });
+    }
 
-    btnPDF.addEventListener('click', function() {
-        const url = buildUrl(basePDF);
-        if (url) window.open(url, '_blank');
-    });
+    if (btnPDF) {
+        btnPDF.addEventListener('click', function() {
+            const url = buildUrl(basePDF);
+            if (url) window.open(url, '_blank');
+        });
+    }
+
+    // === Gráfico ABC (Pareto) ===
+    const ctxABC = document.getElementById('chartABC');
+    if (ctxABC && typeof Chart !== 'undefined') {
+        const t = PAGE_DATA.totals;
+        if (t) {
+            new Chart(ctxABC, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        `A — ${t.count_A} productos`,
+                        `B — ${t.count_B} productos`,
+                        `C — ${t.count_C} productos`,
+                    ],
+                    datasets: [{
+                        data: [t.A || 0, t.B || 0, t.C || 0],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#06b6d4'],
+                        borderWidth: 0,
+                        hoverOffset: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 16, color: '#94a3b8', font: { size: 12 } } },
+                    }
+                }
+            });
+        }
+    }
 });

@@ -39,7 +39,7 @@
             <div class="card-body text-center">
                 <svg id="barcode"></svg>
                 <div class="mt-2">
-                    <strong><?= htmlspecialchars($producto->sku) ?></strong>
+                    <strong><?= htmlspecialchars(!empty($producto->codigo_barras) ? $producto->codigo_barras : $producto->sku) ?></strong>
                     <br><small class="text-muted"><?= htmlspecialchars($producto->nombre) ?></small>
                 </div>
             </div>
@@ -61,13 +61,38 @@
                             <td class="text-muted">SKU</td>
                             <td><code><?= htmlspecialchars($producto->sku) ?></code></td>
                         </tr>
+                        <?php if (!empty($producto->codigo_barras)): ?>
+                        <tr>
+                            <td class="text-muted"><i class="bi bi-upc-scan me-1"></i>Cód. Barras</td>
+                            <td><code><?= htmlspecialchars($producto->codigo_barras) ?></code></td>
+                        </tr>
+                        <?php endif; ?>
                         <tr>
                             <td class="text-muted">Categoría</td>
                             <td><?= htmlspecialchars($producto->categoria_nombre ?? 'Sin categoría') ?></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Precio</td>
+                            <td class="text-muted">Precio Ref.</td>
                             <td><strong class="text-success"><?= formatMoney($producto->precio) ?></strong></td>
+                        </tr>
+                        <?php 
+                            $precioCompra = (float) ($producto->precio_compra ?? 0);
+                            $precioRef = (float) $producto->precio;
+                            $margen = $precioRef - $precioCompra;
+                            $margenPct = $precioCompra > 0 ? round(($margen / $precioCompra) * 100, 1) : 0;
+                        ?>
+                        <tr>
+                            <td class="text-muted"><i class="bi bi-tag me-1"></i>Precio Compra</td>
+                            <td>
+                                <?php if ($precioCompra > 0): ?>
+                                    <?= formatMoney($precioCompra) ?>
+                                    <span class="badge ms-2 <?= $margen >= 0 ? 'text-bg-success' : 'text-bg-danger' ?>" style="font-size:0.7rem">
+                                        Margen: <?= $margen >= 0 ? '+' : '' ?><?= formatMoney($margen) ?> (<?= $margenPct ?>%)
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted">— No definido</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <tr>
                             <td class="text-muted">Descripción</td>
@@ -143,6 +168,133 @@
                     </div>
                 </div>
             </div>
+        <?php endif; ?>
+
+        <!-- Proveedores Vinculados -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-truck me-2"></i>Proveedores</h6>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary" id="proveedoresCount"><?= count($proveedores ?? []) ?></span>
+                    <?php if (hasPermission('productos.editar')): ?>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalVincularProveedor" id="btnAbrirModalProv">
+                            <i class="bi bi-plus-lg me-1"></i>Vincular
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="card-body p-0" id="proveedoresBody">
+                <?php if (empty($proveedores)): ?>
+                    <div class="text-center py-4" id="proveedoresEmpty">
+                        <i class="bi bi-truck text-muted" style="font-size:2rem"></i>
+                        <p class="text-muted mb-0 mt-2"><small>Sin proveedores vinculados.<br>Use el botón "Vincular" para agregar uno.</small></p>
+                    </div>
+                <?php else: ?>
+                    <div class="table-wrapper">
+                        <table class="table table-sm mb-0" id="tablaProveedores">
+                            <thead>
+                                <tr>
+                                    <th>Proveedor</th>
+                                    <th>Cód. Prov.</th>
+                                    <th>Precio</th>
+                                    <th>Entrega</th>
+                                    <?php if (hasPermission('productos.editar')): ?>
+                                        <th style="width:60px"></th>
+                                    <?php endif; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($proveedores as $prov): ?>
+                                <tr id="vinculo-<?= $prov->id ?>">
+                                    <td>
+                                        <strong><?= htmlspecialchars($prov->proveedor_nombre) ?></strong>
+                                        <?php if ($prov->es_preferido): ?>
+                                            <span class="badge text-bg-warning ms-1" style="font-size:0.65rem"><i class="bi bi-star-fill me-1"></i>Preferido</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><small class="text-muted"><?= htmlspecialchars($prov->codigo_proveedor ?? '—') ?></small></td>
+                                    <td><?= $prov->precio_compra ? formatMoney($prov->precio_compra) : '—' ?></td>
+                                    <td><?= $prov->tiempo_entrega_dias ? $prov->tiempo_entrega_dias . ' días' : '—' ?></td>
+                                    <?php if (hasPermission('productos.editar')): ?>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger btn-desvincular" data-vinculo-id="<?= $prov->id ?>" title="Desvincular">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </td>
+                                    <?php endif; ?>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Modal Vincular Proveedor -->
+        <?php if (hasPermission('productos.editar')): ?>
+        <div class="modal fade" id="modalVincularProveedor" tabindex="-1" aria-labelledby="modalVincularLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title fw-bold" id="modalVincularLabel"><i class="bi bi-link-45deg me-2"></i>Vincular Proveedor</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formVincularProveedor">
+                            <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+                            <input type="hidden" name="producto_id" value="<?= $producto->id ?>">
+                            
+                            <div class="mb-3">
+                                <label for="prov_proveedor_id" class="form-label">Proveedor *</label>
+                                <select class="form-select" id="prov_proveedor_id" name="proveedor_id" required>
+                                    <option value="">— Seleccionar proveedor —</option>
+                                    <?php foreach ($todosProveedores as $tp): ?>
+                                        <option value="<?= $tp->id ?>"><?= htmlspecialchars($tp->nombre) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="prov_codigo" class="form-label">Código del Proveedor</label>
+                                    <input type="text" class="form-control" id="prov_codigo" name="codigo_proveedor" placeholder="Ej: HP-PB450" maxlength="50">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="prov_precio" class="form-label">Precio de Compra</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="prov_precio" name="precio_compra" step="0.01" min="0">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="prov_entrega" class="form-label">Tiempo de Entrega</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="prov_entrega" name="tiempo_entrega_dias" min="0">
+                                        <span class="input-group-text">días</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="prov_preferido" name="es_preferido" value="1">
+                                        <label class="form-check-label" for="prov_preferido"><i class="bi bi-star-fill text-warning me-1"></i>Proveedor Preferido</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="prov_notas" class="form-label">Notas</label>
+                                    <textarea class="form-control" id="prov_notas" name="notas" rows="2" placeholder="Observaciones opcionales..."></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btnVincularProveedor">
+                            <i class="bi bi-link-45deg me-1"></i>Vincular Proveedor
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
 
@@ -292,7 +444,11 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script id="page-data" type="application/json"><?= json_encode([
     'sku' => $producto->sku,
+    'codigo_barras' => $producto->codigo_barras ?? null,
     'nombre' => $producto->nombre,
+    'productoId' => $producto->id,
+    'csrfToken' => $csrfToken ?? '',
+    'baseUrl' => rtrim(BASE_URL, '/'),
     'precioChart' => $precioChartData ?? [],
     'monedaSimbolo' => Config::get('moneda_simbolo', '$'),
 ]) ?></script>

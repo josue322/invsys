@@ -6,6 +6,7 @@
 const ConfirmModal = (() => {
     let modalEl = null;
     let pendingForm = null;
+    let pendingCallback = null;
 
     /**
      * Build the modal DOM (once, lazily)
@@ -61,9 +62,9 @@ const ConfirmModal = (() => {
      * @param {string} options.cancelText - Text for the cancel button
      * @param {string} options.type - 'danger' | 'warning' | 'info' (icon/color scheme)
      * @param {string} options.icon - Bootstrap icon class (e.g. 'bi-trash-fill')
-     * @param {HTMLFormElement} form - The form to submit on confirm
+     * @param {HTMLFormElement|Function} formOrCallback - The form to submit on confirm, or a callback function
      */
-    function open(options, form) {
+    function open(options, formOrCallback) {
         ensureModal();
 
         const title = options.title || '¿Estás seguro?';
@@ -95,7 +96,14 @@ const ConfirmModal = (() => {
         confirmBtn.className = 'confirm-modal-btn confirm-modal-btn-confirm';
         confirmBtn.classList.add(`confirm-modal-btn-${type}`);
 
-        pendingForm = form || null;
+        // Support both form and callback
+        if (typeof formOrCallback === 'function') {
+            pendingForm = null;
+            pendingCallback = formOrCallback;
+        } else {
+            pendingForm = formOrCallback || null;
+            pendingCallback = null;
+        }
 
         // Show with animation
         modalEl.classList.add('show');
@@ -130,10 +138,13 @@ const ConfirmModal = (() => {
         modalEl.classList.remove('show');
         document.body.style.overflow = '';
         pendingForm = null;
+        pendingCallback = null;
     }
 
     function confirmAction() {
-        if (pendingForm) {
+        if (pendingCallback) {
+            pendingCallback();
+        } else if (pendingForm) {
             // Remove the data-confirm attribute temporarily so onsubmit doesn't re-trigger
             const savedAttr = pendingForm.getAttribute('data-confirm');
             pendingForm.removeAttribute('data-confirm');
