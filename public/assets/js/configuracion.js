@@ -1,6 +1,7 @@
 /**
  * InvSys — Configuración Page Scripts
  */
+document.addEventListener('DOMContentLoaded', function() {
 // Toggle Switch Logic
 document.querySelectorAll('.toggle-switch').forEach(toggle => {
     toggle.addEventListener('click', function() {
@@ -50,8 +51,9 @@ document.querySelector('[data-config="permitir_registro"]')?.addEventListener('c
 document.querySelectorAll('.toggle-pass').forEach(btn => {
     btn.addEventListener('click', function() { const i=document.getElementById(this.dataset.target); const ic=this.querySelector('i'); if(i.type==='password'){i.type='text';ic.className='bi bi-eye-slash';}else{i.type='password';ic.className='bi bi-eye';} });
 });
-// Test SMTP
-document.getElementById('btnTestMail')?.addEventListener('click', function() {
+}); // End DOMContentLoaded
+
+window.testSmtp = function() {
     const PD = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
     
     const email = prompt('Ingrese el correo electrónico al que desea enviar la prueba:', '');
@@ -61,7 +63,8 @@ document.getElementById('btnTestMail')?.addEventListener('click', function() {
         return;
     }
 
-    const btn=this, orig=btn.innerHTML; 
+    const btn = document.getElementById('btnTestMail');
+    const orig = btn.innerHTML; 
     btn.disabled=true; 
     btn.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Enviando...';
     
@@ -86,4 +89,4 @@ document.getElementById('btnTestMail')?.addEventListener('click', function() {
         }
         setTimeout(()=>{btn.innerHTML=orig;btn.className='btn btn-sm btn-outline-warning';},3000);
     }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;alert('Error de conexión con el servidor.');});
-});
+};
