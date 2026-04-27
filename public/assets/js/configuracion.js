@@ -51,9 +51,8 @@ document.querySelector('[data-config="permitir_registro"]')?.addEventListener('c
 document.querySelectorAll('.toggle-pass').forEach(btn => {
     btn.addEventListener('click', function() { const i=document.getElementById(this.dataset.target); const ic=this.querySelector('i'); if(i.type==='password'){i.type='text';ic.className='bi bi-eye-slash';}else{i.type='password';ic.className='bi bi-eye';} });
 });
-}); // End DOMContentLoaded
-
-window.testSmtp = function() {
+// Test SMTP
+document.getElementById('btnTestMail')?.addEventListener('click', function() {
     const PD = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
     
     const email = prompt('Ingrese el correo electrónico al que desea enviar la prueba:', '');
@@ -63,7 +62,7 @@ window.testSmtp = function() {
         return;
     }
 
-    const btn = document.getElementById('btnTestMail');
+    const btn = this;
     const orig = btn.innerHTML; 
     btn.disabled=true; 
     btn.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Enviando...';
@@ -89,4 +88,6 @@ window.testSmtp = function() {
         }
         setTimeout(()=>{btn.innerHTML=orig;btn.className='btn btn-sm btn-outline-warning';},3000);
     }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;alert('Error de conexión con el servidor.');});
-};
+});
+
+}); // End DOMContentLoaded

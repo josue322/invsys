@@ -488,7 +488,7 @@
                             <div class="d-flex align-items-center gap-2 mt-3 p-3 rounded" style="background: var(--bg-secondary);">
                                 <i class="bi bi-send text-warning"></i>
                                 <small class="text-muted flex-grow-1">Guarda primero, luego envía un correo de prueba para verificar la configuración.</small>
-                                <button type="button" class="btn btn-sm btn-outline-warning" id="btnTestMail" onclick="testSmtp()">
+                                <button type="button" class="btn btn-sm btn-outline-warning" id="btnTestMail">
                                     <i class="bi bi-envelope-check me-1"></i>Probar
                                 </button>
                             </div>
