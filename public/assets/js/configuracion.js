@@ -52,42 +52,82 @@ document.querySelectorAll('.toggle-pass').forEach(btn => {
     btn.addEventListener('click', function() { const i=document.getElementById(this.dataset.target); const ic=this.querySelector('i'); if(i.type==='password'){i.type='text';ic.className='bi bi-eye-slash';}else{i.type='password';ic.className='bi bi-eye';} });
 });
 // Test SMTP
-document.getElementById('btnTestMail')?.addEventListener('click', function() {
-    const PD = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
-    
-    const email = prompt('Ingrese el correo electrónico al que desea enviar la prueba:', '');
-    if (email === null) return; // cancelado
-    if (!email || email.trim() === '' || !email.includes('@')) {
-        alert('Por favor, ingrese un correo electrónico válido.');
-        return;
-    }
+const btnTestMail = document.getElementById('btnTestMail');
+const modalTestSmtp = document.getElementById('modalTestSmtp');
+const btnConfirmTestMail = document.getElementById('btnConfirmTestMail');
+let bsModalTestSmtp = null;
 
-    const btn = this;
-    const orig = btn.innerHTML; 
-    btn.disabled=true; 
-    btn.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Enviando...';
-    
-    fetch(PD.testMailUrl||'', { 
-        method:'POST', 
-        headers:{'Content-Type':'application/x-www-form-urlencoded'}, 
-        body:'_csrf_token='+encodeURIComponent(PD.csrfToken||'') + '&email=' + encodeURIComponent(email.trim()) 
-    })
-    .then(r=>r.json()).then(d => { 
-        btn.disabled=false;
-        if(d.success){
-            btn.innerHTML='<i class="bi bi-check-circle me-1"></i>¡Enviado!';
-            btn.classList.remove('btn-outline-warning');
-            btn.classList.add('btn-outline-success');
-            alert('¡El correo de prueba ha sido enviado exitosamente a ' + email + '!');
+if (btnTestMail && modalTestSmtp) {
+    btnTestMail.addEventListener('click', function() {
+        if (!bsModalTestSmtp) {
+            bsModalTestSmtp = new bootstrap.Modal(modalTestSmtp);
         }
-        else{
-            btn.innerHTML='<i class="bi bi-x-circle me-1"></i>Error';
-            btn.classList.remove('btn-outline-warning');
-            btn.classList.add('btn-outline-danger');
-            alert('Error: '+(d.message||'No se pudo enviar'));
-        }
-        setTimeout(()=>{btn.innerHTML=orig;btn.className='btn btn-sm btn-outline-warning';},3000);
-    }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;alert('Error de conexión con el servidor.');});
-});
+        document.getElementById('smtpTestEmail').value = '';
+        bsModalTestSmtp.show();
+    });
+
+    modalTestSmtp.addEventListener('shown.bs.modal', function () {
+        document.getElementById('smtpTestEmail').focus();
+    });
+
+    if (btnConfirmTestMail) {
+        btnConfirmTestMail.addEventListener('click', function() {
+            const emailInput = document.getElementById('smtpTestEmail');
+            const email = emailInput.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                if (typeof showToast === 'function') {
+                    showToast('Por favor, ingrese un correo electrónico válido.', 'warning');
+                } else {
+                    alert('Por favor, ingrese un correo electrónico válido.');
+                }
+                emailInput.focus();
+                return;
+            }
+
+            const PD = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
+            const btn = this;
+            const orig = btn.innerHTML; 
+            btn.disabled = true; 
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Enviando...';
+            
+            fetch(PD.testMailUrl || '', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 
+                body: '_csrf_token=' + encodeURIComponent(PD.csrfToken || '') + '&email=' + encodeURIComponent(email) 
+            })
+            .then(r => r.json())
+            .then(d => { 
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                bsModalTestSmtp.hide();
+                
+                if(d.success){
+                    if (typeof showToast === 'function') {
+                        showToast('El correo de prueba ha sido enviado exitosamente a ' + email, 'success');
+                    } else {
+                        alert('¡El correo de prueba ha sido enviado exitosamente a ' + email + '!');
+                    }
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast(d.message || 'No se pudo enviar el correo de prueba', 'error');
+                    } else {
+                        alert('Error: ' + (d.message || 'No se pudo enviar'));
+                    }
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                bsModalTestSmtp.hide();
+                if (typeof showToast === 'function') {
+                    showToast('Error de conexión con el servidor.', 'error');
+                } else {
+                    alert('Error de conexión con el servidor.');
+                }
+            });
+        });
+    }
+}
 
 }); // End DOMContentLoaded
