@@ -145,17 +145,17 @@ class ConfigController extends Controller
         MailService::reset();
         $mailService = MailService::getInstance();
 
-        $adminEmail = $_SESSION['user_email'] ?? '';
-        if (empty($adminEmail)) {
-            echo json_encode(['success' => false, 'message' => 'No se encontró el email del admin.']);
+        $targetEmail = trim($_POST['email'] ?? '');
+        if (empty($targetEmail) || !filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Por favor, proporcione un correo electrónico válido.']);
             return;
         }
 
-        $result = $mailService->sendTestEmail($adminEmail);
+        $result = $mailService->sendTestEmail($targetEmail);
 
         $this->securityService->logAction(
             currentUserId(), 'test_smtp', 'configuracion',
-            ($result['success'] ? 'Correo de prueba enviado a ' : 'Fallo al enviar correo de prueba a ') . $adminEmail
+            ($result['success'] ? 'Correo de prueba enviado a ' : 'Fallo al enviar correo de prueba a ') . $targetEmail
         );
 
         echo json_encode($result);

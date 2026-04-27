@@ -53,11 +53,37 @@ document.querySelectorAll('.toggle-pass').forEach(btn => {
 // Test SMTP
 document.getElementById('btnTestMail')?.addEventListener('click', function() {
     const PD = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
-    const btn=this, orig=btn.innerHTML; btn.disabled=true; btn.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Enviando...';
-    fetch(PD.testMailUrl||'', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'_csrf_token='+encodeURIComponent(PD.csrfToken||'') })
-    .then(r=>r.json()).then(d => { btn.disabled=false;
-        if(d.success){btn.innerHTML='<i class="bi bi-check-circle me-1"></i>¡Enviado!';btn.classList.remove('btn-outline-warning');btn.classList.add('btn-outline-success');}
-        else{btn.innerHTML='<i class="bi bi-x-circle me-1"></i>Error';btn.classList.remove('btn-outline-warning');btn.classList.add('btn-outline-danger');alert('Error: '+(d.message||'No se pudo enviar'));}
+    
+    const email = prompt('Ingrese el correo electrónico al que desea enviar la prueba:', '');
+    if (email === null) return; // cancelado
+    if (!email || email.trim() === '' || !email.includes('@')) {
+        alert('Por favor, ingrese un correo electrónico válido.');
+        return;
+    }
+
+    const btn=this, orig=btn.innerHTML; 
+    btn.disabled=true; 
+    btn.innerHTML='<i class="bi bi-hourglass-split me-1"></i>Enviando...';
+    
+    fetch(PD.testMailUrl||'', { 
+        method:'POST', 
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}, 
+        body:'_csrf_token='+encodeURIComponent(PD.csrfToken||'') + '&email=' + encodeURIComponent(email.trim()) 
+    })
+    .then(r=>r.json()).then(d => { 
+        btn.disabled=false;
+        if(d.success){
+            btn.innerHTML='<i class="bi bi-check-circle me-1"></i>¡Enviado!';
+            btn.classList.remove('btn-outline-warning');
+            btn.classList.add('btn-outline-success');
+            alert('¡El correo de prueba ha sido enviado exitosamente a ' + email + '!');
+        }
+        else{
+            btn.innerHTML='<i class="bi bi-x-circle me-1"></i>Error';
+            btn.classList.remove('btn-outline-warning');
+            btn.classList.add('btn-outline-danger');
+            alert('Error: '+(d.message||'No se pudo enviar'));
+        }
         setTimeout(()=>{btn.innerHTML=orig;btn.className='btn btn-sm btn-outline-warning';},3000);
-    }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;alert('Error de conexión');});
+    }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;alert('Error de conexión con el servidor.');});
 });
