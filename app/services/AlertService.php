@@ -163,4 +163,20 @@ class AlertService
             $this->checkExpiration($p->id);
         }
     }
+
+    /**
+     * Obtener las alertas que aún no han sido enviadas por correo.
+     */
+    public function getUnnotifiedAlerts(): array
+    {
+        return $this->alertaModel->getUnnotified();
+    }
+
+    /**
+     * Marcar un conjunto de alertas como notificadas por correo.
+     */
+    public function markAsNotified(array $ids): bool
+    {
+        return $this->alertaModel->markAsNotified($ids);
+    }
 }

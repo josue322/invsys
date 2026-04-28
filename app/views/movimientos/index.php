@@ -96,6 +96,8 @@
                                 <span class="text-success">+<?= $m->cantidad ?></span>
                             <?php elseif ($m->tipo === 'salida'): ?>
                                 <span class="text-danger">-<?= $m->cantidad ?></span>
+                            <?php elseif ($m->tipo === 'transferencia'): ?>
+                                <span class="text-warning"><i class="bi bi-arrow-left-right me-1"></i><?= $m->cantidad ?></span>
                             <?php else: ?>
                                 <span class="text-info"><?= $m->cantidad ?></span>
                             <?php endif; ?>
@@ -115,6 +117,8 @@
                                 <small><i class="bi bi-truck me-1 text-muted"></i><?= htmlspecialchars($m->proveedor_nombre) ?></small>
                             <?php elseif ($m->tipo === 'salida' && !empty($m->destino)): ?>
                                 <small><i class="bi bi-geo-alt me-1 text-muted"></i><?= htmlspecialchars($m->destino) ?></small>
+                            <?php elseif ($m->tipo === 'transferencia'): ?>
+                                <small><i class="bi bi-box-arrow-right me-1 text-muted"></i><?= htmlspecialchars($m->destino) ?></small>
                             <?php else: ?>
                                 <span class="text-muted"><small>-</small></span>
                             <?php endif; ?>

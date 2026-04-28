@@ -470,4 +470,118 @@ HTML;
 </html>
 HTML;
     }
+
+    /**
+     * Enviar un reporte resumido de alertas (Daily Digest) al administrador.
+     *
+     * @param string $toEmail Email del destinatario
+     * @param array $alertas Array de objetos alerta
+     * @return bool True si se envió correctamente
+     */
+    public function sendDailyAlertDigest(string $toEmail, array $alertas): bool
+    {
+        if (empty($alertas)) {
+            return true; // No hay nada que enviar
+        }
+
+        $subject = "[{$this->systemName}] ⚠️ Resumen de Alertas de Inventario";
+        $loginUrl = $this->getLoginUrl();
+        $year = date('Y');
+        $color = Config::get('color_principal', '#e11d48'); // Rojo/Warning por defecto para alertas
+
+        // Agrupar alertas por tipo
+        $agrupadas = [
+            'stock_agotado' => [],
+            'stock_minimo' => [],
+            'otro' => [] // Vencimientos, etc.
+        ];
+
+        foreach ($alertas as $alerta) {
+            $agrupadas[$alerta->tipo][] = $alerta;
+        }
+
+        $totalAlertas = count($alertas);
+
+        // Construir contenido HTML de las alertas
+        $alertasHtml = '';
+
+        if (!empty($agrupadas['stock_agotado'])) {
+            $alertasHtml .= '<h3 style="color: #dc2626; border-bottom: 1px solid #fee2e2; padding-bottom: 8px; margin-top: 24px;">❌ Stock Agotado</h3>';
+            $alertasHtml .= '<ul style="padding-left: 20px; color: #4a4a68; font-size: 14px;">';
+            foreach ($agrupadas['stock_agotado'] as $a) {
+                $alertasHtml .= "<li style='margin-bottom: 8px;'>{$a->mensaje}</li>";
+            }
+            $alertasHtml .= '</ul>';
+        }
+
+        if (!empty($agrupadas['stock_minimo'])) {
+            $alertasHtml .= '<h3 style="color: #ea580c; border-bottom: 1px solid #ffedd5; padding-bottom: 8px; margin-top: 24px;">⚠️ Stock Mínimo Alcanzado</h3>';
+            $alertasHtml .= '<ul style="padding-left: 20px; color: #4a4a68; font-size: 14px;">';
+            foreach ($agrupadas['stock_minimo'] as $a) {
+                $alertasHtml .= "<li style='margin-bottom: 8px;'>{$a->mensaje}</li>";
+            }
+            $alertasHtml .= '</ul>';
+        }
+
+        if (!empty($agrupadas['otro'])) {
+            $alertasHtml .= '<h3 style="color: #0284c7; border-bottom: 1px solid #e0f2fe; padding-bottom: 8px; margin-top: 24px;">⏰ Vencimientos y Otras Alertas</h3>';
+            $alertasHtml .= '<ul style="padding-left: 20px; color: #4a4a68; font-size: 14px;">';
+            foreach ($agrupadas['otro'] as $a) {
+                $alertasHtml .= "<li style='margin-bottom: 8px;'>{$a->mensaje}</li>";
+            }
+            $alertasHtml .= '</ul>';
+        }
+
+        $systemName = htmlspecialchars($this->systemName, ENT_QUOTES, 'UTF-8');
+
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alertas de Inventario</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f8; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background-color: {$color}; padding: 24px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 22px;">Resumen de Alertas de Inventario</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 32px;">
+                            <p style="color: #4a4a68; font-size: 16px; margin: 0 0 16px;">
+                                Tienes <strong>{$totalAlertas} nuevas alertas</strong> en {$systemName} que requieren tu atención.
+                            </p>
+                            
+                            <!-- LISTADO DE ALERTAS -->
+                            {$alertasHtml}
+
+                            <div style="text-align: center; margin: 32px 0 0;">
+                                <a href="{$loginUrl}" style="display: inline-block; background-color: {$color}; color: #ffffff; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold;">
+                                    Ir al Sistema
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background: #f8f8fc; padding: 24px; text-align: center; border-top: 1px solid #ebebf0;">
+                            <p style="color: #9999b0; font-size: 12px; margin: 0;">
+                                Correo generado automáticamente por {$systemName} (Cron Job).
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+
+        return $this->send($toEmail, $subject, $html);
+    }
 }

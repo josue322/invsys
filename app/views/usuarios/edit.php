@@ -81,7 +81,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" name="new_password" id="tempPass" 
                                    value="Temp<?= rand(1000, 9999) ?>!" readonly>
-                            <button type="button" class="btn btn-outline-secondary" onclick="copyTempPass()">
+                            <button type="button" class="btn btn-outline-secondary" id="btnCopyTempPass">
                                 <i class="bi bi-clipboard"></i>
                             </button>
                         </div>

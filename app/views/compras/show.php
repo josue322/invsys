@@ -8,7 +8,7 @@
         <a href="<?= url('compras') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Volver
         </a>
-        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+        <button type="button" class="btn btn-outline-primary btn-print">
             <i class="bi bi-printer me-1"></i>Imprimir
         </button>
     </div>
@@ -184,7 +184,7 @@
                         <?php endif; ?>
 
                         <button type="submit" class="btn btn-primary w-100 fw-medium"
-                            onclick="return confirm('¿Está seguro de recibir esta orden? Se actualizará el inventario permanentemente.')">
+                            data-native-confirm="¿Está seguro de recibir esta orden? Se actualizará el inventario permanentemente.">
                             <i class="bi bi-check2-circle me-1"></i>Marcar como Recibida
                         </button>
                     </form>
@@ -198,7 +198,7 @@
                     <form method="POST" action="<?= url('compras/cancelar/' . $orden->id) ?>">
                         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                         <button type="submit" class="btn btn-outline-danger w-100 btn-sm"
-                            onclick="return confirm('¿Está seguro de cancelar esta orden? Esta acción no se puede deshacer.')">
+                            data-native-confirm="¿Está seguro de cancelar esta orden? Esta acción no se puede deshacer.">
                             Cancelar Orden
                         </button>
                     </form>

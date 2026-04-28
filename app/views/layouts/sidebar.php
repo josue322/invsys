@@ -51,6 +51,11 @@
                 <i class="bi bi-arrow-left-right"></i>
                 <span>Movimientos</span>
             </a>
+            
+            <a href="<?= url('transferencias') ?>" class="nav-link <?= isRoutePrefix('transferencias') ? 'active' : '' ?>" id="nav-transferencias">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Transferencias</span>
+            </a>
             <?php endif; ?>
 
             <?php if (hasPermission('alertas.ver')): ?>
@@ -89,12 +94,19 @@
         <?php endif; ?>
         <?php if (hasPermission('requisiciones.ver')): ?>
         <div class="nav-section">
-            <span class="nav-section-title">Despachos</span>
+            <span class="nav-section-title">Logística Interna</span>
             
             <a href="<?= url('requisiciones') ?>" class="nav-link <?= isRoutePrefix('requisiciones') ? 'active' : '' ?>" id="nav-requisiciones">
                 <i class="bi bi-inbox-fill"></i>
                 <span>Requisiciones</span>
             </a>
+
+            <?php if (hasPermission('devoluciones.ver')): ?>
+            <a href="<?= url('devoluciones') ?>" class="nav-link <?= isRoutePrefix('devoluciones') ? 'active' : '' ?>" id="nav-devoluciones">
+                <i class="bi bi-arrow-return-left"></i>
+                <span>Devoluciones</span>
+            </a>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
 

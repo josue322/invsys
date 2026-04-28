@@ -132,9 +132,9 @@
             <a href="<?= url('dashboard') ?>" class="btn btn-primary">
                 🏠 Ir al Dashboard
             </a>
-            <button onclick="location.reload()" class="btn btn-secondary">
+            <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? url('dashboard')) ?>" class="btn btn-secondary">
                 🔄 Reintentar
-            </button>
+            </a>
         </div>
 
         <?php if (ini_get('display_errors') && isset($exception)): ?>

@@ -63,10 +63,9 @@
                                     hidden>
                                 <i class="bi bi-cloud-arrow-up"></i>
                                 <span>PNG, JPG o SVG — máx. 200×60px</span>
-                                <button type="button" class="btn btn-sm btn-outline-primary mt-2"
-                                    onclick="document.getElementById('logoInput').click()">
+                                <label for="logoInput" class="btn btn-sm btn-outline-primary mt-2">
                                     Seleccionar archivo
-                                </button>
+                                </label>
                             </div>
                         </div>
                     </div>

@@ -667,6 +667,31 @@ return [
     ],
 
     // ==========================================
+    // FASE 8: TRANSFERENCIAS (MULTI-ALMACÉN)
+    // ==========================================
+    [
+        'method' => 'GET',
+        'path' => 'transferencias',
+        'controller' => 'TransferenciaController',
+        'action' => 'index',
+        'middleware' => ['auth', 'permiso:movimientos.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'transferencias/crear',
+        'controller' => 'TransferenciaController',
+        'action' => 'crear',
+        'middleware' => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'transferencias/store',
+        'controller' => 'TransferenciaController',
+        'action' => 'store',
+        'middleware' => ['auth', 'permiso:movimientos.crear'],
+    ],
+
+    // ==========================================
     // FASE 6: DEPARTAMENTOS
     // ==========================================
     [
@@ -749,6 +774,52 @@ return [
         'controller' => 'RequisicionController',
         'action' => 'cancelar',
         'middleware' => ['auth', 'permiso:requisiciones.crear'],
+    ],
+
+    // =====================================================
+    // DEVOLUCIONES
+    // =====================================================
+    [
+        'method' => 'GET',
+        'path' => 'devoluciones',
+        'controller' => 'DevolucionController',
+        'action' => 'index',
+        'middleware' => ['auth', 'permiso:devoluciones.ver'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'devoluciones/crear',
+        'controller' => 'DevolucionController',
+        'action' => 'crear',
+        'middleware' => ['auth', 'permiso:devoluciones.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'devoluciones/crear',
+        'controller' => 'DevolucionController',
+        'action' => 'store',
+        'middleware' => ['auth', 'permiso:devoluciones.crear'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'devoluciones/ver/{id}',
+        'controller' => 'DevolucionController',
+        'action' => 'show',
+        'middleware' => ['auth', 'permiso:devoluciones.ver'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'devoluciones/aprobar/{id}',
+        'controller' => 'DevolucionController',
+        'action' => 'aprobar',
+        'middleware' => ['auth', 'permiso:devoluciones.aprobar'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'devoluciones/rechazar/{id}',
+        'controller' => 'DevolucionController',
+        'action' => 'rechazar',
+        'middleware' => ['auth', 'permiso:devoluciones.aprobar'],
     ],
 
     // =====================================================

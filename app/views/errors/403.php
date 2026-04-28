@@ -117,9 +117,9 @@
             <a href="<?= url('dashboard') ?>" class="btn btn-primary">
                 🏠 Ir al Dashboard
             </a>
-            <button onclick="history.back()" class="btn btn-secondary">
+            <a href="<?= isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : url('dashboard') ?>" class="btn btn-secondary">
                 ← Volver atrás
-            </button>
+            </a>
         </div>
         <div class="error-detail">
             <strong>🛡️ Acceso restringido.</strong> Tu rol actual no tiene los permisos

@@ -140,4 +140,47 @@ document.addEventListener('DOMContentLoaded', function() {
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    // ─── Global Print Handler ───
+    const printButtons = document.querySelectorAll('.btn-print, #btnPrint');
+    printButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.print();
+        });
+    });
+
+    // ─── Global Action Handlers (CSP Compliant) ───
+    document.addEventListener('click', function(e) {
+        // Native Confirm
+        const confirmBtn = e.target.closest('[data-native-confirm]');
+        if (confirmBtn) {
+            const msg = confirmBtn.getAttribute('data-native-confirm');
+            if (!confirm(msg)) {
+                e.preventDefault();
+            }
+        }
+
+        // Generic History Back
+        if (e.target.closest('.btn-history-back')) {
+            e.preventDefault();
+            history.back();
+        }
+
+        // Generic Reload
+        if (e.target.closest('.btn-reload')) {
+            e.preventDefault();
+            location.reload();
+        }
+    });
+
+    // Native form submit confirm
+    document.addEventListener('submit', function(e) {
+        if (e.target.hasAttribute('data-native-confirm')) {
+            const msg = e.target.getAttribute('data-native-confirm');
+            if (!confirm(msg)) {
+                e.preventDefault();
+            }
+        }
+    });
 });

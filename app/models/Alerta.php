@@ -20,7 +20,7 @@ class Alerta extends Model
      */
     public function getUnreadWithProduct(): array
     {
-        $sql = "SELECT a.*, p.nombre as producto_nombre, p.sku as producto_sku, p.stock 
+        $sql = "SELECT a.*, p.nombre as producto_nombre, p.sku as producto_sku, p.stock, p.stock_minimo 
                 FROM {$this->table} a 
                 INNER JOIN productos p ON a.producto_id = p.id 
                 WHERE a.leida = 0 
@@ -46,7 +46,7 @@ class Alerta extends Model
         $countSql = "SELECT COUNT(*) as total FROM {$this->table} a WHERE {$where}";
         $total = $this->query($countSql, $params)->fetch()->total;
 
-        $sql = "SELECT a.*, p.nombre as producto_nombre, p.sku as producto_sku, p.stock 
+        $sql = "SELECT a.*, p.nombre as producto_nombre, p.sku as producto_sku, p.stock, p.stock_minimo 
                 FROM {$this->table} a 
                 INNER JOIN productos p ON a.producto_id = p.id 
                 WHERE {$where}
@@ -97,5 +97,33 @@ class Alerta extends Model
                 ORDER BY a.created_at DESC 
                 LIMIT {$limit}";
         return $this->query($sql)->fetchAll();
+    }
+
+    /**
+     * Obtener todas las alertas no notificadas por correo.
+     */
+    public function getUnnotified(): array
+    {
+        $sql = "SELECT a.*, p.nombre as producto_nombre, p.sku as producto_sku 
+                FROM {$this->table} a 
+                INNER JOIN productos p ON a.producto_id = p.id 
+                WHERE a.notificado_correo = 0 
+                ORDER BY a.created_at DESC";
+        return $this->query($sql)->fetchAll();
+    }
+
+    /**
+     * Marcar un arreglo de IDs de alertas como notificadas.
+     */
+    public function markAsNotified(array $ids): bool
+    {
+        if (empty($ids)) {
+            return true;
+        }
+        
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "UPDATE {$this->table} SET notificado_correo = 1 WHERE id IN ($placeholders)";
+        $this->query($sql, $ids);
+        return true;
     }
 }

@@ -792,6 +792,11 @@ body {
     color: #0891b2;
 }
 
+.badge-tipo-transferencia {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
 /* === Buttons === */
 .btn-primary {
     background: var(--primary-gradient);
