@@ -28,7 +28,7 @@
     <!-- Custom CSS -->
     <?php define('ASSET_VERSION', filemtime(PUBLIC_PATH . '/assets/css/style.css')); ?>
     <link href="<?= asset('css/style.css') ?>?v=<?= ASSET_VERSION ?>" rel="stylesheet">
-    <link href="<?= asset('css/dark-mode.css') ?>?v=<?= ASSET_VERSION ?>" rel="stylesheet">
+    <link href="<?= asset('css/dark-mode.css') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/css/dark-mode.css') ?>" rel="stylesheet">
 </head>
 <body class="d-flex<?= (($uiSettings['densidad_compacta'] ?? '0') === '1') ? ' compact-mode' : '' ?><?= (($uiSettings['animaciones'] ?? '1') === '0') ? ' no-animations' : '' ?>">
     <!-- Main wrapper -->

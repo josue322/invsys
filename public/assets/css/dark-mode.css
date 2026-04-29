@@ -421,7 +421,44 @@
 }
 
 /* Compras: Total card keeps primary bg */
-[data-bs-theme="dark"] .card.bg-primary {
+[data-bs-theme="dark"] .card.bg-primary:not(.bg-opacity-10) {
     background-color: var(--primary) !important;
+}
+
+/* =====================================================
+   UX Fixes (Transferencias, Movimientos, Conteos)
+   ===================================================== */
+
+/* Fix hardcoded text-dark */
+[data-bs-theme="dark"] .text-dark {
+    color: var(--text-primary) !important;
+}
+
+/* Fix subtle alerts in Dark Mode */
+[data-bs-theme="dark"] .alert-primary {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    color: #e0e7ff !important;
+}
+
+[data-bs-theme="dark"] .alert-warning {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.2) !important;
+    color: #fde68a !important;
+}
+
+/* Fix table row highlight colors for physical counts */
+[data-bs-theme="dark"] .table-warning,
+[data-bs-theme="dark"] .table-warning > td,
+[data-bs-theme="dark"] .table-warning > th {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-bs-theme="dark"] .table-danger,
+[data-bs-theme="dark"] .table-danger > td,
+[data-bs-theme="dark"] .table-danger > th {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: var(--text-primary) !important;
 }
 

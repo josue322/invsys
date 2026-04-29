@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- Detalles del Producto Seleccionado (Solo lectura) -->
-                    <div id="detalleProducto" class="mb-4 p-3 bg-light rounded border border-light d-none">
+                    <div id="detalleProducto" class="mb-4 p-3 bg-light rounded border d-none">
                         <div class="row text-center">
                             <div class="col-6 border-end">
                                 <span class="d-block text-muted small text-uppercase mb-1">Stock Actual a Mover</span>

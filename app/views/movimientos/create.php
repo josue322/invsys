@@ -82,7 +82,7 @@
                                     </div>
                                     
                                     <div id="lotesSalidaUI" class="d-none">
-                                        <div class="alert alert-primary bg-white mb-0 py-2">
+                                        <div class="alert alert-primary mb-0 py-2">
                                             <i class="bi bi-info-circle me-2"></i>El sistema descontará las unidades automáticamente de los lotes más próximos a expirar (FEFO).
                                         </div>
                                     </div>
