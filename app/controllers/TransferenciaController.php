@@ -10,12 +10,14 @@ class TransferenciaController extends Controller
     private Movimiento $movimientoModel;
     private Producto $productoModel;
     private Ubicacion $ubicacionModel;
+    private SecurityService $securityService;
 
     public function __construct()
     {
         $this->movimientoModel = new Movimiento();
         $this->productoModel = new Producto();
         $this->ubicacionModel = new Ubicacion();
+        $this->securityService = SecurityService::getInstance();
     }
 
     /**
@@ -136,11 +138,18 @@ class TransferenciaController extends Controller
 
             $this->productoModel->commit();
 
+            $this->securityService->logAction(
+                currentUserId(),
+                'transferencia',
+                'transferencias',
+                "Transfirió '{$producto->nombre}' de '{$nombreOrigen}' a '{$nombreDestino}'"
+            );
+
             $this->setFlash('success', "Transferencia completada. El producto '{$producto->nombre}' fue movido a '{$nombreDestino}'.");
             $this->redirect('transferencias');
 
         } catch (\Exception $e) {
-            $this->productoModel->rollBack();
+            $this->productoModel->rollback();
             $this->setFlash('error', $e->getMessage());
             $this->redirect('transferencias/crear');
         }

@@ -53,7 +53,7 @@
                         <th class="ps-4">Fecha</th>
                         <th>Referencia</th>
                         <th>Producto</th>
-                        <th>Cantidad Moviada</th>
+                        <th>Cantidad Movida</th>
                         <th>Detalle de Transferencia</th>
                         <th>Usuario</th>
                     </tr>
@@ -80,7 +80,7 @@
                                     <small class="text-muted font-monospace"><?= htmlspecialchars($m->producto_sku) ?></small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary rounded-pill px-3 py-2 fs-6">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2" style="font-size:0.85rem">
                                         <?= number_format($m->cantidad) ?>
                                     </span>
                                 </td>

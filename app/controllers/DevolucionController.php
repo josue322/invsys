@@ -29,11 +29,11 @@ class DevolucionController extends Controller
      */
     public function index(): void
     {
-        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
-        $search = $_GET['search'] ?? '';
-        $estado = $_GET['estado'] ?? '';
+        $page = (int) $this->query('page', 1);
+        $search = $this->query('search', '');
+        $estado = $this->query('estado', '');
 
-        $devoluciones = $this->devolucionModel->getAllWithDetails($page, 15, $search, $estado);
+        $devoluciones = $this->devolucionModel->getAllWithDetails($page, $this->getPerPage(), $search, $estado);
 
         $this->view('devoluciones/index', [
             'titulo' => 'Devoluciones de Inventario',
@@ -125,7 +125,7 @@ class DevolucionController extends Controller
             $this->redirect('devoluciones');
 
         } catch (Exception $e) {
-            $this->devolucionModel->rollBack();
+            $this->devolucionModel->rollback();
             $this->setFlash('error', 'Error al registrar: ' . $e->getMessage());
             $this->redirect('devoluciones/crear');
         }
@@ -225,7 +225,7 @@ class DevolucionController extends Controller
             $this->setFlash('success', 'Devolución aprobada y stock reingresado exitosamente.');
 
         } catch (Exception $e) {
-            $this->devolucionModel->rollBack();
+            $this->devolucionModel->rollback();
             $this->setFlash('error', 'Error al aprobar: ' . $e->getMessage());
         }
 

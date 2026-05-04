@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     const BASE = document.querySelector('meta[name="base-url"]')?.content || '/invsys/public';
     const btnStart = document.getElementById('btnStartScan');
     const btnStop = document.getElementById('btnStopScan');
@@ -89,7 +89,6 @@
 
         try {
             const devices = await Html5Qrcode.getCameras();
-            console.log('Cameras found:', devices);
 
             if (!devices || devices.length === 0) {
                 throw new Error('No se detectaron cámaras en este dispositivo.');
@@ -103,7 +102,6 @@
                     break;
                 }
             }
-            console.log('Using camera:', selectedDevice.label || selectedDevice.id);
 
             scanner = new Html5Qrcode("reader", { formatsToSupport: supportedFormats });
             isScanning = true;

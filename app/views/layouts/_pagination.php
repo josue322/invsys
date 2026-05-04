@@ -38,8 +38,8 @@ $to = min($pg['current'] * $currentPerPage, $pg['total']);
         </small>
         <div class="d-flex align-items-center gap-1">
             <small class="text-muted text-nowrap">Mostrar:</small>
-            <select class="form-select form-select-sm" style="width:auto;padding:2px 28px 2px 8px;font-size:0.8rem;" 
-                    onchange="window.location.href=this.value" aria-label="Registros por página">
+            <select class="form-select form-select-sm per-page-selector" style="width:auto;padding:2px 28px 2px 8px;font-size:0.8rem;" 
+                    aria-label="Registros por página">
                 <?php foreach ($perPageOptions as $opt): ?>
                 <option value="<?= $buildPerPageUrl($opt) ?>" <?= $currentPerPage == $opt ? 'selected' : '' ?>>
                     <?= $opt ?>

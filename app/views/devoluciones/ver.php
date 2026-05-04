@@ -95,14 +95,14 @@ $badgeColor = match($devolucion->estado) {
                     <h6 class="text-warning-emphasis fw-bold"><i class="bi bi-shield-check me-2"></i>Gestión de Devolución</h6>
                     <p class="small text-muted mb-3">Revise el estado físico reportado antes de aprobar. El stock de los productos "Buenos" aumentará de inmediato.</p>
                     
-                    <form method="POST" action="<?= url("devoluciones/aprobar/{$devolucion->id}") ?>" class="mb-2" data-native-confirm="¿Está seguro de APROBAR esta devolución? El stock aumentará automáticamente.">
+                    <form method="POST" action="<?= url("devoluciones/aprobar/{$devolucion->id}") ?>" class="mb-2" data-confirm='{"title":"Aprobar Devolución","message":"¿Está seguro de APROBAR esta devolución? El stock aumentará automáticamente.","type":"primary"}'>
                         <?= csrfField() ?>
                         <button type="submit" class="btn btn-success btn-sm w-100 shadow-sm fw-medium">
                             <i class="bi bi-check-circle me-1"></i> Aprobar y Reingresar Stock
                         </button>
                     </form>
 
-                    <form method="POST" action="<?= url("devoluciones/rechazar/{$devolucion->id}") ?>" data-native-confirm="¿Está seguro de RECHAZAR esta devolución? No se registrará ningún reingreso.">
+                    <form method="POST" action="<?= url("devoluciones/rechazar/{$devolucion->id}") ?>" data-confirm='{"title":"Rechazar Devolución","message":"¿Está seguro de RECHAZAR esta devolución? No se registrará ningún reingreso.","type":"warning"}'>
                         <?= csrfField() ?>
                         <button type="submit" class="btn btn-outline-danger btn-sm w-100">
                             <i class="bi bi-x-circle me-1"></i> Rechazar

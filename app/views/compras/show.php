@@ -141,7 +141,7 @@
                     <p class="text-muted small mb-4">Al recibir esta orden, el inventario se actualizará automáticamente y
                         se registrarán las entradas correspondientes en el Kardex.</p>
 
-                    <form method="POST" action="<?= url('compras/recibir/' . $orden->id) ?>" id="formRecibir">
+                    <form method="POST" action="<?= url('compras/recibir/' . $orden->id) ?>" id="formRecibir" data-confirm='{"title":"Recibir Orden","message":"¿Está seguro de recibir esta orden? Se actualizará el inventario permanentemente.","type":"primary"}'>
                         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
 
                         <?php
@@ -183,8 +183,7 @@
                             <?php endforeach; ?>
                         <?php endif; ?>
 
-                        <button type="submit" class="btn btn-primary w-100 fw-medium"
-                            data-native-confirm="¿Está seguro de recibir esta orden? Se actualizará el inventario permanentemente.">
+                        <button type="submit" class="btn btn-primary w-100 fw-medium">
                             <i class="bi bi-check2-circle me-1"></i>Marcar como Recibida
                         </button>
                     </form>
@@ -195,10 +194,9 @@
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-x-circle me-2"></i>Cancelar Orden</h5>
                     <p class="text-muted small mb-3">Si la orden ya no es requerida o el proveedor no puede despachar.</p>
-                    <form method="POST" action="<?= url('compras/cancelar/' . $orden->id) ?>">
+                    <form method="POST" action="<?= url('compras/cancelar/' . $orden->id) ?>" data-confirm='{"title":"Cancelar Orden","message":"¿Está seguro de cancelar esta orden? Esta acción no se puede deshacer.","type":"danger"}'>
                         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
-                        <button type="submit" class="btn btn-outline-danger w-100 btn-sm"
-                            data-native-confirm="¿Está seguro de cancelar esta orden? Esta acción no se puede deshacer.">
+                        <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
                             Cancelar Orden
                         </button>
                     </form>

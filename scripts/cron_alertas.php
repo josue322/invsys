@@ -2,8 +2,11 @@
 /**
  * InvSys - Script Cron para Automatización de Alertas
  * 
- * Este script debe ejecutarse periódicamente (ej: diariamente a las 8:00 AM)
+ * Este script debe ejecutarse diariamente a las 9:00 AM
  * mediante el programador de tareas del servidor (Cron en Linux, Task Scheduler en Windows).
+ * 
+ * Cron Linux:   0 9 * * * php /ruta/absoluta/a/invsys/scripts/cron_alertas.php
+ * Task Scheduler Windows: Ejecutar php.exe con argumento scripts\cron_alertas.php a las 09:00 diariamente.
  * 
  * Comando de ejecución sugerido:
  * php /ruta/absoluta/a/invsys/scripts/cron_alertas.php
@@ -87,19 +90,17 @@ try {
     // 7. Paso 3: Enviar el correo electrónico
     echo "[4/4] Enviando resumen por correo...\n";
 
-    // Determinar a quién enviar: A todos los administradores activos
+    // Determinar a quién enviar: Administradores (rol_id=1) y Operadores (rol_id=3) activos
     $db = Model::getConnection();
-    $stmt = $db->query("SELECT email FROM usuarios WHERE rol_id = 1 AND activo = 1 AND email IS NOT NULL AND email != ''");
-    $admins = $stmt->fetchAll(PDO::FETCH_OBJ);
-    
-    // Asegurar que el correo especificado siempre esté incluido
-    $destinatarios = ['josuexd123lc@gmail.com']; 
-    
-    foreach ($admins as $admin) {
-        if (!in_array($admin->email, $destinatarios)) {
-            $destinatarios[] = $admin->email;
-        }
-    }
+    $stmt = $db->query("
+        SELECT DISTINCT u.email 
+        FROM usuarios u 
+        WHERE u.rol_id IN (1, 3) 
+          AND u.activo = 1 
+          AND u.email IS NOT NULL 
+          AND u.email != ''
+    ");
+    $destinatarios = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'email');
 
     $correosEnviados = 0;
     foreach ($destinatarios as $toEmail) {

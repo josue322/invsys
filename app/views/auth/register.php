@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Cuenta | <?= htmlspecialchars(systemName()) ?></title>
-    <link rel="icon" href="<?= asset('favicon.svg') ?>" type="image/svg+xml">
-    <link rel="alternate icon" href="<?= asset('favicon.ico') ?>" type="image/x-icon">
+    <link rel="icon" href="<?= asset('favicon.svg') ?>?v=<?= time() ?>" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -25,7 +24,7 @@
                     <i class="bi bi-box-seam-fill"></i>
                 </div>
                 <h1><?= htmlspecialchars(systemName()) ?></h1>
-                <p>Sistema de Gestión de Inventario Empresarial</p>
+                <p>Sistema de Gestión de Inventario</p>
             </div>
         </div>
 

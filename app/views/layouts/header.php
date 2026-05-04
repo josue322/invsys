@@ -6,8 +6,7 @@
     <meta name="description" content="<?= htmlspecialchars(systemName()) ?> - Sistema de Gestión de Inventario Web Empresarial">
     <meta name="base-url" content="<?= BASE_URL ?>">
     <title><?= ($titulo ?? systemName()) . ' | ' . systemName() ?></title>
-    <link rel="icon" href="<?= asset('favicon.svg') ?>" type="image/svg+xml">
-    <link rel="alternate icon" href="<?= asset('favicon.ico') ?>" type="image/x-icon">
+    <link rel="icon" href="<?= asset('favicon.svg') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/favicon.svg') ?>" type="image/svg+xml">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

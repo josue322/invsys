@@ -78,17 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     // === Usuarios Edit: Copy temp password ===
-    if (document.getElementById('tempPass')) {
-        window.copyTempPass = function() {
-            const input = document.getElementById('tempPass');
-            navigator.clipboard.writeText(input.value).then(() => {
-                const btn = input.nextElementSibling;
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
-                setTimeout(() => { btn.innerHTML = orig; }, 2000);
-            });
-        };
-    }
+    // Removido por función duplicada más abajo
     // === Conteos: Create ===
     if (document.getElementById('formCrearConteo')) {
         const filtroTipo = document.getElementById('filtro_tipo');
@@ -270,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const val = parseInt(e.target.value);
                     if (val > max) {
                         e.target.value = max;
-                        alert('La cantidad solicitada supera el stock disponible (' + max + ').');
+                        if (typeof showToast === 'function') showToast('La cantidad solicitada supera el stock disponible (' + max + ').', 'warning');
                     }
                 }
             });
@@ -303,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (tableBody.querySelectorAll('tr').length > 1) {
                         e.target.closest('tr').remove();
                     } else {
-                        alert('Debe haber al menos un producto en la requisición.');
+                        if (typeof showToast === 'function') showToast('Debe haber al menos un producto en la requisición.', 'warning');
                     }
                 }
             });
@@ -417,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formDevolucion.addEventListener('submit', function(e) {
             if (productosSeleccionados.size === 0) {
                 e.preventDefault();
-                alert('Debe agregar al menos un producto a la devolución.');
+                if (typeof showToast === 'function') showToast('Debe agregar al menos un producto a la devolución.', 'warning');
             }
         });
     }

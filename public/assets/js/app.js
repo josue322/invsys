@@ -153,14 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Global Action Handlers (CSP Compliant) ───
     document.addEventListener('click', function(e) {
         // Native Confirm
-        const confirmBtn = e.target.closest('[data-native-confirm]');
-        if (confirmBtn) {
-            const msg = confirmBtn.getAttribute('data-native-confirm');
-            if (!confirm(msg)) {
-                e.preventDefault();
-            }
-        }
-
         // Generic History Back
         if (e.target.closest('.btn-history-back')) {
             e.preventDefault();
@@ -174,13 +166,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Native form submit confirm
-    document.addEventListener('submit', function(e) {
-        if (e.target.hasAttribute('data-native-confirm')) {
-            const msg = e.target.getAttribute('data-native-confirm');
-            if (!confirm(msg)) {
-                e.preventDefault();
-            }
-        }
+    // (Removido manejador de data-native-confirm en favor de confirm-modal.js)
+    // ─── Pagination Per-Page Selector ───
+    const perPageSelectors = document.querySelectorAll('.per-page-selector');
+    perPageSelectors.forEach(selector => {
+        selector.addEventListener('change', function() {
+            window.location.href = this.value;
+        });
     });
 });

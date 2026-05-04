@@ -65,7 +65,7 @@
                 <div class="card-body p-3">
                     <h6 class="text-danger fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Zona de Peligro</h6>
                     <p class="small text-muted mb-3">Si esta requisición no procede, puede cancelarla. Esta acción no se puede deshacer.</p>
-                    <form method="POST" action="<?= url('requisiciones/cancelar/' . $requisicion->id) ?>" data-native-confirm="¿Está seguro de cancelar esta requisición?">
+                    <form method="POST" action="<?= url('requisiciones/cancelar/' . $requisicion->id) ?>" data-confirm='{"title":"Cancelar Requisición","message":"¿Está seguro de cancelar esta requisición?","type":"danger"}'>
                         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
                         <button type="submit" class="btn btn-outline-danger btn-sm w-100">
                             <i class="bi bi-x-circle me-1"></i>Cancelar Requisición
@@ -83,7 +83,7 @@
                 <h6 class="fw-bold mb-0"><i class="bi bi-box-seam text-primary me-2"></i>Detalle de Productos</h6>
             </div>
             
-            <form method="POST" action="<?= url('requisiciones/despachar/' . $requisicion->id) ?>" id="form-despacho">
+            <form method="POST" action="<?= url('requisiciones/despachar/' . $requisicion->id) ?>" id="form-despacho" data-confirm='{"title":"Confirmar Despacho","message":"¿Confirmar despacho? Esto restará el inventario del almacén.","type":"primary"}'>
                 <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
 
                 <div class="card-body p-0">
@@ -153,7 +153,7 @@
                 
                 <?php if ($requisicion->estado === 'pendiente' && hasPermission('requisiciones.despachar')): ?>
                     <div class="card-footer bg-transparent border-top-0 py-3 text-end">
-                        <button type="submit" class="btn btn-success px-4 shadow-sm" data-native-confirm="¿Confirmar despacho? Esto restará el inventario del almacén.">
+                        <button type="submit" class="btn btn-success px-4 shadow-sm">
                             <i class="bi bi-box-arrow-right me-1"></i>Confirmar Despacho
                         </button>
                     </div>
