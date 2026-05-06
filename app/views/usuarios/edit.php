@@ -20,6 +20,11 @@
                                    value="<?= htmlspecialchars($usuario->email) ?>">
                         </div>
                         <div class="col-md-6">
+                            <label for="telefono" class="form-label">Teléfono (WhatsApp)</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" maxlength="20" 
+                                   value="<?= htmlspecialchars($usuario->telefono ?? '') ?>" placeholder="+51999888777">
+                        </div>
+                        <div class="col-md-6">
                             <label for="rol_id" class="form-label">Rol *</label>
                             <select class="form-select" id="rol_id" name="rol_id" required>
                                 <?php foreach ($roles as $rol): ?>

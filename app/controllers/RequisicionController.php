@@ -57,7 +57,7 @@ class RequisicionController extends Controller
     public function crear(): void
     {
         $departamentos = $this->departamentoModel->findAllActive();
-        
+
         // Obtener productos activos con stock > 0
         $sql = "SELECT p.* FROM productos p WHERE p.activo = 1 AND p.stock > 0 ORDER BY p.nombre ASC";
         $productos = $this->productoModel->rawQuery($sql);
@@ -86,8 +86,8 @@ class RequisicionController extends Controller
         $notas = $this->input('notas', '');
         $estado = $this->input('estado', 'borrador');
 
-        $productosIds = $_POST['producto_id'] ?? [];
-        $cantidades = $_POST['cantidad'] ?? [];
+        $productosIds = $this->input('producto_id', []);
+        $cantidades = $this->input('cantidad', []);
 
         if (empty($departamentoId) || empty($productosIds)) {
             $this->setFlash('error', 'Debe seleccionar un departamento y al menos un producto.');
@@ -133,7 +133,7 @@ class RequisicionController extends Controller
 
             $this->requisicionModel->commit();
             $this->securityService->logAction(currentUserId(), 'create', 'requisiciones', "Creó requisición $numeroRequisicion para depto ID $departamentoId");
-            
+
             $this->setFlash('success', "Requisición $numeroRequisicion guardada exitosamente.");
             $this->redirect('requisiciones/show/' . $reqId);
 
@@ -156,9 +156,9 @@ class RequisicionController extends Controller
             return;
         }
 
-        // Obtener lotes disponibles si la requisición está pendiente
+        // Obtener lotes disponibles si la requisición está pendiente o aprobada
         $lotesDisponibles = [];
-        if ($requisicion->estado === 'borrador' || $requisicion->estado === 'pendiente') {
+        if (in_array($requisicion->estado, ['borrador', 'pendiente', 'aprobada'])) {
             $loteModel = new Lote();
             foreach ($requisicion->detalles as $det) {
                 if ($det->es_perecedero) {
@@ -180,6 +180,36 @@ class RequisicionController extends Controller
     }
 
     /**
+     * Aprobar requisición (Solo Admin/Supervisor)
+     */
+    public function aprobar(int $id): void
+    {
+        if (!hasPermission('requisiciones.aprobar')) {
+            $this->setFlash('error', 'No tiene permisos para aprobar requisiciones.');
+            $this->redirect('requisiciones/show/' . $id);
+            return;
+        }
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('requisiciones/show/' . $id);
+            return;
+        }
+
+        $requisicion = $this->requisicionModel->findById($id);
+        if (!$requisicion || $requisicion->estado !== 'pendiente') {
+            $this->setFlash('error', 'Requisición no encontrada o no está en estado pendiente.');
+            $this->redirect('requisiciones');
+            return;
+        }
+
+        $this->requisicionModel->update($id, ['estado' => 'aprobada']);
+        $this->securityService->logAction(currentUserId(), 'approve', 'requisiciones', "Aprobó requisición ID $id");
+
+        $this->setFlash('success', 'Requisición aprobada. Lista para despacho.');
+        $this->redirect('requisiciones/show/' . $id);
+    }
+
+    /**
      * Despachar requisición (Salida de almacén)
      */
     public function despachar(int $id): void
@@ -190,15 +220,15 @@ class RequisicionController extends Controller
         }
 
         $req = $this->requisicionModel->getWithDetails($id);
-        if (!$req || in_array($req->estado, ['despachada', 'cancelada'])) {
-            $this->setFlash('error', 'Estado inválido para despachar.');
+        if (!$req || $req->estado !== 'aprobada') {
+            $this->setFlash('error', 'Requisición no encontrada o no está aprobada para despacho.');
             $this->redirect('requisiciones');
             return;
         }
 
         // Recuperar información de lotes y despachos del formulario
-        $cantidadesADespachar = $_POST['despachar'] ?? [];
-        $lotesSeleccionados = $_POST['lotes'] ?? [];
+        $cantidadesADespachar = $this->input('despachar', []);
+        $lotesSeleccionados = $this->input('lotes', []);
 
         try {
             $this->requisicionModel->beginTransaction();
@@ -214,13 +244,14 @@ class RequisicionController extends Controller
             // Procesar cada detalle
             foreach ($req->detalles as $det) {
                 $qtyDespachar = (int) ($cantidadesADespachar[$det->id] ?? 0);
-                
+
                 if ($qtyDespachar <= 0) {
                     continue; // No se despacha nada de esta línea
                 }
 
                 $producto = $this->productoModel->findByIdForUpdate($det->producto_id);
-                if (!$producto) continue;
+                if (!$producto)
+                    continue;
 
                 if ($producto->stock < $qtyDespachar) {
                     throw new Exception("Stock insuficiente para el producto: {$producto->nombre}. Solicitado: $qtyDespachar, Disponible: {$producto->stock}");
@@ -283,7 +314,7 @@ class RequisicionController extends Controller
 
             $this->requisicionModel->commit();
             $this->securityService->logAction(currentUserId(), 'update', 'requisiciones', "Despachó requisición {$req->numero_requisicion}");
-            
+
             $this->setFlash('success', "Requisición despachada. Inventario rebajado correctamente.");
 
         } catch (Exception $e) {
@@ -316,5 +347,93 @@ class RequisicionController extends Controller
         $this->setFlash('success', "Requisición cancelada.");
 
         $this->redirect('requisiciones/show/' . $id);
+    }
+
+    /**
+     * Exportar a PDF
+     */
+    public function exportPDF(int $id): void
+    {
+        $requisicion = $this->requisicionModel->getWithDetails($id);
+        if (!$requisicion) {
+            $this->setFlash('error', 'Requisición no encontrada.');
+            $this->redirect('requisiciones');
+            return;
+        }
+
+        $pdf = new PdfGenerator();
+        $pdf->AliasNbPages();
+        $pdf->setDocumentTitle('Requisición Interna');
+        $pdf->AddPage();
+
+        // Info de cabecera
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(30, 6, 'Numero:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, $requisicion->numero_requisicion, 0, 0);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(30, 6, 'Fecha:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, formatDate($requisicion->fecha_solicitud), 0, 1);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(30, 6, 'Departamento:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, PdfGenerator::decode($requisicion->departamento_nombre), 0, 0);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(30, 6, 'Solicitante:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, PdfGenerator::decode($requisicion->usuario_nombre), 0, 1);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(30, 6, 'Estado:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, strtoupper($requisicion->estado), 0, 1);
+
+        if ($requisicion->notas) {
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(30, 6, 'Notas:', 0, 0);
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->MultiCell(0, 6, PdfGenerator::decode($requisicion->notas));
+        }
+
+        $pdf->Ln(10);
+
+        // Tabla de productos
+        $header = ['SKU', 'Producto', 'Cant. Solicitada', 'Cant. Despachada', 'UM'];
+        $widths = [30, 70, 35, 35, 20];
+        $aligns = ['C', 'L', 'C', 'C', 'C'];
+
+        $data = [];
+        foreach ($requisicion->detalles as $det) {
+            $data[] = [
+                $det->sku,
+                $det->producto_nombre,
+                $det->cantidad_solicitada,
+                $det->cantidad_despachada,
+                $det->unidad_medida
+            ];
+        }
+
+        $pdf->BasicTable($header, $data, $widths, $aligns);
+
+        // Cajones de firma
+        $pdf->Ln(30);
+        $pdf->SetFont('Arial', '', 10);
+
+        $y = $pdf->GetY();
+        $pdf->Line(20, $y, 80, $y);
+        $pdf->Line(110, $y, 170, $y);
+
+        $pdf->SetXY(20, $y + 2);
+        $pdf->Cell(60, 5, 'Firma Solicitante', 0, 0, 'C');
+
+        $pdf->SetXY(110, $y + 2);
+        $pdf->Cell(60, 5, PdfGenerator::decode('Firma Aprobación/Almacén'), 0, 0, 'C');
+
+        // Descargar PDF
+        $pdf->Output('D', 'Requisicion_' . $requisicion->numero_requisicion . '.pdf');
     }
 }

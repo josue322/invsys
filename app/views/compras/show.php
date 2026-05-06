@@ -5,12 +5,20 @@
         <span class="text-muted">Detalles y recepción de mercancía</span>
     </div>
     <div class="d-flex gap-2">
+        <?php if ($orden->estado === 'pendiente' && hasPermission('compras.aprobar')): ?>
+            <form action="<?= url('compras/aprobar/' . $orden->id) ?>" method="POST" class="d-inline" data-confirm='{"title":"Aprobar Orden","message":"¿Aprobar esta orden de compra para recepción?","type":"primary"}'>
+                <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+                <button type="submit" class="btn btn-info">
+                    <i class="bi bi-check-circle me-1"></i>Aprobar
+                </button>
+            </form>
+        <?php endif; ?>
         <a href="<?= url('compras') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Volver
         </a>
-        <button type="button" class="btn btn-outline-primary btn-print">
-            <i class="bi bi-printer me-1"></i>Imprimir
-        </button>
+        <a href="<?= url('compras/exportar/' . $orden->id) ?>" class="btn btn-outline-primary shadow-sm" target="_blank">
+            <i class="bi bi-file-pdf me-1"></i>Imprimir PDF
+        </a>
     </div>
 </div>
 
@@ -29,6 +37,7 @@
                         $badge = match ($orden->estado) {
                             'borrador' => 'bg-secondary',
                             'pendiente' => 'bg-warning text-dark',
+                            'aprobada' => 'bg-info text-dark',
                             'recibida' => 'bg-success',
                             'cancelada' => 'bg-danger',
                             default => 'bg-secondary',
@@ -134,12 +143,13 @@
 
     <!-- Panel Lateral: Acciones -->
     <div class="col-lg-4 print-hide">
-        <?php if ($orden->estado === 'borrador' || $orden->estado === 'pendiente'): ?>
-            <div class="card border-0 shadow-sm border-top border-primary border-3 mb-4">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-down me-2 text-primary"></i>Recibir Mercancía</h5>
-                    <p class="text-muted small mb-4">Al recibir esta orden, el inventario se actualizará automáticamente y
-                        se registrarán las entradas correspondientes en el Kardex.</p>
+        <?php if (in_array($orden->estado, ['borrador', 'pendiente', 'aprobada'])): ?>
+            <?php if ($orden->estado === 'aprobada'): ?>
+                <div class="card border-0 shadow-sm border-top border-primary border-3 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-down me-2 text-primary"></i>Recibir Mercancía</h5>
+                        <p class="text-muted small mb-4">Al recibir esta orden, el inventario se actualizará automáticamente y
+                            se registrarán las entradas correspondientes en el Kardex.</p>
 
                     <form method="POST" action="<?= url('compras/recibir/' . $orden->id) ?>" id="formRecibir" data-confirm='{"title":"Recibir Orden","message":"¿Está seguro de recibir esta orden? Se actualizará el inventario permanentemente.","type":"primary"}'>
                         <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
@@ -189,6 +199,11 @@
                     </form>
                 </div>
             </div>
+            <?php elseif ($orden->estado === 'pendiente'): ?>
+                <div class="alert alert-warning mb-4 shadow-sm border-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Esta orden requiere ser <strong>aprobada</strong> antes de poder recibir la mercancía.
+                </div>
+            <?php endif; ?>
 
             <div class="card border-0 shadow-sm border-top border-danger border-3">
                 <div class="card-body p-4">

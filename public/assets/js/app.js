@@ -174,4 +174,13 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = this.value;
         });
     });
+
+    // ─── Auto-Submit Select (CSP-compliant replacement for onchange="this.form.submit()") ───
+    const autoSubmitSelects = document.querySelectorAll('.auto-submit-select');
+    autoSubmitSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const form = this.closest('form');
+            if (form) form.submit();
+        });
+    });
 });

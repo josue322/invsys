@@ -1,7 +1,7 @@
 <!-- Sidebar Navigation -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-brand">
+        <a href="<?= url('dashboard') ?>" class="sidebar-brand" style="text-decoration:none;color:inherit;">
             <?php $logo = systemLogo(); ?>
             <?php if ($logo): ?>
                 <img src="<?= $logo ?>" alt="Logo" class="brand-logo-img">
@@ -11,7 +11,7 @@
                 </div>
             <?php endif; ?>
             <span class="brand-text"><?= htmlspecialchars(systemName()) ?></span>
-        </div>
+        </a>
         <button class="sidebar-toggle d-lg-none" id="sidebarClose">
             <i class="bi bi-x-lg"></i>
         </button>
@@ -149,7 +149,12 @@
 
             <a href="<?= url('reportes/kardex') ?>" class="nav-link <?= isRoute('reportes/kardex') ? 'active' : '' ?>" id="nav-kardex">
                 <i class="bi bi-journal-text"></i>
-                <span>Kardex</span>
+                <span>Kardex General</span>
+            </a>
+
+            <a href="<?= url('reportes/kardex-lote') ?>" class="nav-link <?= isRoute('reportes/kardex-lote') ? 'active' : '' ?>" id="nav-kardex-lote">
+                <i class="bi bi-clock-history"></i>
+                <span>Kardex por Lote</span>
             </a>
 
             <a href="<?= url('reportes/analisis/abc') ?>" class="nav-link <?= isRoute('reportes/analisis/abc') ? 'active' : '' ?>" id="nav-abc">
@@ -296,19 +301,75 @@
                     <div class="user-avatar-sm"><?= userInitials() ?></div>
                     <span class="d-none d-md-inline"><?= currentUser()['nombre'] ?? '' ?></span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-end">
-                    <div class="dropdown-header">
-                        <strong><?= currentUser()['nombre'] ?? '' ?></strong><br>
-                        <small class="text-muted"><?= currentUser()['email'] ?? '' ?></small>
+                <div class="dropdown-menu dropdown-menu-end user-mega-dropdown p-0">
+                    <!-- User header -->
+                    <div class="udd-header">
+                        <div class="udd-avatar"><?= userInitials() ?></div>
+                        <div class="udd-info">
+                            <span class="udd-name"><?= currentUser()['nombre'] ?? '' ?></span>
+                            <span class="udd-email"><?= currentUser()['email'] ?? '' ?></span>
+                            <span class="badge <?= roleBadgeClass(currentUserRole()) ?> udd-role-badge"><?= currentUserRole() ?></span>
+                        </div>
                     </div>
-                    <div class="dropdown-divider"></div>
-                    <a href="<?= url('perfil') ?>" class="dropdown-item">
-                        <i class="bi bi-person-circle me-2"></i>Mi Perfil
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="<?= url('logout') ?>" class="dropdown-item text-danger">
-                        <i class="bi bi-box-arrow-left me-2"></i>Cerrar Sesión
-                    </a>
+                    <!-- Quick links -->
+                    <div class="udd-section">
+                        <a href="<?= url('perfil') ?>" class="udd-item">
+                            <div class="udd-item-icon" style="background:rgba(99,102,241,0.1);color:var(--primary);">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="udd-item-text">
+                                <span>Mi Perfil</span>
+                                <small>Datos personales y contraseña</small>
+                            </div>
+                            <i class="bi bi-chevron-right udd-item-arrow"></i>
+                        </a>
+                        <?php if (hasPermission('alertas.ver')): ?>
+                        <a href="<?= url('alertas') ?>" class="udd-item">
+                            <div class="udd-item-icon" style="background:rgba(245,158,11,0.1);color:#d97706;">
+                                <i class="bi bi-bell-fill"></i>
+                            </div>
+                            <div class="udd-item-text">
+                                <span>Notificaciones</span>
+                                <small><?= ($alertasNoLeidas ?? 0) > 0 ? ($alertasNoLeidas . ' sin leer') : 'Al día' ?></small>
+                            </div>
+                            <?php if (($alertasNoLeidas ?? 0) > 0): ?>
+                                <span class="badge bg-danger rounded-pill" style="font-size:0.65rem;"><?= $alertasNoLeidas ?></span>
+                            <?php else: ?>
+                                <i class="bi bi-chevron-right udd-item-arrow"></i>
+                            <?php endif; ?>
+                        </a>
+                        <?php endif; ?>
+                        <?php if (hasPermission('seguridad.ver')): ?>
+                        <a href="<?= url('seguridad') ?>" class="udd-item">
+                            <div class="udd-item-icon" style="background:rgba(16,185,129,0.1);color:#059669;">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div class="udd-item-text">
+                                <span>Registro de Actividad</span>
+                                <small>Auditoría y sesiones</small>
+                            </div>
+                            <i class="bi bi-chevron-right udd-item-arrow"></i>
+                        </a>
+                        <?php endif; ?>
+                        <?php if (hasPermission('configuracion.ver')): ?>
+                        <a href="<?= url('configuracion') ?>" class="udd-item">
+                            <div class="udd-item-icon" style="background:rgba(139,92,246,0.1);color:#7c3aed;">
+                                <i class="bi bi-gear-fill"></i>
+                            </div>
+                            <div class="udd-item-text">
+                                <span>Configuración</span>
+                                <small>Preferencias del sistema</small>
+                            </div>
+                            <i class="bi bi-chevron-right udd-item-arrow"></i>
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                    <!-- Footer -->
+                    <div class="udd-footer">
+                        <a href="<?= url('logout') ?>" class="udd-logout-btn">
+                            <i class="bi bi-box-arrow-left me-2"></i>Cerrar Sesión
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

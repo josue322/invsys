@@ -78,10 +78,10 @@ class DevolucionController extends Controller
             return;
         }
 
-        $departamento_id = (int) $_POST['departamento_id'];
-        $requisicion_id = !empty($_POST['requisicion_id']) ? (int) $_POST['requisicion_id'] : null;
-        $notas = trim($_POST['notas'] ?? '');
-        $productosSeleccionados = $_POST['productos'] ?? [];
+        $departamento_id = (int) $this->input('departamento_id', 0);
+        $requisicion_id = !empty($this->input('requisicion_id')) ? (int) $this->input('requisicion_id') : null;
+        $notas = $this->input('notas', '');
+        $productosSeleccionados = $this->input('productos', []);
 
         if (empty($productosSeleccionados) || $departamento_id <= 0) {
             $this->setFlash('error', 'Debe seleccionar un departamento y al menos un producto.');
@@ -105,9 +105,13 @@ class DevolucionController extends Controller
             ]);
 
             foreach ($productosSeleccionados as $pid) {
-                $cantidad = (int) ($_POST['cantidades'][$pid] ?? 0);
-                $motivo = trim($_POST['motivos'][$pid] ?? '');
-                $estadoProd = $_POST['estados'][$pid] ?? 'bueno';
+                $cantidadesInput = $this->input('cantidades', []);
+                $motivosInput = $this->input('motivos', []);
+                $estadosInput = $this->input('estados', []);
+                
+                $cantidad = (int) ($cantidadesInput[$pid] ?? 0);
+                $motivo = trim($motivosInput[$pid] ?? '');
+                $estadoProd = $estadosInput[$pid] ?? 'bueno';
 
                 if ($cantidad > 0) {
                     $this->detalleModel->create([

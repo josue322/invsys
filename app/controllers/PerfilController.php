@@ -62,6 +62,7 @@ class PerfilController extends Controller
         $userId = currentUserId();
         $nombre = trim($this->input('nombre'));
         $email = trim($this->input('email'));
+        $telefono = trim($this->input('telefono'));
 
         // Validaciones
         $errors = [];
@@ -83,8 +84,9 @@ class PerfilController extends Controller
 
         // Actualizar
         $this->usuarioModel->update($userId, [
-            'nombre' => $nombre,
-            'email'  => $email,
+            'nombre'   => $nombre,
+            'email'    => $email,
+            'telefono' => $telefono,
         ]);
 
         // Actualizar sesión para reflejar cambios inmediatamente

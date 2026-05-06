@@ -582,6 +582,13 @@ return [
         'action' => 'exportKardexCSV',
         'middleware' => ['auth', 'permiso:reportes.ver'],
     ],
+    [
+        'method' => 'GET',
+        'path' => 'reportes/kardex-lote',
+        'controller' => 'ReporteController',
+        'action' => 'kardexLote',
+        'middleware' => ['auth', 'permiso:reportes.ver'],
+    ],
 
     // --- Fase 2: Análisis Avanzados ---
     [
@@ -664,6 +671,20 @@ return [
         'controller' => 'OrdenCompraController',
         'action' => 'cancelar',
         'middleware' => ['auth', 'permiso:compras.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'compras/aprobar/{id}',
+        'controller' => 'OrdenCompraController',
+        'action' => 'aprobar',
+        'middleware' => ['auth', 'permiso:compras.aprobar'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'compras/exportar/{id}',
+        'controller' => 'OrdenCompraController',
+        'action' => 'exportPDF',
+        'middleware' => ['auth', 'permiso:compras.ver'],
     ],
 
     // ==========================================
@@ -767,6 +788,20 @@ return [
         'controller' => 'RequisicionController',
         'action' => 'despachar',
         'middleware' => ['auth', 'permiso:requisiciones.despachar'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'requisiciones/aprobar/{id}',
+        'controller' => 'RequisicionController',
+        'action' => 'aprobar',
+        'middleware' => ['auth', 'permiso:requisiciones.aprobar'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'requisiciones/exportar/{id}',
+        'controller' => 'RequisicionController',
+        'action' => 'exportPDF',
+        'middleware' => ['auth', 'permiso:requisiciones.ver'],
     ],
     [
         'method' => 'POST',

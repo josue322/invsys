@@ -694,7 +694,7 @@ class ProductoController extends Controller
      */
     public function search(): void
     {
-        $q = trim($_GET['q'] ?? '');
+        $q = $this->query('q', '');
 
         if (strlen($q) < 2) {
             $this->json([]);

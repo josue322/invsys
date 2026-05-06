@@ -8,6 +8,7 @@
                 $badge = match($requisicion->estado) {
                     'borrador' => 'bg-secondary',
                     'pendiente' => 'bg-warning text-dark',
+                    'aprobada' => 'bg-info text-dark',
                     'despachada' => 'bg-success',
                     'cancelada' => 'bg-danger',
                     default => 'bg-secondary',
@@ -28,8 +29,19 @@
     </div>
     
     <div class="d-flex gap-2">
+        <?php if ($requisicion->estado === 'pendiente' && hasPermission('requisiciones.aprobar')): ?>
+            <form action="<?= url('requisiciones/aprobar/' . $requisicion->id) ?>" method="POST" class="d-inline" data-confirm='{"title":"Aprobar Requisición","message":"¿Aprobar esta requisición para que pueda ser despachada?","type":"primary"}'>
+                <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+                <button type="submit" class="btn btn-info shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i>Aprobar
+                </button>
+            </form>
+        <?php endif; ?>
         <a href="<?= url('requisiciones') ?>" class="btn btn-outline-secondary shadow-sm">
             <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+        <a href="<?= url('requisiciones/exportar/' . $requisicion->id) ?>" class="btn btn-outline-primary shadow-sm" target="_blank">
+            <i class="bi bi-file-pdf me-1"></i>Imprimir PDF
         </a>
     </div>
 </div>
@@ -97,7 +109,7 @@
                                         <th class="text-center">Despachado</th>
                                     <?php endif; ?>
                                     
-                                    <?php if ($requisicion->estado === 'pendiente'): ?>
+                                    <?php if ($requisicion->estado === 'aprobada'): ?>
                                         <th>Cant. a Despachar</th>
                                         <th>Lote (si aplica)</th>
                                     <?php endif; ?>
@@ -124,7 +136,7 @@
                                             </td>
                                         <?php endif; ?>
 
-                                        <?php if ($requisicion->estado === 'pendiente'): ?>
+                                        <?php if ($requisicion->estado === 'aprobada'): ?>
                                             <td>
                                                 <input type="number" name="despachar[<?= $det->id ?>]" class="form-control form-control-sm" value="<?= $det->cantidad_solicitada ?>" min="0" required>
                                             </td>
@@ -151,7 +163,7 @@
                     </div>
                 </div>
                 
-                <?php if ($requisicion->estado === 'pendiente' && hasPermission('requisiciones.despachar')): ?>
+                <?php if ($requisicion->estado === 'aprobada' && hasPermission('requisiciones.despachar')): ?>
                     <div class="card-footer bg-transparent border-top-0 py-3 text-end">
                         <button type="submit" class="btn btn-success px-4 shadow-sm">
                             <i class="bi bi-box-arrow-right me-1"></i>Confirmar Despacho

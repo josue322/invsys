@@ -24,6 +24,7 @@
                     <option value="">Todos los estados</option>
                     <option value="borrador" <?= $filtros['estado'] == 'borrador' ? 'selected' : '' ?>>Borrador</option>
                     <option value="pendiente" <?= $filtros['estado'] == 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                    <option value="aprobada" <?= $filtros['estado'] == 'aprobada' ? 'selected' : '' ?>>Aprobada</option>
                     <option value="recibida" <?= $filtros['estado'] == 'recibida' ? 'selected' : '' ?>>Recibida</option>
                     <option value="cancelada" <?= $filtros['estado'] == 'cancelada' ? 'selected' : '' ?>>Cancelada</option>
                 </select>
@@ -79,7 +80,7 @@
                                         <?= htmlspecialchars($o->numero_orden) ?>
                                     </a>
                                 </td>
-                                <td><?= formatDate($o->fecha_emision) ?></td>
+                                <td><?= formatDate($o->created_at) ?></td>
                                 <td>
                                     <span class="d-block fw-semibold"><?= htmlspecialchars($o->proveedor_nombre) ?></span>
                                     <small class="text-muted">RUC/NIT: <?= htmlspecialchars($o->proveedor_documento) ?></small>
@@ -91,6 +92,7 @@
                                         $badge = match($o->estado) {
                                             'borrador' => 'bg-secondary',
                                             'pendiente' => 'bg-warning text-dark',
+                                            'aprobada' => 'bg-info text-dark',
                                             'recibida' => 'bg-success',
                                             'cancelada' => 'bg-danger',
                                             default => 'bg-secondary',

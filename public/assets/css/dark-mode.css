@@ -94,6 +94,27 @@
     border-color: var(--border-color);
 }
 
+/* User Mega Dropdown - Dark Mode */
+[data-bs-theme="dark"] .user-mega-dropdown {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-bs-theme="dark"] .udd-item:hover {
+    background: rgba(99, 102, 241, 0.12);
+}
+
+[data-bs-theme="dark"] .udd-item-text small {
+    color: var(--text-secondary);
+}
+
+[data-bs-theme="dark"] .udd-footer {
+    border-top-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .udd-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+}
+
 [data-bs-theme="dark"] .page-link {
     background: transparent;
     color: var(--text-secondary);

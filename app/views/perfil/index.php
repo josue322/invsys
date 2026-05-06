@@ -57,6 +57,13 @@
                                    value="<?= htmlspecialchars($usuario->email) ?>" 
                                    required placeholder="tu@email.com">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono (WhatsApp)</label>
+                            <input type="tel" class="form-control" name="telefono" 
+                                   value="<?= htmlspecialchars($usuario->telefono ?? '') ?>" 
+                                   maxlength="20" placeholder="+51999888777">
+                            <small class="text-muted">Necesario para recibir notificaciones de WhatsApp.</small>
+                        </div>
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-check-lg me-2"></i>Guardar cambios
                         </button>

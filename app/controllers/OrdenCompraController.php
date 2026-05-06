@@ -82,9 +82,9 @@ class OrdenCompraController extends Controller
         $notas = $this->input('notas', '');
         $estado = $this->input('estado', 'borrador');
 
-        $productosIds = $_POST['producto_id'] ?? [];
-        $cantidades = $_POST['cantidad'] ?? [];
-        $precios = $_POST['precio_unitario'] ?? [];
+        $productosIds = $this->input('producto_id', []);
+        $cantidades = $this->input('cantidad', []);
+        $precios = $this->input('precio_unitario', []);
 
         if (empty($proveedorId) || empty($productosIds)) {
             $this->setFlash('error', 'Debe seleccionar un proveedor y al menos un producto.');
@@ -171,25 +171,61 @@ class OrdenCompraController extends Controller
     }
 
     /**
+     * Aprobar orden de compra (Solo Admin/Supervisor)
+     */
+    public function aprobar(int $id): void
+    {
+        if (!hasPermission('compras.aprobar')) {
+            $this->setFlash('error', 'No tiene permisos para aprobar órdenes de compra.');
+            $this->redirect('compras/show/' . $id);
+            return;
+        }
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('compras/show/' . $id);
+            return;
+        }
+
+        $orden = $this->ordenModel->findById($id);
+        if (!$orden || $orden->estado !== 'pendiente') {
+            $this->setFlash('error', 'Orden no encontrada o no está en estado pendiente.');
+            $this->redirect('compras');
+            return;
+        }
+
+        $this->ordenModel->update($id, ['estado' => 'aprobada']);
+        $this->securityService->logAction(currentUserId(), 'approve', 'compras', "Aprobó orden de compra ID $id");
+        
+        $this->setFlash('success', 'Orden de compra aprobada. Lista para recepción.');
+        $this->redirect('compras/show/' . $id);
+    }
+
+    /**
      * Marcar orden como recibida y generar movimientos
      */
     public function recibir(int $id): void
     {
+        if (!hasPermission('compras.ver')) {
+            $this->setFlash('error', 'No tiene permisos para recibir órdenes de compra.');
+            $this->redirect('compras/show/' . $id);
+            return;
+        }
+
         if (!$this->validateCSRF()) {
             $this->redirect('compras/show/' . $id);
             return;
         }
 
         $orden = $this->ordenModel->getWithDetails($id);
-        if (!$orden || $orden->estado === 'recibida' || $orden->estado === 'cancelada') {
-            $this->setFlash('error', 'La orden no se puede recibir en su estado actual.');
+        if (!$orden || $orden->estado !== 'aprobada') {
+            $this->setFlash('error', 'La orden no está aprobada para recepción.');
             $this->redirect('compras');
             return;
         }
 
         // Recuperar lotes/vencimientos del formulario de recepción
-        $lotes = $_POST['lotes'] ?? [];
-        $vencimientos = $_POST['vencimientos'] ?? [];
+        $lotes = $this->input('lotes', []);
+        $vencimientos = $this->input('vencimientos', []);
 
         try {
             $this->ordenModel->beginTransaction();
@@ -291,5 +327,100 @@ class OrdenCompraController extends Controller
         $this->setFlash('success', "Orden de compra {$orden->numero_orden} cancelada.");
 
         $this->redirect('compras/show/' . $id);
+    }
+
+    /**
+     * Exportar Orden de Compra a PDF
+     */
+    public function exportPDF(int $id): void
+    {
+        $orden = $this->ordenModel->getWithDetails($id);
+        if (!$orden) {
+            $this->setFlash('error', 'Orden no encontrada.');
+            $this->redirect('compras');
+            return;
+        }
+
+        $pdf = new PdfGenerator();
+        $pdf->AliasNbPages();
+        $pdf->setDocumentTitle('Orden de Compra');
+        $pdf->AddPage();
+
+        // Info de cabecera
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(35, 6, 'Numero OC:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, $orden->numero_orden, 0, 0);
+        
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(35, 6, 'Fecha Emision:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, formatDate($orden->fecha_emision), 0, 1);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(35, 6, 'Proveedor:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, PdfGenerator::decode($orden->proveedor_nombre), 0, 0);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(35, 6, 'RUC/NIT:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, PdfGenerator::decode($orden->proveedor_documento), 0, 1);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(35, 6, 'Estado:', 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(60, 6, strtoupper($orden->estado), 0, 1);
+
+        if ($orden->notas) {
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(35, 6, 'Notas:', 0, 0);
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->MultiCell(0, 6, PdfGenerator::decode($orden->notas));
+        }
+
+        $pdf->Ln(10);
+
+        // Tabla de productos
+        $header = ['SKU', 'Producto', 'Cant.', 'Precio U.', 'Subtotal'];
+        $widths = [30, 80, 25, 25, 30];
+        $aligns = ['C', 'L', 'C', 'R', 'R'];
+        
+        $data = [];
+        foreach ($orden->detalles as $det) {
+            $data[] = [
+                $det->sku,
+                $det->producto_nombre,
+                $det->cantidad . ' ' . $det->unidad_medida,
+                number_format($det->precio_unitario, 2),
+                number_format($det->subtotal, 2)
+            ];
+        }
+
+        $pdf->BasicTable($header, $data, $widths, $aligns);
+
+        // Total
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->Cell(160, 10, 'TOTAL:', 0, 0, 'R');
+        $pdf->SetTextColor(0, 50, 150);
+        $pdf->Cell(30, 10, '$' . number_format($orden->total, 2), 0, 1, 'R');
+        $pdf->SetTextColor(0, 0, 0);
+
+        // Cajones de firma
+        $pdf->Ln(30);
+        $pdf->SetFont('Arial', '', 10);
+        
+        $y = $pdf->GetY();
+        $pdf->Line(20, $y, 80, $y);
+        $pdf->Line(110, $y, 170, $y);
+        
+        $pdf->SetXY(20, $y + 2);
+        $pdf->Cell(60, 5, PdfGenerator::decode('Firma Autorización'), 0, 0, 'C');
+        
+        $pdf->SetXY(110, $y + 2);
+        $pdf->Cell(60, 5, PdfGenerator::decode('Firma Proveedor/Recepción'), 0, 0, 'C');
+
+        // Descargar PDF
+        $pdf->Output('D', 'OrdenCompra_' . $orden->numero_orden . '.pdf');
     }
 }

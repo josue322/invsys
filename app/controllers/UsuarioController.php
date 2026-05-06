@@ -137,6 +137,7 @@ class UsuarioController extends Controller
 
         $nombre = $this->input('nombre');
         $email = $this->input('email');
+        $telefono = $this->input('telefono');
         $password = $_POST['password'] ?? '';
         $rolId = (int) $this->input('rol_id');
 
@@ -163,6 +164,7 @@ class UsuarioController extends Controller
         $id = $this->usuarioModel->create([
             'nombre' => $nombre,
             'email' => $email,
+            'telefono' => $telefono,
             'password' => password_hash($password, PASSWORD_DEFAULT),
             'rol_id' => $rolId,
             'activo' => 1,
@@ -241,12 +243,14 @@ class UsuarioController extends Controller
         // Flujo normal: Actualizar datos del usuario
         $nombre = $this->input('nombre');
         $email = $this->input('email');
+        $telefono = $this->input('telefono');
         $rolId = (int) $this->input('rol_id');
         $activo = $this->input('activo') ? 1 : 0;
 
         $data = [
             'nombre' => $nombre,
             'email' => $email,
+            'telefono' => $telefono,
             'rol_id' => $rolId,
             'activo' => $activo,
         ];

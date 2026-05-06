@@ -698,12 +698,12 @@ class ReporteController extends Controller
         $productoModel = new Producto();
         $kardexModel = new Kardex();
 
-        $productoId = (int) ($_GET['producto_id'] ?? 0);
-        $fechaDesde = $_GET['desde'] ?? null;
-        $fechaHasta = $_GET['hasta'] ?? date('Y-m-d');
-        $valorizado = ($_GET['valorizado'] ?? '0') === '1';
+        $productoId = (int) $this->query('producto_id', 0);
+        $fechaDesde = $this->query('desde', null);
+        $fechaHasta = $this->query('hasta', date('Y-m-d'));
+        $valorizado = $this->query('valorizado', '0') === '1';
 
-        $productos = $productoModel->findAllActive('nombre', 'ASC');
+        $productos = $productoModel->findAllActive();
         $kardexData = null;
         $producto = null;
 
@@ -732,11 +732,54 @@ class ReporteController extends Controller
     }
 
     /**
+     * Vista de Trazabilidad de Kardex por Lote
+     */
+    public function kardexLote(): void
+    {
+        $loteModel = new Lote();
+        $movimientoModel = new Movimiento();
+
+        $loteId = (int) $this->query('lote_id', 0);
+        $productoId = (int) $this->query('producto_id', 0);
+        
+        $productoModel = new Producto();
+        $productosPerecederos = $productoModel->rawQuery("SELECT id, nombre, sku FROM productos WHERE es_perecedero = 1 AND activo = 1 ORDER BY nombre ASC");
+        
+        $lotes = [];
+        if ($productoId > 0) {
+            $lotes = $loteModel->rawQuery("SELECT * FROM lotes WHERE producto_id = :pid ORDER BY fecha_vencimiento ASC", ['pid' => $productoId]);
+        }
+
+        $loteSeleccionado = null;
+        $movimientosLote = [];
+
+        if ($loteId > 0) {
+            $loteSeleccionado = $loteModel->findById($loteId);
+            if ($loteSeleccionado) {
+                $movimientosLote = $movimientoModel->getByLoteId($loteId);
+            }
+        }
+
+        $this->view('reportes/kardex_lote', [
+            'titulo' => 'Trazabilidad por Lote',
+            'productos' => $productosPerecederos,
+            'lotes' => $lotes,
+            'loteSeleccionado' => $loteSeleccionado,
+            'movimientosLote' => $movimientosLote,
+            'filtros' => [
+                'producto_id' => $productoId,
+                'lote_id' => $loteId
+            ],
+            'flash' => $this->getFlash(),
+        ]);
+    }
+
+    /**
      * Exportar Kardex a CSV.
      */
     public function exportKardexCSV(): void
     {
-        $productoId = (int) ($_GET['producto_id'] ?? 0);
+        $productoId = (int) $this->query('producto_id', 0);
         if ($productoId <= 0) {
             $this->setFlash('error', 'Seleccione un producto.');
             $this->redirect('reportes/kardex');
@@ -752,9 +795,9 @@ class ReporteController extends Controller
         }
 
         $kardexModel = new Kardex();
-        $fechaDesde = $_GET['desde'] ?? null;
-        $fechaHasta = $_GET['hasta'] ?? date('Y-m-d');
-        $valorizado = ($_GET['valorizado'] ?? '0') === '1';
+        $fechaDesde = $this->query('desde', null);
+        $fechaHasta = $this->query('hasta', date('Y-m-d'));
+        $valorizado = $this->query('valorizado', '0') === '1';
 
         $data = $valorizado
             ? $kardexModel->getKardexValorizado($productoId, $fechaDesde, $fechaHasta)
@@ -816,7 +859,7 @@ class ReporteController extends Controller
      */
     public function rotacion(): void
     {
-        $dias = (int) ($_GET['dias'] ?? 90);
+        $dias = (int) $this->query('dias', 90);
         $dias = max(7, min(365, $dias));
 
         $analisis = new AnalisisInventario();
@@ -835,7 +878,7 @@ class ReporteController extends Controller
      */
     public function productosMuertos(): void
     {
-        $dias = (int) ($_GET['dias'] ?? 60);
+        $dias = (int) $this->query('dias', 60);
         $dias = max(7, min(365, $dias));
 
         $analisis = new AnalisisInventario();
@@ -885,7 +928,7 @@ class ReporteController extends Controller
      */
     public function exportRotacionCSV(): void
     {
-        $dias = (int) ($_GET['dias'] ?? 90);
+        $dias = (int) $this->query('dias', 90);
         $analisis = new AnalisisInventario();
         $items = $analisis->getRotacion($dias);
 

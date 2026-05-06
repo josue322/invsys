@@ -487,7 +487,7 @@ HTML;
         $subject = "[{$this->systemName}] ⚠️ Resumen de Alertas de Inventario";
         $loginUrl = $this->getLoginUrl();
         $year = date('Y');
-        $color = Config::get('color_principal', '#e11d48'); // Rojo/Warning por defecto para alertas
+        $color = Config::get('color_principal', '#6366f1');
 
         // Agrupar alertas por tipo
         $agrupadas = [

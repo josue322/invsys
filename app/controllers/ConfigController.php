@@ -46,7 +46,7 @@ class ConfigController extends Controller
             return;
         }
 
-        $configs = $_POST['config'] ?? [];
+        $configs = $this->input('config', []);
 
         // Procesar subida de logo
         $this->handleLogoUpload();
@@ -145,7 +145,7 @@ class ConfigController extends Controller
         MailService::reset();
         $mailService = MailService::getInstance();
 
-        $targetEmail = trim($_POST['email'] ?? '');
+        $targetEmail = $this->input('email', '');
         if (empty($targetEmail) || !filter_var($targetEmail, FILTER_VALIDATE_EMAIL)) {
             echo json_encode(['success' => false, 'message' => 'Por favor, proporcione un correo electrónico válido.']);
             return;

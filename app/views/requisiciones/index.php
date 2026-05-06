@@ -24,6 +24,7 @@
                     <option value="">Todos los estados</option>
                     <option value="borrador" <?= $filtros['estado'] == 'borrador' ? 'selected' : '' ?>>Borrador</option>
                     <option value="pendiente" <?= $filtros['estado'] == 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                    <option value="aprobada" <?= $filtros['estado'] == 'aprobada' ? 'selected' : '' ?>>Aprobada</option>
                     <option value="despachada" <?= $filtros['estado'] == 'despachada' ? 'selected' : '' ?>>Despachada</option>
                     <option value="cancelada" <?= $filtros['estado'] == 'cancelada' ? 'selected' : '' ?>>Cancelada</option>
                 </select>
@@ -86,6 +87,7 @@
                                         $badge = match($r->estado) {
                                             'borrador' => 'bg-secondary',
                                             'pendiente' => 'bg-warning text-dark',
+                                            'aprobada' => 'bg-info text-dark',
                                             'despachada' => 'bg-success',
                                             'cancelada' => 'bg-danger',
                                             default => 'bg-secondary',

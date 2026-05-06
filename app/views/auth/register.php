@@ -31,7 +31,7 @@
         <!-- Right Panel - Form -->
         <div class="login-right">
             <div class="login-form-container">
-                <h2>Crear Cuenta ✨</h2>
+                <h2>Crear Cuenta</h2>
                 <p class="subtitle">Complete los campos para registrarse en el sistema</p>
 
                 <?php if (!empty($flash)): ?>

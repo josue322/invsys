@@ -2,7 +2,7 @@
  * InvSys — Productos Page Scripts (create + edit)
  * Image upload, barcode, perecedero toggle, form validation
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const PAGE_DATA = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
     const isEdit = !!PAGE_DATA.sku;
 
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const perecederoSwitch = document.getElementById('es_perecedero');
     const perecederoAlert = document.getElementById('perecederoAlert');
     if (perecederoSwitch && perecederoAlert) {
-        perecederoSwitch.addEventListener('change', function() {
+        perecederoSwitch.addEventListener('change', function () {
             if (isEdit) {
                 perecederoAlert.style.setProperty('display', this.checked ? 'block' : 'none', 'important');
             } else {
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault(); zone.classList.remove('dragover');
             if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; showPreview(e.dataTransfer.files[0]); }
         });
-        input.addEventListener('change', function() {
+        input.addEventListener('change', function () {
             if (this.files.length) { showPreview(this.files[0]); if (deleteCheck) deleteCheck.checked = false; }
         });
     }
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file.size > 2 * 1024 * 1024) { alert('La imagen excede el tamaño máximo de 2MB.'); return; }
         const reader = new FileReader();
         reader.onload = (e) => {
-            const label = isEdit ? `<small class="text-muted mt-2"><i class="bi bi-arrow-repeat me-1"></i>Nueva imagen: ${file.name} (${(file.size/1024).toFixed(0)} KB)</small>` : `<small class="text-muted mt-2">${file.name} (${(file.size/1024).toFixed(0)} KB)</small>`;
+            const label = isEdit ? `<small class="text-muted mt-2"><i class="bi bi-arrow-repeat me-1"></i>Nueva imagen: ${file.name} (${(file.size / 1024).toFixed(0)} KB)</small>` : `<small class="text-muted mt-2">${file.name} (${(file.size / 1024).toFixed(0)} KB)</small>`;
             preview.innerHTML = `<img src="${e.target.result}" alt="Vista previa" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:cover;">${label}`;
         };
         reader.readAsDataURL(file);
@@ -57,19 +57,106 @@ document.addEventListener('DOMContentLoaded', function() {
         const barcodeValue = PAGE_DATA.codigo_barras || PAGE_DATA.sku;
         try {
             JsBarcode("#barcode", barcodeValue, { format: "CODE128", width: 2, height: 60, displayValue: false, margin: 10 });
-        } catch(e) { console.warn('Barcode error:', e); }
+        } catch (e) { console.warn('Barcode error:', e); }
 
-        document.getElementById('btnPrintBarcode')?.addEventListener('click', function() {
+        document.getElementById('btnPrintBarcode')?.addEventListener('click', function () {
             const svg = document.getElementById('barcode');
             const nombre = PAGE_DATA.nombre || '';
             const sku = PAGE_DATA.sku || '';
             const barcode = barcodeValue;
-            const w = window.open('', '_blank', 'width=400,height=300');
+            const svgHTML = svg.outerHTML;
+            const skuLine = barcode !== sku ? `<div class="barcode-val">SKU: ${sku}</div>` : '';
+
+            const w = window.open('', '_blank', 'width=450,height=400');
             w.document.write(`<html><head><title>Etiqueta - ${sku}</title>
-            <style>body{font-family:Arial,sans-serif;text-align:center;margin:20px}.label{border:1px dashed #ccc;padding:15px;display:inline-block}.name{font-size:12px;margin-top:5px}.sku{font-size:14px;font-weight:bold;margin-top:3px}.barcode-val{font-size:11px;color:#666;margin-top:2px}@media print{.label{border:none}}</style></head><body>
-            <div class="label">${svg.outerHTML}<div class="sku">${barcode}</div><div class="name">${nombre}</div>${barcode !== sku ? '<div class="barcode-val">SKU: '+sku+'</div>' : ''}</div>
-            <script>window.onload=function(){window.print();}<\/script></body></html>`);
+            <style>
+                body{font-family:Arial,sans-serif;text-align:center;margin:0;padding:20px;background:#f5f5f5}
+                .label{border:1px dashed #ccc;padding:20px;display:inline-block;background:#fff;border-radius:8px;margin-bottom:15px}
+                .name{font-size:12px;margin-top:5px;color:#333}
+                .sku{font-size:14px;font-weight:bold;margin-top:3px}
+                .barcode-val{font-size:11px;color:#666;margin-top:2px}
+                .actions{display:flex;gap:10px;justify-content:center;margin-top:10px}
+                .btn{padding:8px 20px;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+                .btn-print{background:#6366f1;color:#fff}
+                .btn-print:hover{background:#4f46e5}
+                .btn-download{background:#10b981;color:#fff}
+                .btn-download:hover{background:#059669}
+                @media print{.actions{display:none!important}.label{border:none;box-shadow:none}body{background:#fff;padding:5px}}
+            </style></head><body>
+            <div class="label" id="labelContent">${svgHTML}<div class="sku">${barcode}</div><div class="name">${nombre}</div>${skuLine}</div>
+            <div class="actions">
+                <button class="btn btn-print" id="btnPrint">&#128424; Imprimir</button>
+                <button class="btn btn-download" id="btnDownload">&#128190; Descargar PNG</button>
+            </div>
+            </body></html>`);
             w.document.close();
+
+            // Wait for the popup DOM to be ready, then attach event listeners
+            w.addEventListener('DOMContentLoaded', attachHandlers);
+            // Fallback in case DOMContentLoaded already fired
+            setTimeout(() => attachHandlers(), 200);
+
+            let attached = false;
+            function attachHandlers() {
+                if (attached) return;
+                const printBtn = w.document.getElementById('btnPrint');
+                const dlBtn = w.document.getElementById('btnDownload');
+                if (!printBtn || !dlBtn) return;
+                attached = true;
+
+                printBtn.addEventListener('click', function () { w.print(); });
+
+                dlBtn.addEventListener('click', function () {
+                    const labelEl = w.document.getElementById('labelContent');
+                    const svgEl = labelEl.querySelector('svg');
+                    if (!svgEl) return;
+
+                    // Create a canvas to render the label as PNG
+                    const canvas = w.document.createElement('canvas');
+                    const svgRect = svgEl.getBoundingClientRect();
+                    const scale = 2; // retina quality
+                    canvas.width = Math.max(svgRect.width, 300) * scale;
+                    canvas.height = (svgRect.height + 80) * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(scale, scale);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Render SVG to canvas
+                    const svgData = new XMLSerializer().serializeToString(svgEl);
+                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    const svgUrl = URL.createObjectURL(svgBlob);
+                    const img = new Image();
+                    img.onload = function () {
+                        const xOffset = (Math.max(svgRect.width, 300) - svgRect.width) / 2;
+                        ctx.drawImage(img, xOffset, 10, svgRect.width, svgRect.height);
+                        URL.revokeObjectURL(svgUrl);
+
+                        // Draw text below
+                        const textY = svgRect.height + 20;
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.textAlign = 'center';
+                        const centerX = Math.max(svgRect.width, 300) / 2;
+                        ctx.fillText(barcode, centerX, textY);
+                        ctx.font = '12px Arial';
+                        ctx.fillStyle = '#333';
+                        ctx.fillText(nombre, centerX, textY + 18);
+                        if (barcode !== sku) {
+                            ctx.font = '11px Arial';
+                            ctx.fillStyle = '#666';
+                            ctx.fillText('SKU: ' + sku, centerX, textY + 34);
+                        }
+
+                        // Download
+                        const a = w.document.createElement('a');
+                        a.href = canvas.toDataURL('image/png');
+                        a.download = 'etiqueta_' + sku + '.png';
+                        a.click();
+                    };
+                    img.src = svgUrl;
+                });
+            }
         });
     }
 
@@ -108,10 +195,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // === Vincular Proveedor (show page only) ===
     const btnVincular = document.getElementById('btnVincularProveedor');
     if (btnVincular && PAGE_DATA.baseUrl) {
-        btnVincular.addEventListener('click', async function() {
+        btnVincular.addEventListener('click', async function () {
             const form = document.getElementById('formVincularProveedor');
             const provSelect = document.getElementById('prov_proveedor_id');
-            
+
             if (!provSelect.value) {
                 provSelect.focus();
                 provSelect.classList.add('is-invalid');
@@ -147,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // === Desvincular Proveedor ===
     document.querySelectorAll('.btn-desvincular').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const vinculoId = this.dataset.vinculoId;
             const provNombre = this.closest('tr')?.querySelector('strong')?.textContent || 'este proveedor';
             const self = this;

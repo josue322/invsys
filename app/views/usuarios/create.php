@@ -18,6 +18,10 @@
                             <input type="email" class="form-control" id="email" name="email" required maxlength="150">
                         </div>
                         <div class="col-md-6">
+                            <label for="telefono" class="form-label">Teléfono (WhatsApp)</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" maxlength="20" placeholder="+51999888777">
+                        </div>
+                        <div class="col-md-6">
                             <label for="rol_id" class="form-label">Rol *</label>
                             <select class="form-select" id="rol_id" name="rol_id" required>
                                 <option value="">Seleccione...</option>

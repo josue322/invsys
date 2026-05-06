@@ -587,6 +587,201 @@ body {
     color: #fff;
 }
 
+/* === User Mega Dropdown === */
+.user-mega-dropdown {
+    width: 320px;
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
+    overflow: hidden;
+    animation: uddSlideIn 0.2s ease-out;
+}
+
+@keyframes uddSlideIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.udd-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.15rem;
+    background: var(--primary-gradient);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.udd-header::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.udd-header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: -20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.udd-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    position: relative;
+    z-index: 1;
+}
+
+.udd-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.udd-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.udd-email {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.udd-role-badge {
+    font-size: 0.6rem;
+    width: fit-content;
+    padding: 0.15rem 0.55rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.udd-section {
+    padding: 0.5rem;
+}
+
+.udd-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.udd-item:hover {
+    background: var(--primary-light);
+    color: var(--text-primary);
+    transform: translateX(2px);
+}
+
+.udd-item:hover .udd-item-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+.udd-item-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.udd-item:hover .udd-item-icon {
+    transform: scale(1.08);
+}
+
+.udd-item-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.udd-item-text span {
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.3;
+}
+
+.udd-item-text small {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+.udd-item-arrow {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.udd-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 0.5rem;
+}
+
+.udd-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--accent-danger);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+    width: 100%;
+}
+
+.udd-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--accent-danger);
+}
+
 /* Content wrapper */
 .content-wrapper {
     padding: 1.5rem;

@@ -7,9 +7,6 @@
  * 
  * Cron Linux:   0 9 * * * php /ruta/absoluta/a/invsys/scripts/cron_alertas.php
  * Task Scheduler Windows: Ejecutar php.exe con argumento scripts\cron_alertas.php a las 09:00 diariamente.
- * 
- * Comando de ejecución sugerido:
- * php /ruta/absoluta/a/invsys/scripts/cron_alertas.php
  */
 
 // 1. Configurar entorno CLI
@@ -93,29 +90,46 @@ try {
     // Determinar a quién enviar: Administradores (rol_id=1) y Operadores (rol_id=3) activos
     $db = Model::getConnection();
     $stmt = $db->query("
-        SELECT DISTINCT u.email 
+        SELECT DISTINCT u.email, u.telefono 
         FROM usuarios u 
         WHERE u.rol_id IN (1, 3) 
-          AND u.activo = 1 
-          AND u.email IS NOT NULL 
-          AND u.email != ''
+          AND u.activo = 1
     ");
-    $destinatarios = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'email');
+    $destinatarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $correosEnviados = 0;
-    foreach ($destinatarios as $toEmail) {
-        echo "--> Intentando enviar correo a: {$toEmail}...\n";
-        $enviado = $mailService->sendDailyAlertDigest($toEmail, $alertasPendientes);
-        
-        if ($enviado) {
-            echo "    [OK] Correo enviado a {$toEmail}.\n";
-            $correosEnviados++;
-        } else {
-            echo "    [ERROR] No se pudo enviar el correo a {$toEmail}.\n";
+    $whatsappsEnviados = 0;
+    $whatsappService = new WhatsAppService();
+
+    foreach ($destinatarios as $user) {
+        // Enviar Correo
+        if (!empty($user['email'])) {
+            echo "--> Intentando enviar correo a: {$user['email']}...\n";
+            $enviado = $mailService->sendDailyAlertDigest($user['email'], $alertasPendientes);
+            
+            if ($enviado) {
+                echo "    [OK] Correo enviado a {$user['email']}.\n";
+                $correosEnviados++;
+            } else {
+                echo "    [ERROR] No se pudo enviar el correo a {$user['email']}.\n";
+            }
+        }
+
+        // Enviar WhatsApp
+        if (!empty($user['telefono'])) {
+            echo "--> Intentando enviar WhatsApp a: {$user['telefono']}...\n";
+            $waEnviado = $whatsappService->sendDailyAlertDigest($user['telefono'], $alertasPendientes);
+
+            if ($waEnviado) {
+                echo "    [OK] WhatsApp enviado a {$user['telefono']}.\n";
+                $whatsappsEnviados++;
+            } else {
+                echo "    [ERROR/OMITIDO] No se pudo enviar WhatsApp a {$user['telefono']} (puede estar desactivado o fallar).\n";
+            }
         }
     }
 
-    if ($correosEnviados > 0) {
+    if ($correosEnviados > 0 || $whatsappsEnviados > 0) {
         // 8. Paso 4: Marcar alertas como notificadas
         $ids = array_map(function($a) { return $a->id; }, $alertasPendientes);
         $alertService->markAsNotified($ids);

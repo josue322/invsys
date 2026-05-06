@@ -131,7 +131,7 @@ class ConteoController extends Controller
             return;
         }
 
-        $filter = $_GET['filter'] ?? 'todos';
+        $filter = $this->query('filter', 'todos');
         $items = $this->detalleModel->getByConteo($conteoId, $filter);
         $summary = $this->conteoModel->getSummary($conteoId);
 

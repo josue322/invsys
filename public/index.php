@@ -83,6 +83,11 @@ if (IS_PRODUCTION) {
 // Iniciar sesión
 session_start();
 
+// Composer autoload
+if (file_exists(ROOT_PATH . '/vendor/autoload.php')) {
+    require_once ROOT_PATH . '/vendor/autoload.php';
+}
+
 // Autoload de clases
 spl_autoload_register(function ($className) {
     // Mapeo de directorios donde buscar clases
@@ -91,6 +96,7 @@ spl_autoload_register(function ($className) {
         APP_PATH . '/controllers/',
         APP_PATH . '/models/',
         APP_PATH . '/services/',
+        APP_PATH . '/helpers/',
     ];
 
     foreach ($directories as $directory) {
