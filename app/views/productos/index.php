@@ -6,6 +6,9 @@
     </div>
     <?php if (hasPermission('productos.crear')): ?>
     <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary d-none" id="btn-print-selected">
+            <i class="bi bi-printer me-1"></i>Imprimir Seleccionados (<span id="print-count">0</span>)
+        </button>
         <a href="<?= url('productos/importar') ?>" class="btn btn-outline-primary" id="btn-importar-csv">
             <i class="bi bi-file-earmark-arrow-up me-1"></i>Importar CSV
         </a>
@@ -71,6 +74,9 @@
             <table class="table" id="tabla-productos">
                 <thead>
                     <tr>
+                        <th style="width:40px" class="text-center">
+                            <input class="form-check-input" type="checkbox" id="selectAllProducts">
+                        </th>
                         <th style="width:60px"></th>
                         <th>SKU</th>
                         <th>Producto</th>
@@ -85,6 +91,9 @@
                 <tbody>
                     <?php foreach ($productos['data'] as $p): ?>
                     <tr class="<?= !$p->activo ? 'row-inactive' : '' ?>">
+                        <td class="text-center align-middle">
+                            <input class="form-check-input product-checkbox" type="checkbox" value="<?= $p->id ?>">
+                        </td>
                         <td>
                             <img src="<?= productImage($p->imagen ?? null) ?>" 
                                  alt="<?= htmlspecialchars($p->nombre) ?>"
@@ -156,3 +165,8 @@
         <?php endif; ?>
     </div>
 </div>
+
+<script id="page-data" type="application/json"><?= json_encode([
+    'baseUrl' => rtrim(BASE_URL, '/')
+]) ?></script>
+<script src="<?= asset('js/productos.js') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/js/productos.js') ?>"></script>

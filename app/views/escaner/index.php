@@ -1,4 +1,4 @@
-﻿<!-- Scanner Styles -->
+<!-- Scanner Styles -->
 <style>
     .scanner-viewport {
         position: relative;
@@ -38,8 +38,12 @@
     #reader #qr-shaded-region { border-color: rgba(255,255,255,0.3) !important; }
 </style>
 
+<!-- CSRF Meta for AJAX -->
+<meta name="csrf-token" content="<?= $csrfToken ?? '' ?>">
+
 <!-- Scanner Interface -->
-<div class="row justify-content-center">
+<div class="row g-3">
+    <!-- Main Scanner Column -->
     <div class="col-lg-8">
         <div class="card animate-fadeIn">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -98,24 +102,45 @@
             <div class="card-body py-3">
                 <h6 class="fw-bold mb-2"><i class="bi bi-lightbulb-fill text-warning me-2"></i>¿Cómo usar?</h6>
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="d-flex align-items-start gap-2">
                             <span class="badge bg-primary rounded-pill">1</span>
                             <small>Haga clic en <strong>Activar Cámara</strong> o escriba el SKU directamente.</small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="d-flex align-items-start gap-2">
                             <span class="badge bg-primary rounded-pill">2</span>
                             <small>Apunte al <strong>código de barras</strong> del producto.</small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="d-flex align-items-start gap-2">
                             <span class="badge bg-primary rounded-pill">3</span>
-                            <small>Acceda al producto o registre un <strong>movimiento rápido</strong>.</small>
+                            <small>Escuche el <strong>sonido</strong>: agudo = encontrado, grave = no encontrado.</small>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="badge bg-primary rounded-pill">4</span>
+                            <small>Use <strong>Movimiento Rápido</strong> para registrar entradas/salidas sin salir.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan History Column -->
+    <div class="col-lg-4">
+        <div class="card animate-fadeIn">
+            <div class="card-header">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Historial de Escaneos</h6>
+            </div>
+            <div class="card-body p-0" id="scanHistory" style="max-height: 500px; overflow-y: auto;">
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-clock-history fs-4 d-block mb-1"></i>
+                    <small>Los escaneos aparecerán aquí</small>
                 </div>
             </div>
         </div>
@@ -124,5 +149,3 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="<?= asset('js/escaner.js') ?>?v=<?= ASSET_VERSION ?>"></script>
-<!-- escaner.js reads BASE from meta[name="base-url"] -->
-

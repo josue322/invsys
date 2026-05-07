@@ -207,6 +207,20 @@
             <?php endif; ?>
         </div>
         <?php endif; ?>
+
+        <div class="nav-section">
+            <span class="nav-section-title">Asistencia</span>
+            
+            <a href="<?= url('ayuda') ?>" class="nav-link <?= isRoute('ayuda') ? 'active' : '' ?>" id="nav-ayuda">
+                <i class="bi bi-question-circle-fill"></i>
+                <span>Centro de Ayuda</span>
+            </a>
+
+            <a href="<?= url('ayuda/soporte') ?>" class="nav-link <?= isRoute('ayuda/soporte') ? 'active' : '' ?>" id="nav-soporte">
+                <i class="bi bi-headset"></i>
+                <span>Soporte Técnico</span>
+            </a>
+        </div>
     </nav>
 
     <div class="sidebar-footer">

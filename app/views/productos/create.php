@@ -21,15 +21,25 @@
                     <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
 
                     <div class="row g-3">
-                        <!-- Imagen del producto -->
                         <div class="col-md-4">
                             <label class="form-label">Imagen del Producto</label>
                             <div class="product-image-upload" id="imageUploadZone">
+                                <?php if (!empty($prefill['imagen_url'])): ?>
+                                <div class="image-preview has-image" id="imagePreview">
+                                    <img src="<?= htmlspecialchars($prefill['imagen_url']) ?>" alt="Preview" 
+                                         style="width:100%;height:100%;object-fit:contain;">
+                                </div>
+                                <input type="hidden" name="imagen_url_externa" value="<?= htmlspecialchars($prefill['imagen_url']) ?>">
+                                <small class="text-success d-block text-center mt-1">
+                                    <i class="bi bi-cloud-check me-1"></i>Imagen capturada desde escáner
+                                </small>
+                                <?php else: ?>
                                 <div class="image-preview" id="imagePreview">
                                     <i class="bi bi-cloud-arrow-up"></i>
                                     <span>Haga clic o arrastre una imagen</span>
                                     <small class="text-muted">JPG, PNG, WebP o GIF — Máx. 2MB</small>
                                 </div>
+                                <?php endif; ?>
                                 <input type="file" name="imagen" id="inputImagen" accept="image/jpeg,image/png,image/webp,image/gif" class="d-none">
                             </div>
                         </div>

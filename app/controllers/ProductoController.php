@@ -82,6 +82,7 @@ class ProductoController extends Controller
             'sku'         => $this->query('sku', ''),
             'nombre'      => $this->query('nombre', ''),
             'descripcion' => $this->query('descripcion', ''),
+            'imagen_url'  => $this->query('imagen_url', ''),
         ];
         $fromScanner = (bool) $this->query('from_scanner', '');
 
@@ -154,6 +155,14 @@ class ProductoController extends Controller
         }
         if ($imageName !== null) {
             $data['imagen'] = $imageName;
+        }
+
+        // Si no se subió imagen manualmente, intentar descargar la imagen externa (desde escáner)
+        if ($imageName === null && !empty($this->input('imagen_url_externa'))) {
+            $externalImage = $this->downloadExternalImage($this->input('imagen_url_externa'));
+            if ($externalImage) {
+                $data['imagen'] = $externalImage;
+            }
         }
 
         $id = $this->productoModel->create($data);
@@ -435,6 +444,70 @@ class ProductoController extends Controller
     {
         if ($filename && file_exists($this->imageDir . '/' . $filename)) {
             @unlink($this->imageDir . '/' . $filename);
+        }
+    }
+
+    /**
+     * Descargar imagen desde URL externa (escáner/lookup) y guardarla localmente.
+     *
+     * @param string $url URL de la imagen externa
+     * @return string|null Nombre del archivo guardado o null si falla
+     */
+    private function downloadExternalImage(string $url): ?string
+    {
+        if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        try {
+            $ctx = stream_context_create([
+                'http' => [
+                    'timeout' => 5,
+                    'header' => "User-Agent: InvSys/1.0\r\n",
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]);
+
+            $imageData = @file_get_contents($url, false, $ctx);
+            if ($imageData === false || strlen($imageData) < 100) {
+                return null;
+            }
+
+            // Detectar tipo MIME
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer($imageData);
+
+            if (!in_array($mimeType, $this->allowedMimeTypes)) {
+                return null;
+            }
+
+            // Limitar tamaño (2MB)
+            if (strlen($imageData) > $this->maxImageSize) {
+                return null;
+            }
+
+            $extension = match ($mimeType) {
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                'image/gif' => 'gif',
+                default => 'jpg',
+            };
+
+            $filename = 'prod_' . uniqid() . '_' . time() . '.' . $extension;
+            $destination = $this->imageDir . '/' . $filename;
+
+            if (file_put_contents($destination, $imageData) === false) {
+                return null;
+            }
+
+            return $filename;
+        } catch (\Throwable $e) {
+            error_log("downloadExternalImage error: {$e->getMessage()}");
+            return null;
         }
     }
 
@@ -809,5 +882,36 @@ class ProductoController extends Controller
         );
 
         $this->json(['success' => true]);
+    }
+    /**
+     * Imprimir etiquetas de múltiples productos.
+     */
+    public function imprimirMasivo(): void
+    {
+        $idsParam = $this->query('ids', '');
+        if (empty($idsParam)) {
+            die('No se seleccionaron productos.');
+        }
+
+        $ids = array_map('intval', explode(',', $idsParam));
+        $ids = array_filter($ids, fn($id) => $id > 0);
+
+        if (empty($ids)) {
+            die('IDs inválidos.');
+        }
+
+        // Fetch products
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT id, sku, nombre, codigo_barras FROM productos WHERE id IN ($placeholders)";
+        $productos = $this->productoModel->rawQuery($sql, $ids);
+
+        if (empty($productos)) {
+            die('Productos no encontrados.');
+        }
+
+        $this->view('productos/imprimir_masivo', [
+            'productos' => $productos,
+            'titulo' => 'Imprimir Etiquetas'
+        ], false); // false to not include the default layout
     }
 }

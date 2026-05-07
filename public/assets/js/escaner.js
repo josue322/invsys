@@ -9,9 +9,69 @@ document.addEventListener('DOMContentLoaded', function() {
     const manualInput = document.getElementById('manualCode');
     const btnManual = document.getElementById('btnManualSearch');
 
+    // ─── State Persistence ───
     let scanner = null;
     let isScanning = false;
     let lastScanned = '';
+
+    // Load history from sessionStorage
+    const savedHistory = sessionStorage.getItem('invsys_scan_history');
+    const scanHistory = savedHistory ? JSON.parse(savedHistory) : [];
+    const MAX_HISTORY = 10;
+
+    function saveState(html = null) {
+        sessionStorage.setItem('invsys_scan_history', JSON.stringify(scanHistory));
+        if (html !== null) {
+            sessionStorage.setItem('invsys_scan_result', html);
+        }
+    }
+
+    function addToHistory(code, product) {
+        if (scanHistory.length > 0 && scanHistory[0].code === code) return;
+
+        scanHistory.unshift({
+            code,
+            nombre: product?.nombre || null,
+            found: !!product,
+            time: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            url: product?.urlEditar || null,
+            stock: product?.stock ?? null,
+        });
+
+        if (scanHistory.length > MAX_HISTORY) scanHistory.pop();
+        saveState();
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const historyDiv = document.getElementById('scanHistory');
+        if (!historyDiv) return;
+
+        if (scanHistory.length === 0) {
+            historyDiv.innerHTML = '<div class="text-center text-muted py-3"><i class="bi bi-clock-history fs-4 d-block mb-1"></i><small>Los escaneos aparecerán aquí</small></div>';
+            return;
+        }
+
+        let html = '<div class="list-group list-group-flush">';
+        scanHistory.forEach((item, i) => {
+            const icon = item.found
+                ? '<i class="bi bi-check-circle-fill text-success"></i>'
+                : '<i class="bi bi-x-circle-fill text-danger"></i>';
+            const nameOrCode = item.nombre ? escapeHtml(item.nombre) : `<code>${escapeHtml(item.code)}</code>`;
+            const stockBadge = item.stock !== null ? `<span class="badge ${item.stock <= 0 ? 'bg-danger' : 'bg-success'} bg-opacity-75 ms-1">${item.stock}</span>` : '';
+
+            html += `<div class="list-group-item px-2 py-2 d-flex align-items-center gap-2 ${i === 0 ? 'border-start border-3 border-primary' : ''}" style="font-size:0.82rem;">
+                ${icon}
+                <div class="flex-grow-1 text-truncate">
+                    <div class="text-truncate fw-medium">${nameOrCode}${stockBadge}</div>
+                    <small class="text-muted">${escapeHtml(item.code)} · ${item.time}</small>
+                </div>
+                ${item.url ? `<a href="${item.url}" class="btn btn-sm btn-outline-primary py-0 px-1" title="Ver"><i class="bi bi-eye"></i></a>` : ''}
+            </div>`;
+        });
+        html += '</div>';
+        historyDiv.innerHTML = html;
+    }
 
     // ─── Manual Search ───
     btnManual.addEventListener('click', () => searchProduct(manualInput.value.trim()));
@@ -29,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const viewport = document.getElementById('scannerViewport');
     const statusEl = document.getElementById('scannerStatus');
 
-    // ─── Beep sound for detection ───
-    function playBeep() {
+    // ─── Differentiated Sounds ───
+    function playBeep(type) {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
@@ -38,10 +98,35 @@ document.addEventListener('DOMContentLoaded', function() {
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.type = 'sine';
-            osc.frequency.value = 1200;
             gain.gain.value = 0.3;
-            osc.start();
-            osc.stop(ctx.currentTime + 0.15);
+
+            if (type === 'success') {
+                // Two rising tones
+                osc.frequency.value = 800;
+                osc.start();
+                osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.1);
+                osc.stop(ctx.currentTime + 0.2);
+            } else if (type === 'warning') {
+                // Flat low tone
+                osc.frequency.value = 400;
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } else {
+                // Error: two low beeps
+                osc.frequency.value = 300;
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
+                setTimeout(() => {
+                    try {
+                        const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc2 = ctx2.createOscillator();
+                        const g2 = ctx2.createGain();
+                        osc2.connect(g2); g2.connect(ctx2.destination);
+                        osc2.type = 'sine'; osc2.frequency.value = 250; g2.gain.value = 0.3;
+                        osc2.start(); osc2.stop(ctx2.currentTime + 0.15);
+                    } catch(e2){}
+                }, 200);
+            }
         } catch(e) {}
     }
 
@@ -153,9 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (decodedText === lastScanned) return;
         lastScanned = decodedText;
 
-        // Visual + audio + haptic feedback
+        // Visual feedback
         setScannerState('detected');
-        playBeep();
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
         manualInput.value = decodedText;
@@ -186,15 +270,24 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(r => r.json())
         .then(data => {
             if (data.found) {
+                playBeep('success');
+                addToHistory(code, data.product);
                 showProduct(data.product);
             } else if (data.multiple) {
+                playBeep('warning');
+                data.results.forEach(r => addToHistory(code, { nombre: r.nombre, urlEditar: r.url, stock: r.stock }));
                 showMultiple(data.results);
             } else if (data.notInSystem) {
+                playBeep('error');
+                addToHistory(code, null);
                 showNotInSystem(data);
             } else {
+                playBeep('error');
+                addToHistory(code, null);
                 emptyMsg.textContent = data.error || 'Producto no encontrado';
                 resultDiv.classList.add('d-none');
                 emptyDiv.classList.remove('d-none');
+                saveState(null); // Clear saved result HTML
             }
         })
         .catch(() => {
@@ -219,17 +312,127 @@ document.addEventListener('DOMContentLoaded', function() {
                             <small class="text-muted">Stock actual</small>
                         </div>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
                         <a href="${p.urlEditar}" class="btn btn-outline-primary">
                             <i class="bi bi-pencil-square me-1"></i>Ver Producto
                         </a>
                         <a href="${p.urlMovimiento}" class="btn btn-primary">
                             <i class="bi bi-arrow-left-right me-1"></i>Registrar Movimiento
                         </a>
+                        <button type="button" class="btn btn-success btn-toggle-quick-move" data-id="${p.id}" data-nombre="${escapeHtml(p.nombre)}" data-stock="${p.stock}">
+                            <i class="bi bi-lightning-fill me-1"></i>Movimiento Rápido
+                        </button>
+                    </div>
+
+                    <!-- Quick Movement Form (hidden by default) -->
+                    <div id="quickMoveForm-${p.id}" class="d-none mt-3 p-3 rounded-3" style="background: var(--bs-tertiary-bg);">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-lightning-fill text-warning me-1"></i>Movimiento Rápido</h6>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-auto">
+                                <label class="form-label small mb-1">Tipo</label>
+                                <select class="form-select form-select-sm" id="qmTipo-${p.id}">
+                                    <option value="entrada">📥 Entrada</option>
+                                    <option value="salida">📤 Salida</option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label small mb-1">Cantidad</label>
+                                <input type="number" class="form-control form-control-sm" id="qmCantidad-${p.id}" min="1" value="1" style="width:80px">
+                            </div>
+                            <div class="col">
+                                <label class="form-label small mb-1">Referencia (opcional)</label>
+                                <input type="text" class="form-control form-control-sm" id="qmRef-${p.id}" placeholder="Ej: OC-001, Despacho...">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-sm btn-success btn-submit-quick-move" data-id="${p.id}">
+                                    <i class="bi bi-check-lg me-1"></i>Confirmar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>`;
         resultDiv.classList.remove('d-none');
+        saveState(resultDiv.innerHTML); // Save current view state
+    }
+
+    // Event Delegation para botones dinámicos (soluciona error CSP inline onclick)
+    document.addEventListener('click', function(e) {
+        // Toggle Quick Movement
+        const btnToggle = e.target.closest('.btn-toggle-quick-move');
+        if (btnToggle) {
+            const productId = btnToggle.getAttribute('data-id');
+            const form = document.getElementById(`quickMoveForm-${productId}`);
+            if (form) {
+                form.classList.toggle('d-none');
+                if (!form.classList.contains('d-none')) {
+                    document.getElementById(`qmCantidad-${productId}`)?.focus();
+                }
+            }
+            return;
+        }
+
+        // Submit Quick Movement
+        const btnSubmit = e.target.closest('.btn-submit-quick-move');
+        if (btnSubmit) {
+            const productId = btnSubmit.getAttribute('data-id');
+            submitQuickMove(productId);
+            return;
+        }
+
+        // Retry Lookup
+        const btnRetry = e.target.closest('.btn-retry-lookup');
+        if (btnRetry) {
+            const codigo = btnRetry.getAttribute('data-codigo');
+            retryLookup(codigo);
+            return;
+        }
+    });
+
+    // Submit Quick Movement via AJAX
+    function submitQuickMove(productId) {
+        const tipo = document.getElementById(`qmTipo-${productId}`).value;
+        const cantidad = parseInt(document.getElementById(`qmCantidad-${productId}`).value);
+        const referencia = document.getElementById(`qmRef-${productId}`).value.trim();
+
+        if (!cantidad || cantidad <= 0) {
+            showToast('La cantidad debe ser mayor a 0', 'error');
+            return;
+        }
+
+        // Get CSRF token
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMeta ? csrfMeta.content : '';
+
+        const formData = new FormData();
+        formData.append('_csrf_token', csrfToken);
+        formData.append('producto_id', productId);
+        formData.append('tipo', tipo);
+        formData.append('cantidad', cantidad);
+        formData.append('referencia', referencia || `Mov. rápido desde escáner`);
+
+        fetch(`${BASE}/movimientos/rapido`, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                playBeep('success');
+                showToast(`✅ ${tipo === 'entrada' ? 'Entrada' : 'Salida'} de ${cantidad} registrada. Nuevo stock: ${data.newStock}`, 'success');
+                // Update stock display
+                const form = document.getElementById(`quickMoveForm-${productId}`);
+                if (form) form.classList.add('d-none');
+                // Re-search to refresh data
+                searchProduct(manualInput.value.trim());
+            } else {
+                showToast(data.error || 'Error al registrar movimiento', 'error');
+            }
+        })
+        .catch(() => {
+            showToast('Error de conexión al registrar movimiento', 'error');
+        });
     }
 
     function showMultiple(results) {
@@ -248,6 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '</div>';
         resultDiv.innerHTML = html;
         resultDiv.classList.remove('d-none');
+        saveState(html);
     }
 
     function showNotInSystem(data) {
@@ -324,13 +528,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const params = new URLSearchParams({ sku: codigo, from_scanner: '1' });
             if (lookup?.nombre) params.set('nombre', lookup.nombre);
             if (lookup?.descripcion) params.set('descripcion', lookup.descripcion);
+            if (lookup?.imagen_url) params.set('imagen_url', lookup.imagen_url);
 
             html += `
                     <div class="d-flex flex-wrap gap-2">
                         <a href="${createUrl}?${params.toString()}" class="btn btn-success">
                             <i class="bi bi-plus-circle me-1"></i>Registrar Producto
                         </a>
-                        <button type="button" class="btn btn-outline-secondary" onclick="retryLookup('${escapeHtml(codigo)}')">
+                        <button type="button" class="btn btn-outline-secondary btn-retry-lookup" data-codigo="${escapeHtml(codigo)}">
                             <i class="bi bi-arrow-clockwise me-1"></i>Reintentar búsqueda externa
                         </button>
                     </div>`;
@@ -348,10 +553,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         resultDiv.innerHTML = html;
         resultDiv.classList.remove('d-none');
+        saveState(html);
     }
 
     // Reintentar búsqueda en APIs externas
-    window.retryLookup = function(codigo) {
+    function retryLookup(codigo) {
         resultDiv.innerHTML = `
             <div class="text-center py-3">
                 <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
@@ -387,4 +593,17 @@ document.addEventListener('DOMContentLoaded', function() {
         div.textContent = str;
         return div.innerHTML;
     }
+
+    // Restore state on load
+    function restoreState() {
+        const savedResultHTML = sessionStorage.getItem('invsys_scan_result');
+        if (savedResultHTML) {
+            resultDiv.innerHTML = savedResultHTML;
+            resultDiv.classList.remove('d-none');
+        }
+    }
+
+    // Initialize
+    renderHistory();
+    restoreState();
 });

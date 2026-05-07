@@ -151,6 +151,13 @@ return [
         'action' => 'search',
         'middleware' => ['auth', 'permiso:productos.ver'],
     ],
+    [
+        'method' => 'GET',
+        'path' => 'productos/imprimir_masivo',
+        'controller' => 'ProductoController',
+        'action' => 'imprimirMasivo',
+        'middleware' => ['auth', 'permiso:productos.ver'],
+    ],
     // Producto-Proveedor (AJAX)
     [
         'method' => 'POST',
@@ -447,6 +454,13 @@ return [
         'path' => 'movimientos/crear',
         'controller' => 'MovimientoController',
         'action' => 'store',
+        'middleware' => ['auth', 'permiso:movimientos.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'movimientos/rapido',
+        'controller' => 'MovimientoController',
+        'action' => 'rapido',
         'middleware' => ['auth', 'permiso:movimientos.crear'],
     ],
 
@@ -1018,6 +1032,38 @@ return [
         'path' => 'perfil/password',
         'controller' => 'PerfilController',
         'action' => 'updatePassword',
+        'middleware' => ['auth'],
+    ],
+
+    // =====================================================
+    // AYUDA Y SOPORTE
+    // =====================================================
+    [
+        'method' => 'GET',
+        'path' => 'ayuda',
+        'controller' => 'AyudaController',
+        'action' => 'index',
+        'middleware' => ['auth'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'ayuda/soporte',
+        'controller' => 'AyudaController',
+        'action' => 'soporte',
+        'middleware' => ['auth'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'ayuda/soporte',
+        'controller' => 'AyudaController',
+        'action' => 'enviarTicket',
+        'middleware' => ['auth'],
+    ],
+    [
+        'method' => 'GET',
+        'path' => 'ayuda/pdf',
+        'controller' => 'AyudaController',
+        'action' => 'descargarPdf',
         'middleware' => ['auth'],
     ],
 ];

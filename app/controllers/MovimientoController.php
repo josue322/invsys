@@ -301,4 +301,92 @@ class MovimientoController extends Controller
             $this->redirect('movimientos/crear');
         }
     }
+
+    /**
+     * AJAX: Registrar un movimiento rápido desde el escáner.
+     * Solo soporta entrada/salida simples (sin lotes, sin proveedor).
+     */
+    public function rapido(): void
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->validateCSRF()) {
+            echo json_encode(['success' => false, 'error' => 'Token de seguridad inválido. Recargue la página.']);
+            return;
+        }
+
+        $productoId = (int) $this->input('producto_id');
+        $tipo = $this->input('tipo');
+        $cantidad = (int) $this->input('cantidad');
+        $referencia = $this->input('referencia', 'Movimiento rápido desde escáner');
+
+        // Validaciones
+        if ($productoId <= 0 || !in_array($tipo, ['entrada', 'salida']) || $cantidad <= 0) {
+            echo json_encode(['success' => false, 'error' => 'Datos inválidos.']);
+            return;
+        }
+
+        $this->movimientoModel->beginTransaction();
+
+        try {
+            $producto = $this->productoModel->findByIdForUpdate($productoId);
+            if (!$producto) {
+                $this->movimientoModel->rollback();
+                echo json_encode(['success' => false, 'error' => 'Producto no encontrado.']);
+                return;
+            }
+
+            $stockAnterior = $producto->stock;
+
+            if ($tipo === 'salida' && ($stockAnterior - $cantidad < 0)) {
+                $permitirNegativo = filter_var(sysConfig('permitir_stock_negativo', '0'), FILTER_VALIDATE_BOOLEAN);
+                if (!$permitirNegativo) {
+                    $this->movimientoModel->rollback();
+                    echo json_encode(['success' => false, 'error' => "Stock insuficiente. Actual: {$stockAnterior}, Solicitado: {$cantidad}."]);
+                    return;
+                }
+            }
+
+            $stockNuevo = $tipo === 'entrada'
+                ? $stockAnterior + $cantidad
+                : $stockAnterior - $cantidad;
+
+            $this->movimientoModel->create([
+                'producto_id' => $productoId,
+                'usuario_id' => currentUserId(),
+                'lote_id' => null,
+                'proveedor_id' => null,
+                'destino' => null,
+                'tipo' => $tipo,
+                'cantidad' => $cantidad,
+                'stock_anterior' => $stockAnterior,
+                'stock_nuevo' => $stockNuevo,
+                'referencia' => $referencia,
+                'observaciones' => 'Registrado desde el módulo de Escáner (Mov. Rápido)',
+            ]);
+
+            $this->productoModel->updateStock($productoId, $stockNuevo);
+            $this->movimientoModel->commit();
+
+            // Alertas
+            $this->alertService->checkStock($productoId);
+
+            $this->securityService->logAction(
+                currentUserId(),
+                "movimiento_{$tipo}",
+                'movimientos',
+                "Mov. rápido (escáner): {$tipo} de {$cantidad} para {$producto->nombre}. Stock: {$stockAnterior} → {$stockNuevo}"
+            );
+
+            echo json_encode([
+                'success' => true,
+                'newStock' => $stockNuevo,
+                'message' => "Movimiento registrado exitosamente.",
+            ]);
+
+        } catch (\Exception $e) {
+            $this->movimientoModel->rollback();
+            echo json_encode(['success' => false, 'error' => 'Error: ' . $e->getMessage()]);
+        }
+    }
 }

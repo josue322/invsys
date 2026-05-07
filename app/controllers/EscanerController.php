@@ -24,6 +24,7 @@ class EscanerController extends Controller
         $this->view('escaner/index', [
             'titulo'      => 'Escáner',
             'loadScanner' => true,
+            'csrfToken'   => $this->generateCSRF(),
             'flash'       => $this->getFlash(),
         ]);
     }

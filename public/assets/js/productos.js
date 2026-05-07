@@ -300,4 +300,75 @@ document.addEventListener('DOMContentLoaded', function () {
         requestAnimationFrame(() => toast.classList.add('show'));
         setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
     }
+    // === Products Index Filters ===
+    const filterForm = document.getElementById('filter-productos');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function() {
+            const filters = {
+                search: filterForm.querySelector('[name="search"]').value,
+                categoria: filterForm.querySelector('[name="categoria"]').value,
+                stock: filterForm.querySelector('[name="stock"]').value
+            };
+            sessionStorage.setItem('invsys_productos_filters', JSON.stringify(filters));
+        });
+    }
+
+    // Auto-restore filters if no query params present but we have saved ones
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has('search') && !urlParams.has('categoria') && !urlParams.has('stock') && !urlParams.has('page')) {
+        const savedStr = sessionStorage.getItem('invsys_productos_filters');
+        if (savedStr) {
+            const saved = JSON.parse(savedStr);
+            let hasFilters = false;
+            if (saved.search) { urlParams.set('search', saved.search); hasFilters = true; }
+            if (saved.categoria) { urlParams.set('categoria', saved.categoria); hasFilters = true; }
+            if (saved.stock) { urlParams.set('stock', saved.stock); hasFilters = true; }
+            
+            if (hasFilters) {
+                // Redirect to apply saved filters
+                window.location.search = urlParams.toString();
+            }
+        }
+    }
+
+    // === Mass Print Logic ===
+    const selectAll = document.getElementById('selectAllProducts');
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    const btnPrintSelected = document.getElementById('btn-print-selected');
+    const printCount = document.getElementById('print-count');
+
+    function updatePrintButton() {
+        if (!btnPrintSelected) return;
+        const selected = document.querySelectorAll('.product-checkbox:checked').length;
+        if (selected > 0) {
+            printCount.textContent = selected;
+            btnPrintSelected.classList.remove('d-none');
+        } else {
+            btnPrintSelected.classList.add('d-none');
+        }
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updatePrintButton();
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (!this.checked) selectAll.checked = false;
+                else if (document.querySelectorAll('.product-checkbox:checked').length === checkboxes.length) selectAll.checked = true;
+                updatePrintButton();
+            });
+        });
+
+        btnPrintSelected?.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
+            if (selectedIds.length === 0) return;
+            
+            const baseUrl = PAGE_DATA.baseUrl || '';
+            const w = window.open(baseUrl + '/productos/imprimir_masivo?ids=' + selectedIds.join(','), '_blank');
+            if(w) w.focus();
+        });
+    }
 });
