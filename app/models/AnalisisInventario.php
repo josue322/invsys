@@ -169,16 +169,17 @@ class AnalisisInventario extends Model
                        c.nombre as categoria_nombre,
                        (p.precio * p.stock) as valor_retenido,
                        MAX(m.created_at) as ultimo_movimiento,
-                       DATEDIFF(NOW(), MAX(m.created_at)) as dias_sin_movimiento
+                       p.created_at as fecha_creacion,
+                       DATEDIFF(NOW(), COALESCE(MAX(m.created_at), p.created_at)) as dias_sin_movimiento
                 FROM productos p
                 LEFT JOIN categorias c ON p.categoria_id = c.id
                 LEFT JOIN movimientos m ON p.id = m.producto_id
                 WHERE p.activo = 1 AND p.stock > 0
-                GROUP BY p.id, p.nombre, p.sku, p.stock, p.precio, c.nombre
-                HAVING ultimo_movimiento IS NULL OR ultimo_movimiento < :fecha_limite
+                GROUP BY p.id, p.nombre, p.sku, p.stock, p.precio, c.nombre, p.created_at
+                HAVING dias_sin_movimiento >= :dias
                 ORDER BY valor_retenido DESC";
 
-        return $this->query($sql, ['fecha_limite' => $fechaLimite])->fetchAll();
+        return $this->query($sql, ['dias' => $dias])->fetchAll();
     }
 
     /**

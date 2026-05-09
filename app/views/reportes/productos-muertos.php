@@ -110,7 +110,7 @@
                             </td>
                             <td class="text-center">
                                 <?php
-                                    $diasSin = (int) ($item->dias_sin_movimiento ?? 999);
+                                    $diasSin = (int) ($item->dias_sin_movimiento ?? 0);
                                     $alertClass = $diasSin >= 180 ? 'text-danger fw-bold' : ($diasSin >= 90 ? 'text-warning fw-bold' : '');
                                 ?>
                                 <span class="<?= $alertClass ?>"><?= $diasSin >= 999 ? '+999' : $diasSin ?></span>

@@ -66,14 +66,14 @@ try {
     // 5. Paso 1: Ejecutar verificación global para generar nuevas alertas
     echo "[1/4] Verificando niveles de stock en todos los productos...\n";
     $alertService->checkAllProducts();
-    
+
     echo "[2/4] Verificando vencimientos de lotes...\n";
     $alertService->checkAllExpirations();
 
     // 6. Paso 2: Recopilar alertas no notificadas
     echo "[3/4] Buscando alertas pendientes de notificación...\n";
     $alertasPendientes = $alertService->getUnnotifiedAlerts();
-    
+
     $totalAlertas = count($alertasPendientes);
 
     if ($totalAlertas === 0) {
@@ -106,7 +106,7 @@ try {
         if (!empty($user['email'])) {
             echo "--> Intentando enviar correo a: {$user['email']}...\n";
             $enviado = $mailService->sendDailyAlertDigest($user['email'], $alertasPendientes);
-            
+
             if ($enviado) {
                 echo "    [OK] Correo enviado a {$user['email']}.\n";
                 $correosEnviados++;
@@ -114,26 +114,26 @@ try {
                 echo "    [ERROR] No se pudo enviar el correo a {$user['email']}.\n";
             }
         }
+    }
 
-        // Enviar WhatsApp
-        if (!empty($user['telefono'])) {
-            echo "--> Intentando enviar WhatsApp a: {$user['telefono']}...\n";
-            $waEnviado = $whatsappService->sendDailyAlertDigest($user['telefono'], $alertasPendientes);
+    // Enviar WhatsApp (Global Admin)
+    echo "--> Intentando enviar WhatsApp al administrador principal...\n";
+    $waEnviado = $whatsappService->sendDailyAlertDigest($alertasPendientes);
 
-            if ($waEnviado) {
-                echo "    [OK] WhatsApp enviado a {$user['telefono']}.\n";
-                $whatsappsEnviados++;
-            } else {
-                echo "    [ERROR/OMITIDO] No se pudo enviar WhatsApp a {$user['telefono']} (puede estar desactivado o fallar).\n";
-            }
-        }
+    if ($waEnviado) {
+        echo "    [OK] WhatsApp enviado exitosamente al administrador.\n";
+        $whatsappsEnviados++;
+    } else {
+        echo "    [ERROR/OMITIDO] No se pudo enviar WhatsApp (API Key inválida o desactivado).\n";
     }
 
     if ($correosEnviados > 0 || $whatsappsEnviados > 0) {
         // 8. Paso 4: Marcar alertas como notificadas
-        $ids = array_map(function($a) { return $a->id; }, $alertasPendientes);
+        $ids = array_map(function ($a) {
+            return $a->id;
+        }, $alertasPendientes);
         $alertService->markAsNotified($ids);
-        
+
         echo "\n--> {$totalAlertas} alertas marcadas como notificadas en la base de datos.\n";
         echo "Proceso finalizado con éxito.\n";
     } else {
