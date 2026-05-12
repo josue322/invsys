@@ -119,7 +119,11 @@ function formatMoney(float $amount): string
     if ($symbol === null) {
         $symbol = Config::get('moneda_simbolo', '$');
     }
-    return $symbol . number_format($amount, 2, '.', ',');
+    
+    // Si el valor es un número entero exacto, no mostrar '.00' para tener una UI más limpia
+    $decimals = (floor($amount) == $amount) ? 0 : 2;
+    
+    return trim($symbol) . ' ' . number_format($amount, $decimals, '.', ',');
 }
 
 /**

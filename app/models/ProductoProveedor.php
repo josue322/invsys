@@ -28,7 +28,7 @@ class ProductoProveedor extends Model
      */
     public function findByProveedor(int $proveedorId): array
     {
-        $sql = "SELECT pp.*, prod.nombre as producto_nombre, prod.sku, prod.stock, prod.precio
+        $sql = "SELECT pp.*, prod.nombre as producto_nombre, prod.sku, prod.stock, prod.costo
                 FROM {$this->table} pp
                 INNER JOIN productos prod ON pp.producto_id = prod.id
                 WHERE pp.proveedor_id = :proveedor_id AND pp.activo = 1

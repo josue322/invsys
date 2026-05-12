@@ -116,8 +116,7 @@ class ProductoController extends Controller
             'categoria_id' => (int) $this->input('categoria_id') ?: null,
             'ubicacion_id' => (int) $this->input('ubicacion_id') ?: null,
             'unidad_medida' => $this->input('unidad_medida', 'Unidad'),
-            'precio' => (float) $this->input('precio', 0),
-            'precio_compra' => (float) $this->input('precio_compra', 0),
+            'costo' => (float) $this->input('costo', 0),
             'stock' => (int) $this->input('stock', 0),
             'stock_minimo' => (int) $this->input('stock_minimo', 5),
             'es_perecedero' => $esPerecedero,
@@ -237,8 +236,7 @@ class ProductoController extends Controller
             'categoria_id' => (int) $this->input('categoria_id') ?: null,
             'ubicacion_id' => (int) $this->input('ubicacion_id') ?: null,
             'unidad_medida' => $this->input('unidad_medida', 'Unidad'),
-            'precio' => (float) $this->input('precio', 0),
-            'precio_compra' => (float) $this->input('precio_compra', 0),
+            'costo' => (float) $this->input('costo', 0),
             'stock_minimo' => (int) $this->input('stock_minimo', 5),
             'activo' => $this->input('activo', 1) ? 1 : 0,
             'es_perecedero' => $esPerecedero,
@@ -284,13 +282,13 @@ class ProductoController extends Controller
             }
         }
 
-        // Registrar cambio de precio si hubo modificación
-        if ((float) $producto->precio !== $data['precio']) {
-            $precioHistorial = new PrecioHistorial();
-            $precioHistorial->registrar(
+        // Registrar cambio de costo si hubo modificación
+        if ((float) $producto->costo !== $data['costo']) {
+            $costoHistorial = new CostoHistorial();
+            $costoHistorial->registrar(
                 $id,
-                (float) $producto->precio,
-                $data['precio'],
+                (float) $producto->costo,
+                $data['costo'],
                 currentUserId()
             );
         }
@@ -530,8 +528,8 @@ class ProductoController extends Controller
             $errors[] = 'El SKU no puede exceder 16 caracteres.';
         }
 
-        if ($data['precio'] < 0) {
-            $errors[] = 'El precio no puede ser negativo.';
+        if ($data['costo'] < 0) {
+            $errors[] = 'El costo no puede ser negativo.';
         }
 
         if ($validateStock && $data['stock'] < 0) {
@@ -545,10 +543,6 @@ class ProductoController extends Controller
         // Validar formato de código de barras (si se proporcionó)
         if (!empty($data['codigo_barras']) && mb_strlen($data['codigo_barras']) > 50) {
             $errors[] = 'El código de barras no puede exceder 50 caracteres.';
-        }
-
-        if (isset($data['precio_compra']) && $data['precio_compra'] < 0) {
-            $errors[] = 'El precio de compra no puede ser negativo.';
         }
 
         // Removida la validación de fecha_vencimiento aquí porque ahora es manejada por el Lote.
@@ -571,10 +565,10 @@ class ProductoController extends Controller
 
         $movimientos = $this->productoModel->getMovimientos((int) $id, 25);
 
-        // Historial de precios
-        $precioHistorialModel = new PrecioHistorial();
-        $precioHistorial = $precioHistorialModel->getByProducto((int) $id, 15);
-        $precioChartData = $precioHistorialModel->getChartData((int) $id, 30);
+        // Historial de costos
+        $costoHistorialModel = new CostoHistorial();
+        $costoHistorial = $costoHistorialModel->getByProducto((int) $id, 15);
+        $costoChartData = $costoHistorialModel->getChartData((int) $id, 30);
 
         // Proveedores vinculados
         $proveedores = $this->ppModel->findByProducto((int) $id);
@@ -589,8 +583,8 @@ class ProductoController extends Controller
             'titulo' => $producto->nombre,
             'producto' => $producto,
             'movimientos' => $movimientos,
-            'precioHistorial' => $precioHistorial,
-            'precioChartData' => $precioChartData,
+            'costoHistorial' => $costoHistorial,
+            'costoChartData' => $costoChartData,
             'proveedores' => $proveedores,
             'todosProveedores' => $todosProveedores,
             'csrfToken' => $csrfToken,
@@ -669,11 +663,11 @@ class ProductoController extends Controller
         }, $header);
 
         // Columnas requeridas
-        $required = ['nombre', 'sku', 'precio', 'stock'];
+        $required = ['nombre', 'sku', 'costo', 'stock'];
         $missing = array_diff($required, $header);
         if (!empty($missing)) {
             fclose($handle);
-            $this->setFlash('error', 'Faltan columnas requeridas: ' . implode(', ', $missing) . '. El CSV debe tener: nombre, sku, precio, stock.');
+            $this->setFlash('error', 'Faltan columnas requeridas: ' . implode(', ', $missing) . '. El CSV debe tener: nombre, sku, costo, stock.');
             $this->redirect('productos/importar');
             return;
         }
@@ -696,7 +690,7 @@ class ProductoController extends Controller
 
             $nombre = trim($rowData['nombre'] ?? '');
             $sku = trim($rowData['sku'] ?? '');
-            $precio = (float) ($rowData['precio'] ?? 0);
+            $costo = (float) ($rowData['costo'] ?? 0);
             $stock = (int) ($rowData['stock'] ?? 0);
             $stockMinimo = (int) ($rowData['stock_minimo'] ?? 5);
             $categoriaId = null;
@@ -725,7 +719,7 @@ class ProductoController extends Controller
                     'nombre' => $nombre,
                     'sku' => $sku,
                     'descripcion' => $descripcion,
-                    'precio' => $precio,
+                    'costo' => $costo,
                     'stock' => $stock,
                     'stock_minimo' => $stockMinimo,
                     'categoria_id' => $categoriaId,
@@ -782,7 +776,7 @@ class ProductoController extends Controller
                 'nombre' => $p->nombre,
                 'sku' => $p->sku,
                 'categoria' => $p->categoria_nombre ?? 'Sin categoría',
-                'precio' => formatMoney($p->precio),
+                'costo' => formatMoney($p->costo),
                 'stock' => (int) $p->stock,
                 'imagen' => productImage($p->imagen ?? null),
                 'url' => url("productos/ver/{$p->id}"),
@@ -804,7 +798,7 @@ class ProductoController extends Controller
 
         $productoId = (int) $this->input('producto_id');
         $proveedorId = (int) $this->input('proveedor_id');
-        $precioCompra = $this->input('precio_compra') !== null ? (float) $this->input('precio_compra') : null;
+        $costo = $this->input('costo') !== null ? (float) $this->input('costo') : null;
         $codigoProveedor = $this->input('codigo_proveedor', '');
         $tiempoEntrega = $this->input('tiempo_entrega_dias') !== null ? (int) $this->input('tiempo_entrega_dias') : null;
         $esPreferido = $this->input('es_preferido') ? 1 : 0;
@@ -826,7 +820,7 @@ class ProductoController extends Controller
 
         $data = [
             'codigo_proveedor' => $codigoProveedor ?: null,
-            'precio_compra' => $precioCompra,
+            'costo' => $costo,
             'tiempo_entrega_dias' => $tiempoEntrega,
             'es_preferido' => $esPreferido,
             'notas' => $notas ?: null,

@@ -46,7 +46,15 @@
                     <i class="bi bi-tags"></i>
                 </div>
                 <h5>No se encontraron categorías</h5>
-                <p class="text-muted">Ajuste los filtros o cree una nueva categoría</p>
+                <p class="text-muted mb-3">Ajuste los filtros o cree una nueva categoría</p>
+                <?php if (hasPermission('categorias.crear')): ?>
+                <div class="mt-4">
+                    <a href="<?= url('categorias/crear') ?>" class="btn btn-primary px-4 py-2" style="border-radius: 50rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); transition: all 0.2s ease;">
+                        <i class="bi bi-plus-circle-fill me-2 fs-6"></i>
+                        <span class="fw-bold">Crear Nueva Categoría</span>
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
         <?php else: ?>
         <div class="table-wrapper">
@@ -71,7 +79,14 @@
                                 <div class="categoria-icon">
                                     <i class="bi bi-tag-fill"></i>
                                 </div>
-                                <strong><?= htmlspecialchars($cat->nombre) ?></strong>
+                                <?php if (hasPermission('productos.ver')): ?>
+                                    <a href="<?= url('productos?categoria=' . $cat->id) ?>" class="text-decoration-none text-body fw-bold text-hover-primary" title="Ver productos de esta categoría">
+                                        <?= htmlspecialchars($cat->nombre) ?>
+                                        <i class="bi bi-box-arrow-up-right ms-1 text-muted" style="font-size: 0.75rem;"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <strong><?= htmlspecialchars($cat->nombre) ?></strong>
+                                <?php endif; ?>
                             </div>
                         </td>
                         <td>
@@ -82,9 +97,18 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" style="font-size:0.85rem">
-                                <?= (int) ($cat->productos_activos ?? 0) ?>
-                            </span>
+                            <?php if (hasPermission('productos.ver')): ?>
+                                <a href="<?= url('productos?categoria=' . $cat->id) ?>" class="text-decoration-none">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold hover-bg-primary hover-text-white transition-all" style="font-size:0.85rem" title="Ver estos productos">
+                                        <?= (int) ($cat->productos_activos ?? 0) ?>
+                                    </span>
+                                </a>
+                            <?php else: ?>
+                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" style="font-size:0.85rem">
+                                    <?= (int) ($cat->productos_activos ?? 0) ?>
+                                </span>
+                            <?php endif; ?>
+                            
                             <?php if (($cat->total_productos ?? 0) > ($cat->productos_activos ?? 0)): ?>
                                 <small class="text-muted ms-1">(<?= $cat->total_productos ?> total)</small>
                             <?php endif; ?>
@@ -157,3 +181,26 @@
         <?php endif; ?>
     </div>
 </div>
+
+<style>
+/* Estilos para los enlaces de categorías al inventario */
+.text-hover-primary {
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+.text-hover-primary:hover {
+    color: var(--primary) !important;
+}
+.text-hover-primary:hover i {
+    color: var(--primary) !important;
+    opacity: 0.8;
+}
+
+.hover-bg-primary {
+    transition: all 0.2s ease;
+}
+.hover-bg-primary:hover {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+</style>

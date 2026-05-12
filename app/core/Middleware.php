@@ -36,7 +36,7 @@ class Middleware
             'guest'   => self::guestMiddleware(),
             'role'    => self::roleMiddleware($param),
             'permiso' => self::permisoMiddleware($param),
-            default   => true,
+            default   => self::denyUnknown($name),
         };
     }
 
@@ -160,5 +160,25 @@ class Middleware
         }
 
         return true;
+    }
+
+    /**
+     * Middleware desconocido: denegar acceso por defecto (fail-closed).
+     * Registra el nombre del middleware no reconocido para depuración.
+     *
+     * @param string $name Nombre del middleware no reconocido
+     * @return bool Siempre false (deniega acceso)
+     */
+    private static function denyUnknown(string $name): bool
+    {
+        error_log("[InvSys] Middleware desconocido: '{$name}'. Acceso denegado por defecto.");
+
+        http_response_code(403);
+        $_SESSION['flash'] = [
+            'type'    => 'error',
+            'message' => 'Acceso denegado: configuración de seguridad inválida.',
+        ];
+        header('Location: ' . url('dashboard'));
+        exit;
     }
 }

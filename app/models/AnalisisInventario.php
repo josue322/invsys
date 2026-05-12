@@ -21,14 +21,14 @@ class AnalisisInventario extends Model
      */
     public function getClasificacionABC(): array
     {
-        $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.precio, p.precio_compra,
+        $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.costo,
                        c.nombre as categoria_nombre,
-                       (p.precio * p.stock) as valor_inventario
+                       (p.costo * p.stock) as valor_inventario
                 FROM productos p
                 LEFT JOIN categorias c ON p.categoria_id = c.id
                 WHERE p.activo = 1 AND p.stock > 0
                 ORDER BY valor_inventario DESC";
-        
+
         $productos = $this->query($sql)->fetchAll();
 
         if (empty($productos)) {
@@ -36,17 +36,24 @@ class AnalisisInventario extends Model
         }
 
         $valorTotal = array_sum(array_map(fn($p) => (float) $p->valor_inventario, $productos));
-        
+
         $acumulado = 0;
         $items = [];
-        $totals = ['A' => 0, 'B' => 0, 'C' => 0, 'total' => $valorTotal,
-                    'count_A' => 0, 'count_B' => 0, 'count_C' => 0];
+        $totals = [
+            'A' => 0,
+            'B' => 0,
+            'C' => 0,
+            'total' => $valorTotal,
+            'count_A' => 0,
+            'count_B' => 0,
+            'count_C' => 0
+        ];
 
         foreach ($productos as $p) {
             $valor = (float) $p->valor_inventario;
             $acumulado += $valor;
             $porcentajeAcum = $valorTotal > 0 ? ($acumulado / $valorTotal) * 100 : 0;
-            
+
             if ($porcentajeAcum <= 80) {
                 $clase = 'A';
             } elseif ($porcentajeAcum <= 95) {
@@ -64,7 +71,7 @@ class AnalisisInventario extends Model
                 'sku' => $p->sku,
                 'categoria' => $p->categoria_nombre ?? 'Sin categoría',
                 'stock' => (int) $p->stock,
-                'precio' => (float) $p->precio,
+                'costo' => (float) $p->costo,
                 'valor' => $valor,
                 'porcentaje' => $valorTotal > 0 ? round(($valor / $valorTotal) * 100, 2) : 0,
                 'porcentaje_acumulado' => round($porcentajeAcum, 2),
@@ -86,7 +93,7 @@ class AnalisisInventario extends Model
     {
         $fechaDesde = date('Y-m-d', strtotime("-{$dias} days"));
 
-        $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.precio,
+        $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.costo,
                        c.nombre as categoria_nombre,
                        COALESCE(salidas.total_salidas, 0) as total_salidas,
                        COALESCE(entradas.total_entradas, 0) as total_entradas
@@ -117,7 +124,7 @@ class AnalisisInventario extends Model
             $salidas = (int) $p->total_salidas;
             $entradas = (int) $p->total_entradas;
             $stock = (int) $p->stock;
-            
+
             // Stock promedio estimado: (stock actual + entradas - salidas + stock actual) / 2
             $stockInicial = $stock - $entradas + $salidas;
             $stockPromedio = max(1, ($stockInicial + $stock) / 2);
@@ -135,8 +142,8 @@ class AnalisisInventario extends Model
             }
 
             // Días de inventario (cuántos días dura el stock actual)
-            $diasInventario = $salidas > 0 
-                ? round(($stock / ($salidas / $dias)), 0) 
+            $diasInventario = $salidas > 0
+                ? round(($stock / ($salidas / $dias)), 0)
                 : ($stock > 0 ? 999 : 0);
 
             $items[] = (object) [
@@ -165,9 +172,9 @@ class AnalisisInventario extends Model
     {
         $fechaLimite = date('Y-m-d', strtotime("-{$dias} days"));
 
-        $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.precio,
+        $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.costo,
                        c.nombre as categoria_nombre,
-                       (p.precio * p.stock) as valor_retenido,
+                       (p.costo * p.stock) as valor_retenido,
                        MAX(m.created_at) as ultimo_movimiento,
                        p.created_at as fecha_creacion,
                        DATEDIFF(NOW(), COALESCE(MAX(m.created_at), p.created_at)) as dias_sin_movimiento
@@ -175,7 +182,7 @@ class AnalisisInventario extends Model
                 LEFT JOIN categorias c ON p.categoria_id = c.id
                 LEFT JOIN movimientos m ON p.id = m.producto_id
                 WHERE p.activo = 1 AND p.stock > 0
-                GROUP BY p.id, p.nombre, p.sku, p.stock, p.precio, c.nombre, p.created_at
+                GROUP BY p.id, p.nombre, p.sku, p.stock, p.costo, c.nombre, p.created_at
                 HAVING dias_sin_movimiento >= :dias
                 ORDER BY valor_retenido DESC";
 
@@ -188,7 +195,7 @@ class AnalisisInventario extends Model
     public function getMermas(string $fechaDesde, string $fechaHasta): array
     {
         $sql = "SELECT m.id, m.cantidad, m.observaciones, m.created_at,
-                       p.nombre as producto_nombre, p.sku, p.precio,
+                       p.nombre as producto_nombre, p.sku, p.costo,
                        u.nombre as usuario_nombre
                 FROM movimientos m
                 INNER JOIN productos p ON m.producto_id = p.id
@@ -210,13 +217,13 @@ class AnalisisInventario extends Model
     public function getResumen(): array
     {
         $productoModel = new Producto();
-        
+
         $totalProductos = (int) $this->query(
             "SELECT COUNT(*) as total FROM productos WHERE activo = 1"
         )->fetch()->total;
 
         $valorTotal = (float) $this->query(
-            "SELECT COALESCE(SUM(precio * stock), 0) as total FROM productos WHERE activo = 1"
+            "SELECT COALESCE(SUM(costo * stock), 0) as total FROM productos WHERE activo = 1"
         )->fetch()->total;
 
         $sinMovimiento30 = count($this->getProductosSinMovimiento(30));

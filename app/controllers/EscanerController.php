@@ -55,7 +55,7 @@ class EscanerController extends Controller
         if (!$producto) {
             // 3. Intentar búsqueda parcial por SKU o código de barras
             $productos = $this->productoModel->rawQuery(
-                "SELECT id, nombre, sku, codigo_barras, stock, precio, unidad_medida, activo 
+                "SELECT id, nombre, sku, codigo_barras, stock, costo, unidad_medida, activo 
                  FROM productos WHERE sku LIKE :sku OR codigo_barras LIKE :barcode LIMIT 5",
                 ['sku' => "%{$codigo}%", 'barcode' => "%{$codigo}%"]
             );
@@ -93,7 +93,7 @@ class EscanerController extends Controller
                 'nombre'        => $producto->nombre,
                 'sku'           => $producto->sku,
                 'stock'         => $producto->stock,
-                'precio'        => $producto->precio,
+                'costo'         => $producto->costo,
                 'unidad_medida' => $producto->unidad_medida ?? 'Unidad',
                 'activo'        => $producto->activo ?? 1,
                 'urlEditar'     => url("productos/editar/{$producto->id}"),

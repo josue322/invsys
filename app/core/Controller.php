@@ -79,7 +79,7 @@ class Controller
     protected function setFlash(string $type, string $message): void
     {
         $_SESSION['flash'] = [
-            'type'    => $type,
+            'type' => $type,
             'message' => $message,
         ];
     }
@@ -168,7 +168,7 @@ class Controller
      */
     protected function validateCSRF(): bool
     {
-        $token = $_POST['_csrf_token'] ?? '';
+        $token = $_POST['_csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
         $sessionToken = $_SESSION['_csrf_token'] ?? '';
 
         if (empty($token) || empty($sessionToken) || !hash_equals($sessionToken, $token)) {
@@ -183,11 +183,13 @@ class Controller
      *
      * @return string Token generado
      */
-    protected function generateCSRF(): string
+    protected function generateCSRF(bool $forceNew = false): string
     {
-        $token = bin2hex(random_bytes(32));
-        $_SESSION['_csrf_token'] = $token;
-        return $token;
+        if ($forceNew || empty($_SESSION['_csrf_token'])) {
+            $token = bin2hex(random_bytes(32));
+            $_SESSION['_csrf_token'] = $token;
+        }
+        return $_SESSION['_csrf_token'];
     }
 
     /**
@@ -232,8 +234,8 @@ class Controller
     {
         return [
             'sidebar_colapsable' => sysConfig('sidebar_colapsable', '1'),
-            'densidad_compacta'  => sysConfig('densidad_compacta', '0'),
-            'animaciones'        => sysConfig('animaciones', '1'),
+            'densidad_compacta' => sysConfig('densidad_compacta', '0'),
+            'animaciones' => sysConfig('animaciones', '1'),
         ];
     }
 }

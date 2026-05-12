@@ -42,6 +42,11 @@ class AlertaController extends Controller
      */
     public function markRead(string $id): void
     {
+        if (!$this->validateCSRF()) {
+            $this->redirect('alertas');
+            return;
+        }
+
         $this->alertService->markAsRead((int) $id);
 
         $this->securityService->logAction(
@@ -58,6 +63,11 @@ class AlertaController extends Controller
      */
     public function markAllRead(): void
     {
+        if (!$this->validateCSRF()) {
+            $this->redirect('alertas');
+            return;
+        }
+
         $this->alertService->markAllAsRead();
 
         $this->securityService->logAction(

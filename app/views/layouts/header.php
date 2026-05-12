@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= htmlspecialchars(systemName()) ?> - Sistema de Gestión de Inventario Web Empresarial">
     <meta name="base-url" content="<?= BASE_URL ?>">
+    <meta name="csrf-token" content="<?= $_SESSION['_csrf_token'] ?? '' ?>">
     <title><?= ($titulo ?? systemName()) . ' | ' . systemName() ?></title>
     <link rel="icon" href="<?= asset('favicon.svg') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/favicon.svg') ?>" type="image/svg+xml">
 

@@ -166,7 +166,7 @@
                             <?php if ($filtros['valorizado']): ?>
                                 <td colspan="2"></td>
                                 <td class="text-end fw-bold">
-                                    <?= formatMoney($kardexData['saldo_inicial'] * ($kardexData['precio_unitario'] ?? 0)) ?>
+                                    <?= formatMoney($kardexData['saldo_inicial'] * ($kardexData['costo_unitario'] ?? 0)) ?>
                                 </td>
                             <?php endif; ?>
                             <td></td>
@@ -212,7 +212,7 @@
                             <?php if ($filtros['valorizado']): ?>
                                 <td class="text-end text-success fw-bold"><?= formatMoney($kardexData['valor_total_entradas'] ?? 0) ?></td>
                                 <td class="text-end text-danger fw-bold"><?= formatMoney($kardexData['valor_total_salidas'] ?? 0) ?></td>
-                                <td class="text-end fw-bold fs-6"><?= formatMoney($kardexData['saldo_final'] * ($kardexData['precio_unitario'] ?? 0)) ?></td>
+                                <td class="text-end fw-bold fs-6"><?= formatMoney($kardexData['saldo_final'] * ($kardexData['costo_unitario'] ?? 0)) ?></td>
                             <?php endif; ?>
                             <td></td>
                         </tr>

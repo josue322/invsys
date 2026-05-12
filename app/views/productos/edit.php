@@ -99,19 +99,11 @@
 
                         <!-- Financiero y Stock -->
                         <div class="col-md-3">
-                            <label for="precio" class="form-label">Precio Referencial *</label>
+                            <label for="costo" class="form-label">Costo Unitario *</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="precio" name="precio" 
-                                       step="0.01" min="0" value="<?= $producto->precio ?>" required>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="precio_compra" class="form-label"><i class="bi bi-tag me-1"></i>Precio de Compra</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="precio_compra" name="precio_compra" 
-                                       step="0.01" min="0" value="<?= $producto->precio_compra ?? 0 ?>">
+                                <input type="number" class="form-control" id="costo" name="costo" 
+                                       step="0.01" min="0" value="<?= $producto->costo ?>" required>
                             </div>
                         </div>
                         <div class="col-md-3">

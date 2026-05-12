@@ -1,42 +1,42 @@
 <?php
 /**
- * InvSys - Modelo PrecioHistorial
+ * InvSys - Modelo CostoHistorial
  * 
- * Registra el historial de cambios de precio de los productos.
+ * Registra el historial de cambios de costo de los productos.
  */
 
-class PrecioHistorial extends Model
+class CostoHistorial extends Model
 {
-    protected string $table = 'precio_historial';
+    protected string $table = 'costo_historial';
 
     /**
-     * Registrar un cambio de precio.
+     * Registrar un cambio de costo.
      *
      * @param int $productoId ID del producto
-     * @param float $precioAnterior Precio antes del cambio
-     * @param float $precioNuevo Precio después del cambio
+     * @param float $costoAnterior Costo antes del cambio
+     * @param float $costoNuevo Costo después del cambio
      * @param int|null $usuarioId ID del usuario que hizo el cambio
      * @param string|null $motivo Motivo del cambio
      * @return int ID del registro creado
      */
     public function registrar(
         int $productoId,
-        float $precioAnterior,
-        float $precioNuevo,
+        float $costoAnterior,
+        float $costoNuevo,
         ?int $usuarioId = null,
         ?string $motivo = null
     ): int {
         return $this->create([
             'producto_id'    => $productoId,
-            'precio_anterior' => $precioAnterior,
-            'precio_nuevo'   => $precioNuevo,
+            'costo_anterior' => $costoAnterior,
+            'costo_nuevo'   => $costoNuevo,
             'usuario_id'     => $usuarioId,
             'motivo'         => $motivo,
         ]);
     }
 
     /**
-     * Obtener historial de precios de un producto (más reciente primero).
+     * Obtener historial de costos de un producto (más reciente primero).
      *
      * @param int $productoId
      * @param int $limit
@@ -54,8 +54,8 @@ class PrecioHistorial extends Model
     }
 
     /**
-     * Obtener datos para gráfico de evolución de precio.
-     * Devuelve registros en orden cronológico con el precio nuevo.
+     * Obtener datos para gráfico de evolución de costo.
+     * Devuelve registros en orden cronológico con el costo nuevo.
      *
      * @param int $productoId
      * @param int $limit
@@ -63,8 +63,8 @@ class PrecioHistorial extends Model
      */
     public function getChartData(int $productoId, int $limit = 30): array
     {
-        $sql = "SELECT precio_nuevo as precio, 
-                       DATE_FORMAT(created_at, '%d/%m/%Y') as fecha,
+        $sql = "SELECT costo_nuevo as costo, 
+                       DATE_FORMAT(created_at, '%d/%m/%Y %H:%i') as fecha,
                        created_at
                 FROM {$this->table}
                 WHERE producto_id = :producto_id
@@ -74,7 +74,7 @@ class PrecioHistorial extends Model
     }
 
     /**
-     * Contar cambios de precio de un producto.
+     * Contar cambios de costo de un producto.
      *
      * @param int $productoId
      * @return int

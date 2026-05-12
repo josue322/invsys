@@ -83,7 +83,7 @@
             </div>
             <div class="export-card-body">
                 <h6>Inventario Excel</h6>
-                <small>Todos los productos activos con precios, stock y categorías</small>
+                <small>Todos los productos activos con costos, stock y categorías</small>
             </div>
             <i class="bi bi-download export-card-arrow"></i>
         </a>
@@ -297,7 +297,7 @@
                                         <span class="badge badge-stock-low">Bajo</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= formatMoney($p->precio * $p->stock) ?></td>
+                                <td><?= formatMoney($p->costo * $p->stock) ?></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>

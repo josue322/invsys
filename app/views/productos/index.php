@@ -64,9 +64,12 @@
                 <h5 class="fw-bold mb-2">Sin resultados</h5>
                 <p class="text-muted mb-3" style="max-width:320px;">No encontramos productos con esos criterios. Intente con otro filtro o agregue uno nuevo.</p>
                 <?php if (hasPermission('productos.crear')): ?>
-                <a href="<?= url('productos/crear') ?>" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-lg me-1"></i>Nuevo Producto
-                </a>
+                <div class="mt-4">
+                    <a href="<?= url('productos/crear') ?>" class="btn btn-primary px-4 py-2" style="border-radius: 50rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); transition: all 0.2s ease;">
+                        <i class="bi bi-plus-circle-fill me-2 fs-6"></i>
+                        <span class="fw-bold">Crear Nuevo Producto</span>
+                    </a>
+                </div>
                 <?php endif; ?>
             </div>
         <?php else: ?>
@@ -81,7 +84,7 @@
                         <th>SKU</th>
                         <th>Producto</th>
                         <th>Categoría</th>
-                        <th>Precio</th>
+                        <th>Costo Unitario</th>
                         <th>Stock</th>
                         <th>Tipo Logística</th>
                         <th>Estado</th>
@@ -108,7 +111,7 @@
                             <?php endif; ?>
                         </td>
                         <td><?= htmlspecialchars($p->categoria_nombre ?? 'Sin categoría') ?></td>
-                        <td class="fw-bold tabular-nums"><?= formatMoney($p->precio) ?></td>
+                        <td class="fw-bold tabular-nums"><?= formatMoney($p->costo) ?></td>
                         <td class="tabular-nums"><strong><?= number_format($p->stock) ?></strong></td>
                         <td>
                             <?php if (!empty($p->es_perecedero)): ?>

@@ -23,10 +23,10 @@ class WhatsAppService
     public function __construct()
     {
         $this->configModel = new Config();
-        
+
         $this->enabled = (bool) $this->configModel->getValue('whatsapp_enabled');
-        $this->phone   = $this->configModel->getValue('whatsapp_phone') ?? '';
-        $this->apiKey  = $this->configModel->getValue('whatsapp_apikey') ?? '';
+        $this->phone = $this->configModel->getValue('whatsapp_phone') ?? '';
+        $this->apiKey = $this->configModel->getValue('whatsapp_apikey') ?? '';
     }
 
     /**
@@ -42,8 +42,8 @@ class WhatsAppService
         }
 
         $params = [
-            'phone'  => $this->phone,
-            'text'   => $message,
+            'phone' => $this->phone,
+            'text' => $message,
             'apikey' => $this->apiKey,
         ];
 
@@ -107,7 +107,7 @@ class WhatsAppService
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        
+
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);

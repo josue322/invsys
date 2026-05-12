@@ -72,27 +72,8 @@
                             <td><?= htmlspecialchars($producto->categoria_nombre ?? 'Sin categoría') ?></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Precio Ref.</td>
-                            <td><strong class="text-success"><?= formatMoney($producto->precio) ?></strong></td>
-                        </tr>
-                        <?php 
-                            $precioCompra = (float) ($producto->precio_compra ?? 0);
-                            $precioRef = (float) $producto->precio;
-                            $margen = $precioRef - $precioCompra;
-                            $margenPct = $precioCompra > 0 ? round(($margen / $precioCompra) * 100, 1) : 0;
-                        ?>
-                        <tr>
-                            <td class="text-muted"><i class="bi bi-tag me-1"></i>Precio Compra</td>
-                            <td>
-                                <?php if ($precioCompra > 0): ?>
-                                    <?= formatMoney($precioCompra) ?>
-                                    <span class="badge ms-2 <?= $margen >= 0 ? 'text-bg-success' : 'text-bg-danger' ?>" style="font-size:0.7rem">
-                                        Margen: <?= $margen >= 0 ? '+' : '' ?><?= formatMoney($margen) ?> (<?= $margenPct ?>%)
-                                    </span>
-                                <?php else: ?>
-                                    <span class="text-muted">— No definido</span>
-                                <?php endif; ?>
-                            </td>
+                            <td class="text-muted">Costo Unitario</td>
+                            <td><strong class="text-success"><?= formatMoney($producto->costo) ?></strong></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Descripción</td>
@@ -127,7 +108,7 @@
                         <small class="text-muted">Stock Mínimo</small>
                     </div>
                     <div class="col-4">
-                        <div class="fs-3 fw-800"><?= formatMoney($producto->precio * $producto->stock) ?></div>
+                        <div class="fs-3 fw-800"><?= formatMoney($producto->costo * $producto->stock) ?></div>
                         <small class="text-muted">Valor Total</small>
                     </div>
                 </div>
@@ -196,7 +177,7 @@
                                 <tr>
                                     <th>Proveedor</th>
                                     <th>Cód. Prov.</th>
-                                    <th>Precio</th>
+                                    <th>Costo</th>
                                     <th>Entrega</th>
                                     <?php if (hasPermission('productos.editar')): ?>
                                         <th style="width:60px"></th>
@@ -213,7 +194,7 @@
                                         <?php endif; ?>
                                     </td>
                                     <td><small class="text-muted"><?= htmlspecialchars($prov->codigo_proveedor ?? '—') ?></small></td>
-                                    <td><?= $prov->precio_compra ? formatMoney($prov->precio_compra) : '—' ?></td>
+                                    <td><?= $prov->costo ? formatMoney($prov->costo) : '—' ?></td>
                                     <td><?= $prov->tiempo_entrega_dias ? $prov->tiempo_entrega_dias . ' días' : '—' ?></td>
                                     <?php if (hasPermission('productos.editar')): ?>
                                         <td>
@@ -260,10 +241,10 @@
                                     <input type="text" class="form-control" id="prov_codigo" name="codigo_proveedor" placeholder="Ej: HP-PB450" maxlength="50">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="prov_precio" class="form-label">Precio de Compra</label>
+                                    <label for="prov_precio" class="form-label">Costo</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" id="prov_precio" name="precio_compra" step="0.01" min="0">
+                                        <input type="number" class="form-control" id="prov_precio" name="costo" step="0.01" min="0">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -368,33 +349,33 @@
     </div>
 </div>
 
-<!-- Historial de Precios -->
-<?php if (!empty($precioHistorial)): ?>
+<!-- Historial de Costos -->
+<?php if (!empty($costoHistorial)): ?>
     <div class="row g-3 mt-1">
-        <!-- Gráfico de evolución de precio -->
-        <?php if (count($precioChartData) >= 2): ?>
+        <!-- Gráfico de evolución de costo -->
+        <?php if (count($costoChartData) >= 2): ?>
             <div class="col-lg-5">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up-arrow me-2"></i>Evolución del Precio</h6>
+                        <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up-arrow me-2"></i>Evolución del Costo</h6>
                     </div>
                     <div class="card-body">
-                        <canvas id="chartPrecio" height="220"></canvas>
+                        <canvas id="chartCosto" height="220"></canvas>
                     </div>
                 </div>
             </div>
         <?php endif; ?>
 
-        <!-- Tabla de cambios de precio -->
-        <div class="col-lg-<?= count($precioChartData) >= 2 ? '7' : '12' ?>">
+        <!-- Tabla de cambios de costo -->
+        <div class="col-lg-<?= count($costoChartData) >= 2 ? '7' : '12' ?>">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold"><i class="bi bi-currency-dollar me-2"></i>Historial de Precios</h6>
-                    <span class="badge bg-primary"><?= count($precioHistorial) ?></span>
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-currency-dollar me-2"></i>Historial de Costos</h6>
+                    <span class="badge bg-primary"><?= count($costoHistorial) ?></span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-wrapper">
-                        <table class="table mb-0" id="tabla-precios">
+                        <table class="table mb-0" id="tabla-costos">
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
@@ -405,16 +386,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($precioHistorial as $ph):
-                                    $diff = $ph->precio_nuevo - $ph->precio_anterior;
-                                    $pct = $ph->precio_anterior > 0
-                                        ? round(($diff / $ph->precio_anterior) * 100, 1)
+                                <?php foreach ($costoHistorial as $ph):
+                                    $diff = $ph->costo_nuevo - $ph->costo_anterior;
+                                    $pct = $ph->costo_anterior > 0
+                                        ? round(($diff / $ph->costo_anterior) * 100, 1)
                                         : 0;
                                     ?>
                                     <tr>
                                         <td><small><?= formatDate($ph->created_at) ?></small></td>
-                                        <td><small class="text-muted"><?= formatMoney($ph->precio_anterior) ?></small></td>
-                                        <td><strong><?= formatMoney($ph->precio_nuevo) ?></strong></td>
+                                        <td><small class="text-muted"><?= formatMoney($ph->costo_anterior) ?></small></td>
+                                        <td><strong><?= formatMoney($ph->costo_nuevo) ?></strong></td>
                                         <td>
                                             <?php if ($diff > 0): ?>
                                                 <span class="badge" style="background:rgba(239,68,68,0.1);color:#dc2626;">
@@ -449,7 +430,7 @@
     'productoId' => $producto->id,
     'csrfToken' => $csrfToken ?? '',
     'baseUrl' => rtrim(BASE_URL, '/'),
-    'precioChart' => $precioChartData ?? [],
+    'costoChart' => $costoChartData ?? [],
     'monedaSimbolo' => Config::get('moneda_simbolo', '$'),
 ]) ?></script>
 <script src="<?= asset('js/productos.js') ?>?v=<?= ASSET_VERSION ?>"></script>

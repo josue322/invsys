@@ -178,7 +178,8 @@ class Producto extends Model
      */
     public function getTotalInventoryValue(): float
     {
-        $sql = "SELECT COALESCE(SUM(precio * stock), 0) as total FROM {$this->table} WHERE activo = 1";
+        // En contabilidad e inventarios, el valor es el Costo de Adquisición * Stock.
+        $sql = "SELECT COALESCE(SUM(costo * stock), 0) as total FROM {$this->table} WHERE activo = 1";
         return (float) $this->query($sql)->fetch()->total;
     }
 
@@ -277,7 +278,7 @@ class Producto extends Model
      */
     public function searchQuick(string $term, int $limit = 10): array
     {
-        $sql = "SELECT p.id, p.nombre, p.sku, p.codigo_barras, p.precio, p.precio_compra, p.stock, p.imagen, p.unidad_medida,
+        $sql = "SELECT p.id, p.nombre, p.sku, p.codigo_barras, p.costo, p.stock, p.imagen, p.unidad_medida,
                        c.nombre as categoria_nombre, u.nombre as ubicacion_nombre
                 FROM {$this->table} p
                 LEFT JOIN categorias c ON p.categoria_id = c.id

@@ -23,7 +23,7 @@ try {
     ];
 
     $stmt = $pdo->prepare("INSERT IGNORE INTO configuraciones (clave, valor, descripcion, tipo, updated_at) VALUES (?, ?, ?, ?, NOW())");
-    
+
     foreach ($configs as $c) {
         $stmt->execute($c);
     }

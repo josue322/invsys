@@ -161,13 +161,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // === Price Chart (show page only) ===
-    if (PAGE_DATA.precioChart && PAGE_DATA.precioChart.length >= 2 && typeof Chart !== 'undefined') {
-        const labels = PAGE_DATA.precioChart.map(d => d.fecha);
-        const prices = PAGE_DATA.precioChart.map(d => parseFloat(d.precio));
+    if (PAGE_DATA.costoChart && PAGE_DATA.costoChart.length >= 2 && typeof Chart !== 'undefined') {
+        const labels = PAGE_DATA.costoChart.map(d => d.fecha);
+        const prices = PAGE_DATA.costoChart.map(d => parseFloat(d.costo));
         const symbol = PAGE_DATA.monedaSimbolo || '$';
-        new Chart(document.getElementById('chartPrecio'), {
+        new Chart(document.getElementById('chartCosto'), {
             type: 'line',
-            data: { labels, datasets: [{ label: 'Precio', data: prices, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.08)', borderWidth: 2.5, pointBackgroundColor: '#6366f1', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.3 }] },
+            data: { labels, datasets: [{ label: 'Costo', data: prices, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.08)', borderWidth: 2.5, pointBackgroundColor: '#6366f1', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.3 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => symbol + ctx.parsed.y.toFixed(2) } } }, scales: { y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => symbol + v.toLocaleString() } }, x: { grid: { display: false } } } }
         });
     }
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
         FormValidator.init('#formCrearProducto', {
             nombre: { required: true, maxlength: 200, messages: { required: 'El nombre del producto es obligatorio' } },
             sku: { required: true, maxlength: 16, pattern: '^[A-Za-z0-9\\-_]+$', messages: { required: 'El SKU es obligatorio', pattern: 'Solo letras, números, guiones y guiones bajos' } },
-            precio: { required: true, min: 0, messages: { required: 'El precio es obligatorio' } },
+            costo: { required: true, min: 0, messages: { required: 'El costo es obligatorio' } },
             stock: { min: 0 }, stock_minimo: { min: 0 }
         });
     }
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
         FormValidator.init('#formEditarProducto', {
             nombre: { required: true, maxlength: 200, messages: { required: 'El nombre del producto es obligatorio' } },
             sku: { required: true, maxlength: 16, pattern: '^[A-Za-z0-9\\-_]+$', messages: { required: 'El SKU es obligatorio', pattern: 'Solo letras, números, guiones y guiones bajos' } },
-            precio: { required: true, min: 0, messages: { required: 'El precio es obligatorio' } },
+            costo: { required: true, min: 0, messages: { required: 'El costo es obligatorio' } },
             stock_minimo: { min: 0 }
         });
     }

@@ -60,9 +60,9 @@ class ReporteController extends Controller
 
         $export->exportCSV(
             'inventario_general',
-            ['SKU', 'Producto', 'Categoría', 'Precio', 'Stock', 'Stock Mínimo', 'Estado', 'Perecedero', 'Vencimiento'],
+            ['SKU', 'Producto', 'Categoría', 'Costo', 'Stock', 'Stock Mínimo', 'Estado', 'Perecedero', 'Vencimiento'],
             $productos,
-            ['sku', 'nombre', 'categoria_nombre', 'precio_fmt', 'stock', 'stock_minimo', 'estado', 'perecedero', 'vencimiento']
+            ['sku', 'nombre', 'categoria_nombre', 'costo_fmt', 'stock', 'stock_minimo', 'estado', 'perecedero', 'vencimiento']
         );
     }
 
@@ -84,7 +84,7 @@ class ReporteController extends Controller
                 'stock' => $p->stock,
                 'stock_minimo' => $p->stock_minimo,
                 'estado' => $p->stock <= 0 ? 'Agotado' : 'Bajo',
-                'valor' => number_format($p->precio * $p->stock, 2),
+                'valor' => number_format($p->costo * $p->stock, 2),
             ];
         }, $productos);
 
@@ -222,7 +222,7 @@ class ReporteController extends Controller
         $stockBajo = 0;
         $agotados = 0;
         foreach ($productos as $p) {
-            $valorTotal += ($p['precio_raw'] ?? 0) * ($p['stock'] ?? 0);
+            $valorTotal += ($p['costo_raw'] ?? 0) * ($p['stock'] ?? 0);
             if (($p['stock'] ?? 0) <= 0)
                 $agotados++;
             elseif (($p['stock'] ?? 0) <= ($p['stock_minimo'] ?? 0))
@@ -244,9 +244,9 @@ class ReporteController extends Controller
             [
                 [
                     'title' => 'Inventario Completo de Productos',
-                    'headers' => ['SKU', 'Producto', 'Categoría', 'Precio', 'Stock', 'Mín.', 'Estado'],
+                    'headers' => ['SKU', 'Producto', 'Categoría', 'Costo', 'Stock', 'Mín.', 'Estado'],
                     'rows' => $productos,
-                    'keys' => ['sku', 'nombre', 'categoria_nombre', 'precio_fmt', 'stock', 'stock_minimo', 'estado'],
+                    'keys' => ['sku', 'nombre', 'categoria_nombre', 'costo_fmt', 'stock', 'stock_minimo', 'estado'],
                     'formatters' => [
                         'sku' => fn($v) => '<span class="text-mono">' . htmlspecialchars($v) . '</span>',
                         'nombre' => fn($v) => '<span class="text-bold">' . htmlspecialchars($v) . '</span>',
@@ -290,7 +290,7 @@ class ReporteController extends Controller
                 'stock' => $p->stock,
                 'stock_minimo' => $p->stock_minimo,
                 'estado' => $p->stock <= 0 ? 'Agotado' : 'Bajo',
-                'valor' => formatMoney($p->precio * $p->stock),
+                'valor' => formatMoney($p->costo * $p->stock),
             ];
         }, $productos);
 
@@ -349,7 +349,7 @@ class ReporteController extends Controller
         $stockBajo = 0;
         $agotados = 0;
         foreach ($productos as $p) {
-            $valorTotal += ($p['precio_raw'] ?? 0) * ($p['stock'] ?? 0);
+            $valorTotal += ($p['costo_raw'] ?? 0) * ($p['stock'] ?? 0);
             if (($p['stock'] ?? 0) <= 0)
                 $agotados++;
             elseif (($p['stock'] ?? 0) <= ($p['stock_minimo'] ?? 0))
@@ -366,7 +366,7 @@ class ReporteController extends Controller
                 'stock' => $p->stock,
                 'stock_minimo' => $p->stock_minimo,
                 'estado' => $p->stock <= 0 ? 'Agotado' : 'Bajo',
-                'valor' => formatMoney($p->precio * $p->stock),
+                'valor' => formatMoney($p->costo * $p->stock),
             ];
         }, $productosStockBajo);
 
@@ -403,9 +403,9 @@ class ReporteController extends Controller
             [
                 [
                     'title' => 'Inventario General (' . $totalProductos . ' productos)',
-                    'headers' => ['SKU', 'Producto', 'Categoría', 'Precio', 'Stock', 'Mín.', 'Estado'],
+                    'headers' => ['SKU', 'Producto', 'Categoría', 'Costo', 'Stock', 'Mín.', 'Estado'],
                     'rows' => $productos,
-                    'keys' => ['sku', 'nombre', 'categoria_nombre', 'precio_fmt', 'stock', 'stock_minimo', 'estado'],
+                    'keys' => ['sku', 'nombre', 'categoria_nombre', 'costo_fmt', 'stock', 'stock_minimo', 'estado'],
                     'formatters' => [
                         'sku' => fn($v) => '<span class="text-mono">' . htmlspecialchars($v) . '</span>',
                         'nombre' => fn($v) => '<span class="text-bold">' . htmlspecialchars($v) . '</span>',
@@ -675,8 +675,8 @@ class ReporteController extends Controller
                 'sku' => $p->sku,
                 'nombre' => $p->nombre,
                 'categoria_nombre' => $p->categoria_nombre ?? 'Sin categoría',
-                'precio_fmt' => formatMoney($p->precio),
-                'precio_raw' => $p->precio,
+                'costo_fmt' => formatMoney($p->costo),
+                'costo_raw' => $p->costo,
                 'stock' => $p->stock,
                 'stock_minimo' => $p->stock_minimo,
                 'estado' => $estado,
@@ -905,7 +905,7 @@ class ReporteController extends Controller
         $data = $analisis->getClasificacionABC();
 
         $export = new ExportService();
-        $headers = ['Clase', 'SKU', 'Producto', 'Categoría', 'Stock', 'Precio', 'Valor Inventario', '% del Total', '% Acumulado'];
+        $headers = ['Clase', 'SKU', 'Producto', 'Categoría', 'Stock', 'Costo', 'Valor Inventario', '% del Total', '% Acumulado'];
         
         $rows = array_map(fn($i) => [
             'clase' => $i->clase,
@@ -913,7 +913,7 @@ class ReporteController extends Controller
             'nombre' => $i->nombre,
             'categoria' => $i->categoria,
             'stock' => $i->stock,
-            'precio' => number_format($i->precio, 2),
+            'Costo' => number_format($i->costo, 2),
             'valor' => number_format($i->valor, 2),
             'porcentaje' => $i->porcentaje . '%',
             'porcentaje_acum' => $i->porcentaje_acumulado . '%',

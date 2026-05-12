@@ -68,7 +68,7 @@ return [
         'path' => 'dashboard/data',
         'controller' => 'DashboardController',
         'action' => 'getData',
-        'middleware' => ['auth'],
+        'middleware' => ['auth', 'permiso:dashboard.ver'],
     ],
 
     // =====================================================
@@ -677,7 +677,7 @@ return [
         'path' => 'compras/recibir/{id}',
         'controller' => 'OrdenCompraController',
         'action' => 'recibir',
-        'middleware' => ['auth'], // requires validation inside
+        'middleware' => ['auth', 'permiso:compras.crear'],
     ],
     [
         'method' => 'POST',

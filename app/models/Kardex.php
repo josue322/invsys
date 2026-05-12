@@ -115,18 +115,18 @@ class Kardex extends Model
         $producto = (new Producto())->findById($productoId);
         if (!$producto) return ['saldo_inicial' => 0, 'movimientos' => [], 'saldo_final' => 0];
 
-        $precioUnitario = (float) ($producto->precio_compra > 0 ? $producto->precio_compra : $producto->precio);
+        $costoUnitario = (float) $producto->costo;
         $kardexData = $this->getKardex($productoId, $fechaDesde, $fechaHasta);
 
         foreach ($kardexData['movimientos'] as &$row) {
-            $row->valor_entrada = $row->entrada * $precioUnitario;
-            $row->valor_salida = $row->salida * $precioUnitario;
-            $row->valor_saldo = $row->saldo * $precioUnitario;
+            $row->valor_entrada = $row->entrada * $costoUnitario;
+            $row->valor_salida = $row->salida * $costoUnitario;
+            $row->valor_saldo = $row->saldo * $costoUnitario;
         }
 
-        $kardexData['precio_unitario'] = $precioUnitario;
-        $kardexData['valor_total_entradas'] = $kardexData['total_entradas'] * $precioUnitario;
-        $kardexData['valor_total_salidas'] = $kardexData['total_salidas'] * $precioUnitario;
+        $kardexData['costo_unitario'] = $costoUnitario;
+        $kardexData['valor_total_entradas'] = $kardexData['total_entradas'] * $costoUnitario;
+        $kardexData['valor_total_salidas'] = $kardexData['total_salidas'] * $costoUnitario;
 
         return $kardexData;
     }

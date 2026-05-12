@@ -10,6 +10,11 @@ class TemaController extends Controller
      */
     public function toggle(): void
     {
+        if (!$this->validateCSRF()) {
+            $this->json(['success' => false, 'error' => 'Token CSRF inválido.'], 403);
+            return;
+        }
+
         $themeService = new ThemeService();
         $newTheme = $themeService->toggleTheme(currentUserId());
 

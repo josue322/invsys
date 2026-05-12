@@ -38,11 +38,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (themeToggle) {
         const baseUrl = document.querySelector('meta[name="base-url"]')?.content || '';
         themeToggle.addEventListener('click', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
             fetch(baseUrl + '/tema/toggle', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
                 }
             })
             .then(response => response.json())

@@ -205,7 +205,7 @@ class OrdenCompraController extends Controller
      */
     public function recibir(int $id): void
     {
-        if (!hasPermission('compras.ver')) {
+        if (!hasPermission('compras.crear')) {
             $this->setFlash('error', 'No tiene permisos para recibir órdenes de compra.');
             $this->redirect('compras/show/' . $id);
             return;
@@ -252,7 +252,7 @@ class OrdenCompraController extends Controller
                 $loteId = null;
 
                 // Actualizar costo del producto al último ingresado
-                $this->productoModel->update($producto->id, ['precio_compra' => $det->precio_unitario]);
+                $this->productoModel->update($producto->id, ['costo' => $det->precio_unitario]);
 
                 if ($producto->es_perecedero) {
                     $numLote = $lotes[$det->id] ?? null;

@@ -129,7 +129,7 @@
                                     <th>SKU</th>
                                     <th>Producto</th>
                                     <th class="text-end">Stock</th>
-                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Costo Unitario</th>
                                     <th class="text-end">Valor</th>
                                     <th class="text-end">% Total</th>
                                     <th class="text-end">% Acum.</th>
@@ -155,7 +155,7 @@
                                         <br><small class="text-muted"><?= htmlspecialchars($item->categoria) ?></small>
                                     </td>
                                     <td class="text-end"><?= $item->stock ?></td>
-                                    <td class="text-end"><?= formatMoney($item->precio) ?></td>
+                                    <td class="text-end"><?= formatMoney($item->costo) ?></td>
                                     <td class="text-end fw-semibold"><?= formatMoney($item->valor) ?></td>
                                     <td class="text-end"><?= $item->porcentaje ?>%</td>
                                     <td class="text-end">

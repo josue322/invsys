@@ -99,24 +99,25 @@
                     </thead>
                     <tbody>
                         <?php foreach ($items as $item): ?>
-                        <tr>
-                            <td><code class="text-primary"><?= $item->sku ?></code></td>
-                            <td><strong><?= htmlspecialchars($item->nombre) ?></strong></td>
-                            <td><small class="text-muted"><?= htmlspecialchars($item->categoria_nombre ?? '—') ?></small></td>
-                            <td class="text-end"><?= $item->stock ?></td>
-                            <td class="text-end fw-semibold text-warning"><?= formatMoney($item->valor_retenido) ?></td>
-                            <td class="text-center">
-                                <small><?= $item->ultimo_movimiento ? formatDate($item->ultimo_movimiento, false) : 'Nunca' ?></small>
-                            </td>
-                            <td class="text-center">
-                                <?php
+                            <tr>
+                                <td><code class="text-primary"><?= $item->sku ?></code></td>
+                                <td><strong><?= htmlspecialchars($item->nombre) ?></strong></td>
+                                <td><small class="text-muted"><?= htmlspecialchars($item->categoria_nombre ?? '—') ?></small>
+                                </td>
+                                <td class="text-end"><?= $item->stock ?></td>
+                                <td class="text-end fw-semibold text-warning"><?= formatMoney($item->valor_retenido) ?></td>
+                                <td class="text-center">
+                                    <small><?= $item->ultimo_movimiento ? formatDate($item->ultimo_movimiento, false) : 'Nunca' ?></small>
+                                </td>
+                                <td class="text-center">
+                                    <?php
                                     $diasSin = (int) ($item->dias_sin_movimiento ?? 0);
                                     $alertClass = $diasSin >= 180 ? 'text-danger fw-bold' : ($diasSin >= 90 ? 'text-warning fw-bold' : '');
-                                ?>
-                                <span class="<?= $alertClass ?>"><?= $diasSin >= 999 ? '+999' : $diasSin ?></span>
-                                <small class="text-muted"> días</small>
-                            </td>
-                        </tr>
+                                    ?>
+                                    <span class="<?= $alertClass ?>"><?= $diasSin >= 999 ? '+999' : $diasSin ?></span>
+                                    <small class="text-muted"> días</small>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

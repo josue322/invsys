@@ -81,7 +81,7 @@
                         <tbody>
                             <tr><td><code>nombre</code></td><td><span class="badge bg-danger">Sí</span></td><td>Teclado USB</td></tr>
                             <tr><td><code>sku</code></td><td><span class="badge bg-danger">Sí</span></td><td>TEC-001</td></tr>
-                            <tr><td><code>precio</code></td><td><span class="badge bg-danger">Sí</span></td><td>250.00</td></tr>
+                            <tr><td><code>costo</code></td><td><span class="badge bg-danger">Sí</span></td><td>250.00</td></tr>
                             <tr><td><code>stock</code></td><td><span class="badge bg-danger">Sí</span></td><td>50</td></tr>
                             <tr><td><code>stock_minimo</code></td><td><span class="badge bg-secondary">No</span></td><td>10</td></tr>
                             <tr><td><code>categoria</code></td><td><span class="badge bg-secondary">No</span></td><td>Electrónica</td></tr>
