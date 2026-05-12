@@ -1,76 +1,6 @@
 
 
-<style>
-/* Premium Docs Styling */
-.docs-sidebar {
-    position: sticky;
-    top: 20px;
-    height: calc(100vh - 120px);
-    overflow-y: auto;
-}
-.docs-nav-item {
-    padding: 8px 16px;
-    border-radius: 6px;
-    color: #475569;
-    transition: all 0.2s;
-    font-weight: 500;
-    text-decoration: none;
-    display: block;
-    margin-bottom: 4px;
-}
-.docs-nav-item:hover {
-    background-color: #f1f5f9;
-    color: #334155;
-}
-.docs-nav-item.active {
-    background-color: #eef2ff;
-    color: #4f46e5;
-    font-weight: 600;
-}
-.docs-section {
-    padding-top: 60px;
-    margin-top: -60px; /* Offset for sticky header if any */
-    margin-bottom: 60px;
-}
-.docs-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    background: #ffffff;
-    overflow: hidden;
-}
-.docs-header {
-    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-    color: white;
-    padding: 40px;
-    border-radius: 12px;
-    margin-bottom: 40px;
-    position: relative;
-    overflow: hidden;
-}
-.step-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #eef2ff;
-    color: #4f46e5;
-    font-weight: 700;
-    font-size: 14px;
-    margin-right: 12px;
-}
-.docs-badge {
-    background-color: #f1f5f9;
-    color: #475569;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-left: 8px;
-}
-</style>
+
 
 <div class="content-wrapper bg-light">
     <!-- Header Banner -->
@@ -432,48 +362,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Advanced ScrollSpy logic
-    const sections = document.querySelectorAll('.docs-section');
-    const navItems = document.querySelectorAll('.docs-nav-item');
-    
-    // Smooth scrolling
-    navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            const targetEl = document.getElementById(targetId);
-            
-            if (targetEl) {
-                window.scrollTo({
-                    top: targetEl.offsetTop - 20,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
 
-    // Update active state on scroll
-    window.addEventListener('scroll', () => {
-        let current = '';
-        const scrollY = window.pageYOffset;
-        
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            const sectionHeight = section.clientHeight;
-            if (scrollY >= sectionTop) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('href').substring(1) === current) {
-                item.classList.add('active');
-            }
-        });
-    });
-});
-</script>
 

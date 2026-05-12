@@ -1,42 +1,4 @@
-<!-- Scanner Styles -->
-<style>
-    .scanner-viewport {
-        position: relative;
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-        border-radius: 14px;
-        overflow: hidden;
-        border: 3px solid var(--bs-border-color);
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .scanner-viewport.scanning {
-        border-color: #ef4444;
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
-        animation: scannerPulse 1.5s ease-in-out infinite;
-    }
-    .scanner-viewport.detected {
-        border-color: #22c55e !important;
-        box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.25) !important;
-        animation: none;
-    }
-    @keyframes scannerPulse {
-        0%, 100% { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15); }
-        50%      { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.08); }
-    }
-    .scanner-status {
-        text-align: center;
-        margin-top: 8px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        transition: color 0.3s ease;
-    }
-    .scanner-status.scanning { color: #ef4444; }
-    .scanner-status.detected { color: #22c55e; }
-    .scanner-viewport #reader video { border-radius: 0 !important; }
-    /* Hide the library's default shaded region borders */
-    #reader #qr-shaded-region { border-color: rgba(255,255,255,0.3) !important; }
-</style>
+
 
 <!-- CSRF Meta for AJAX -->
 <meta name="csrf-token" content="<?= $csrfToken ?? '' ?>">

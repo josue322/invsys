@@ -182,25 +182,4 @@
     </div>
 </div>
 
-<style>
-/* Estilos para los enlaces de categorías al inventario */
-.text-hover-primary {
-    transition: color 0.2s ease, opacity 0.2s ease;
-}
-.text-hover-primary:hover {
-    color: var(--primary) !important;
-}
-.text-hover-primary:hover i {
-    color: var(--primary) !important;
-    opacity: 0.8;
-}
 
-.hover-bg-primary {
-    transition: all 0.2s ease;
-}
-.hover-bg-primary:hover {
-    background-color: var(--primary) !important;
-    color: #ffffff !important;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
-}
-</style>

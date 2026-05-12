@@ -157,41 +157,4 @@
     </div>
 <?php endif; ?>
 
-<style>
-.card:hover { transform: translateY(-1px); box-shadow: 0 .25rem .75rem rgba(0,0,0,.05) !important; }
-.bg-danger-subtle { background-color: rgba(239, 68, 68, 0.1) !important; color: #dc2626 !important; }
-.bg-warning-subtle { background-color: rgba(245, 158, 11, 0.15) !important; color: #b45309 !important; }
-.bg-primary-subtle { background-color: rgba(99, 102, 241, 0.1) !important; color: #4f46e5 !important; }
-.bg-success-subtle { background-color: rgba(34, 197, 94, 0.1) !important; color: #16a34a !important; }
-.bg-secondary-subtle { background-color: rgba(100, 116, 139, 0.1) !important; color: #64748b !important; }
 
-/* Custom button hover states to match subtle backgrounds */
-.btn-light:hover { background-color: #f1f5f9; border-color: #cbd5e1; }
-.btn-primary-subtle:hover { background-color: var(--primary); color: white !important; }
-.btn-success-subtle:hover { background-color: #16a34a; color: white !important; }
-
-/* Force primary color for active tabs to match system theme */
-.nav-pills .nav-link.active {
-    background-color: var(--primary) !important;
-    color: white !important;
-}
-.nav-pills .nav-link:not(.active):hover {
-    background-color: rgba(0,0,0,0.03);
-}
-
-/* Force primary color for outline buttons to match system theme */
-.btn-outline-primary {
-    color: var(--primary) !important;
-    border-color: var(--primary) !important;
-}
-.btn-outline-primary:hover {
-    background-color: var(--primary) !important;
-    color: #ffffff !important;
-}
-
-@media (min-width: 768px) {
-    .border-start-md {
-        border-left: 1px solid var(--border-color) !important;
-    }
-}
-</style>

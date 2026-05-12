@@ -33,6 +33,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ─── Sidebar Scroll Retention ───
+    const sidebarScrollContainer = document.querySelector('.sidebar');
+    if (sidebarScrollContainer) {
+        // Restore scroll position
+        const savedScroll = sessionStorage.getItem('sidebarScrollPos');
+        if (savedScroll !== null) {
+            sidebarScrollContainer.scrollTop = parseInt(savedScroll, 10);
+        } else {
+            // Auto-scroll to active item if no saved position
+            const activeItem = sidebarScrollContainer.querySelector('.nav-link.active');
+            if (activeItem) {
+                // Ensure the active item is visible in the scrollable area
+                const navRect = sidebarScrollContainer.getBoundingClientRect();
+                const itemRect = activeItem.getBoundingClientRect();
+                if (itemRect.top < navRect.top || itemRect.bottom > navRect.bottom) {
+                    activeItem.scrollIntoView({ behavior: 'auto', block: 'center' });
+                }
+            }
+        }
+
+        // Save scroll position before leaving page
+        window.addEventListener('beforeunload', () => {
+            sessionStorage.setItem('sidebarScrollPos', sidebarScrollContainer.scrollTop);
+        });
+    }
+
     // ─── Theme Toggle ───
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {

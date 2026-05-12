@@ -483,3 +483,19 @@
     color: var(--text-primary) !important;
 }
 
+/* =====================================================
+   Ayuda / Docs Accordion Dark Mode Fixes
+   ===================================================== */
+[data-bs-theme="dark"] .accordion-button {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+[data-bs-theme="dark"] .accordion-item {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+[data-bs-theme="dark"] .accordion-button:not(.collapsed) {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+

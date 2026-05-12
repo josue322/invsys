@@ -67,7 +67,7 @@
                             <label for="captura" class="form-label fw-bold">Captura de Pantalla (Opcional)</label>
                             <input class="form-control" type="file" id="captura" name="captura" accept="image/jpeg, image/png, image/webp">
                             <div class="form-text text-muted">Formatos soportados: JPG, PNG, WEBP. Peso máximo: 2MB.</div>
-                            <div id="file-error" class="text-danger mt-1 fw-bold" style="display: none; font-size: 0.85rem;"></div>
+                            <div id="file-error" class="text-danger mt-1 fw-bold d-none small"></div>
                         </div>
 
                         <div class="d-grid gap-2 mt-5">
@@ -77,7 +77,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="card-footer bg-light text-center py-3 text-muted" style="font-size: 0.85rem;">
+                <div class="card-footer bg-light text-center py-3 text-muted small">
                     <i class="bi bi-shield-check me-1"></i>Tus datos de usuario se adjuntarán automáticamente.
                 </div>
             </div>
@@ -85,42 +85,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('form-soporte');
-    const btnSubmit = document.getElementById('btn-enviar-soporte');
-    const fileInput = document.getElementById('captura');
-    const fileError = document.getElementById('file-error');
-    
-    if (fileInput) {
-        fileInput.addEventListener('change', function() {
-            fileError.style.display = 'none';
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                const maxSize = 2 * 1024 * 1024; // 2MB
-                
-                if (file.size > maxSize) {
-                    fileError.textContent = 'La imagen excede el límite de 2MB. Por favor, comprímela o elige otra.';
-                    fileError.style.display = 'block';
-                    this.value = ''; // Clear input
-                }
-            }
-        });
-    }
-
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            if (fileInput.files && fileInput.files[0] && fileInput.files[0].size > 2 * 1024 * 1024) {
-                e.preventDefault();
-                fileError.textContent = 'La imagen excede el límite de 2MB.';
-                fileError.style.display = 'block';
-                return;
-            }
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando ticket...';
-        });
-    }
-});
-</script>
 
 

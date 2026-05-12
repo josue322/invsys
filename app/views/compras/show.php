@@ -245,20 +245,3 @@
         <?php endif; ?>
     </div>
 </div>
-
-<style>
-    @media print {
-        .print-hide {
-            display: none !important;
-        }
-
-        .print-card {
-            box-shadow: none !important;
-            border: 1px solid #dee2e6 !important;
-        }
-
-        body {
-            background-color: #fff !important;
-        }
-    }
-</style>

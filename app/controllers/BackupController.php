@@ -101,9 +101,9 @@ class BackupController extends Controller
     /**
      * Descargar un archivo de backup.
      */
-    public function download(string $id): void
+    public function download(string $file): void
     {
-        $filename = base64_decode($id);
+        $filename = base64_decode($file);
 
         // Validar que el nombre no contenga rutas maliciosas
         if (!$this->isValidBackupFilename($filename)) {
@@ -137,14 +137,14 @@ class BackupController extends Controller
     /**
      * Eliminar un archivo de backup.
      */
-    public function destroy(string $id): void
+    public function destroy(string $file): void
     {
         if (!$this->validateCSRF()) {
             $this->redirect('backups');
             return;
         }
 
-        $filename = base64_decode($id);
+        $filename = base64_decode($file);
 
         if (!$this->isValidBackupFilename($filename)) {
             $this->setFlash('error', 'Archivo de backup no válido.');

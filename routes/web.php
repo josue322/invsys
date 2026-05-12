@@ -986,14 +986,14 @@ return [
     ],
     [
         'method' => 'GET',
-        'path' => 'backups/descargar/{id}',
+        'path' => 'backups/descargar/{file}',
         'controller' => 'BackupController',
         'action' => 'download',
         'middleware' => ['auth', 'permiso:configuracion.editar'],
     ],
     [
         'method' => 'POST',
-        'path' => 'backups/eliminar/{id}',
+        'path' => 'backups/eliminar/{file}',
         'controller' => 'BackupController',
         'action' => 'destroy',
         'middleware' => ['auth', 'permiso:configuracion.editar'],

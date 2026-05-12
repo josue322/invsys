@@ -195,15 +195,4 @@ $badgeColor = match($devolucion->estado) {
     </div>
 </div>
 
-<style>
-@media print {
-    body { background-color: #fff !important; }
-    .card { border: none !important; box-shadow: none !important; }
-    .table-light { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .badge { border: 1px solid #6c757d !important; color: #000 !important; }
-    .bg-danger-subtle, .bg-success-subtle, .bg-secondary, .bg-warning, .bg-success, .bg-danger {
-        background-color: transparent !important;
-        color: #000 !important;
-    }
-}
-</style>
+

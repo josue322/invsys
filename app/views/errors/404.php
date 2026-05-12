@@ -104,6 +104,29 @@
             font-size: 0.8rem;
             color: #6366f1;
         }
+        .error-debug {
+            margin-top: 2rem;
+            padding: 1rem 1.25rem;
+            background: #1e293b;
+            border-radius: 10px;
+            text-align: left;
+            overflow-x: auto;
+        }
+        .error-debug summary {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .error-debug pre {
+            color: #a78bfa;
+            font-size: 0.8rem;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 0.75rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -125,6 +148,24 @@
         <div class="error-hint">
             URL solicitada: <code><?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?></code>
         </div>
+        
+        <?php if (ini_get('display_errors')): ?>
+            <div class="error-debug">
+                <details>
+                    <summary>🐛 Información de depuración (solo desarrollo)</summary>
+                    <pre>Método HTTP: <?= htmlspecialchars($_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN') ?>
+
+Ruta no encontrada en Router.php.
+Verifique que la ruta esté registrada correctamente en routes/web.php
+
+Variables $_GET:
+<?= htmlspecialchars(print_r($_GET, true)) ?>
+
+Variables $_POST:
+<?= htmlspecialchars(print_r($_POST, true)) ?></pre>
+                </details>
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 </html>

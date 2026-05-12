@@ -433,3 +433,153 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 });
+
+// === Ayuda / Docs ScrollSpy ===
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.docs-section');
+    const navItems = document.querySelectorAll('.docs-nav-item');
+    if (navItems.length === 0) return;
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                window.scrollTo({
+                    top: targetEl.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        const scrollY = window.pageYOffset;
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            if (scrollY >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').substring(1) === current) {
+                item.classList.add('active');
+            }
+        });
+    });
+});
+
+// === Ayuda / Soporte Form ===
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('form-soporte');
+    const btnSubmit = document.getElementById('btn-enviar-soporte');
+    const fileInput = document.getElementById('captura');
+    const fileError = document.getElementById('file-error');
+    
+    if (fileInput && fileError) {
+        fileInput.addEventListener('change', function() {
+            fileError.classList.add('d-none');
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                
+                if (file.size > maxSize) {
+                    fileError.textContent = 'La imagen excede el límite de 2MB. Por favor, comprímela o elige otra.';
+                    fileError.classList.remove('d-none');
+                    this.value = ''; // Clear input
+                }
+            }
+        });
+    }
+
+    if (form && btnSubmit && fileInput && fileError) {
+        form.addEventListener('submit', function(e) {
+            if (fileInput.files && fileInput.files[0] && fileInput.files[0].size > 2 * 1024 * 1024) {
+                e.preventDefault();
+                fileError.textContent = 'La imagen excede el límite de 2MB.';
+                fileError.classList.remove('d-none');
+                return;
+            }
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando ticket...';
+        });
+    }
+});
+
+// === Form Draft Autosave (Movimientos & Conteos) ===
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Movimientos
+    const formMov = document.getElementById('formCrearMovimiento');
+    if (formMov) {
+        const STORAGE_KEY_MOV = 'invsys_draft_movimiento';
+        const inputsMov = ['producto_id', 'tipo', 'cantidad', 'proveedor_id', 'destino', 'referencia', 'numero_lote', 'fecha_vencimiento'];
+        
+        function saveMovState() {
+            const state = {};
+            inputsMov.forEach(id => {
+                const el = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+                if (el) state[id] = el.value;
+            });
+            sessionStorage.setItem(STORAGE_KEY_MOV, JSON.stringify(state));
+        }
+
+        const savedMovStr = sessionStorage.getItem(STORAGE_KEY_MOV);
+        if (savedMovStr) {
+            try {
+                const state = JSON.parse(savedMovStr);
+                inputsMov.forEach(id => {
+                    if (state[id]) {
+                        const el = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+                        if (el) {
+                            el.value = state[id];
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                });
+            } catch (e) {}
+        }
+
+        formMov.addEventListener('input', saveMovState);
+        formMov.addEventListener('change', saveMovState);
+        formMov.addEventListener('submit', () => sessionStorage.removeItem(STORAGE_KEY_MOV));
+    }
+
+    // 2. Conteos
+    const formConteo = document.getElementById('formCrearConteo');
+    if (formConteo) {
+        const STORAGE_KEY_CONTEO = 'invsys_draft_conteo';
+        const inputsConteo = ['nombre', 'descripcion', 'filtro_tipo', 'filtro_id_categoria', 'filtro_id_ubicacion'];
+        
+        function saveConteoState() {
+            const state = {};
+            inputsConteo.forEach(id => {
+                const el = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+                if (el) state[id] = el.value;
+            });
+            sessionStorage.setItem(STORAGE_KEY_CONTEO, JSON.stringify(state));
+        }
+
+        const savedConteoStr = sessionStorage.getItem(STORAGE_KEY_CONTEO);
+        if (savedConteoStr) {
+            try {
+                const state = JSON.parse(savedConteoStr);
+                inputsConteo.forEach(id => {
+                    if (state[id]) {
+                        const el = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+                        if (el) {
+                            el.value = state[id];
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                });
+            } catch (e) {}
+        }
+
+        formConteo.addEventListener('input', saveConteoState);
+        formConteo.addEventListener('change', saveConteoState);
+        formConteo.addEventListener('submit', () => sessionStorage.removeItem(STORAGE_KEY_CONTEO));
+    }
+});

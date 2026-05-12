@@ -49,8 +49,8 @@ class Router
         // Reemplazar {id} por grupo numérico
         $pattern = preg_replace('/\{id\}/', '(?P<id>[0-9]+)', $pattern);
 
-        // Reemplazar otros parámetros {param} por grupo alfanumérico
-        $pattern = preg_replace('/\{(\w+)\}/', '(?P<$1>[a-zA-Z0-9_-]+)', $pattern);
+        // Reemplazar otros parámetros {param} por grupo alfanumérico + base64 + puntos
+        $pattern = preg_replace('/\{(\w+)\}/', '(?P<$1>[a-zA-Z0-9_\-\.=]+)', $pattern);
 
         return '/^' . $pattern . '$/';
     }
