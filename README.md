@@ -87,6 +87,33 @@ Para que el sistema pueda guardar imágenes de productos, generar reportes y reg
 2. Como `APP_ENV` está configurado como `production`, el sistema no mostrará errores de PHP (pantallazos con rutas o código a la vista del usuario) sino que mostrará la pantalla amistosa de Error 500 y guardará el error real en `storage/logs/error.log`.
 3. ¡Cualquier cambio futuro que hagas en JavaScript o CSS se reflejará instantáneamente en el usuario final gracias al sistema interno automático de "Cache-busting" nativo!
 
+---
+
+## ⚙️ Configuración Post-Despliegue (Alertas Automáticas)
+
+Una vez que el sistema esté subido a cPanel, debes configurar las notificaciones para que lleguen a tu correo y WhatsApp.
+
+### 1. Configurar Tarea Programada (Cron Job)
+Para que el sistema revise automáticamente el stock bajo y los lotes por vencer todos los días:
+1. En cPanel, busca la sección **Trabajos de Cron (Cron Jobs)**.
+2. Configura un nuevo trabajo para que se ejecute **Una vez al día** (por ejemplo, a las `08:00 AM`).
+3. En el campo **Comando**, ingresa lo siguiente (ajustando `tu_usuario_cpanel`):
+   ```bash
+   /usr/local/bin/php /home/tu_usuario_cpanel/public_html/scripts/cron_alertas.php
+   ```
+
+### 2. Configurar Correo (SMTP)
+1. En cPanel, ve a **Cuentas de Correo Electrónico** y crea una cuenta (ej. `sistema@midominio.com`).
+2. Entra a InvSys WMS como **Administrador**.
+3. Ve a **Configuración del Sistema** -> pestaña **Correo (SMTP)**.
+4. Llena los datos con la información que te proporcionó cPanel (Servidor, Puerto, Usuario y Contraseña).
+
+### 3. Configurar WhatsApp (CallMeBot)
+1. Entra a InvSys WMS como **Administrador**.
+2. Ve a **Configuración del Sistema** -> pestaña **WhatsApp**.
+3. Ingresa el número de teléfono con código de país (ej. `+51999888777`) y tu **API Key** de CallMeBot.
+   *(Instrucciones de cómo obtener el API Key están dentro del mismo módulo de configuración).*
+
 ## Soporte y Mantenimiento
 Si experimentas errores 500 en producción:
 1. Revisa el archivo `storage/logs/error.log`.
