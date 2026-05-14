@@ -861,13 +861,14 @@ class ReporteController extends Controller
     {
         $dias = (int) $this->query('dias', 90);
         $dias = max(7, min(365, $dias));
+        $page = (int) $this->query('page', 1);
 
         $analisis = new AnalisisInventario();
-        $items = $analisis->getRotacion($dias);
+        $rotacion = $analisis->getRotacion($dias, $page, 15);
 
         $this->view('reportes/rotacion', [
             'titulo' => 'Rotación de Inventario',
-            'items' => $items,
+            'rotacion' => $rotacion,
             'dias' => $dias,
             'flash' => $this->getFlash(),
         ]);

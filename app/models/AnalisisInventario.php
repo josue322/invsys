@@ -89,9 +89,14 @@ class AnalisisInventario extends Model
      * 
      * @param int $dias Período en días (default 90)
      */
-    public function getRotacion(int $dias = 90): array
+    public function getRotacion(int $dias = 90, int $page = 1, int $perPage = 15): array
     {
         $fechaDesde = date('Y-m-d', strtotime("-{$dias} days"));
+        $offset = ($page - 1) * $perPage;
+
+        // Contar el total de productos activos
+        $countSql = "SELECT COUNT(*) as total FROM productos WHERE activo = 1";
+        $total = $this->query($countSql)->fetch()->total;
 
         $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.costo,
                        c.nombre as categoria_nombre,
@@ -112,7 +117,8 @@ class AnalisisInventario extends Model
                     GROUP BY producto_id
                 ) entradas ON p.id = entradas.producto_id
                 WHERE p.activo = 1
-                ORDER BY total_salidas DESC";
+                ORDER BY total_salidas DESC
+                LIMIT {$perPage} OFFSET {$offset}";
 
         $productos = $this->query($sql, [
             'fecha_desde1' => $fechaDesde,
@@ -142,9 +148,13 @@ class AnalisisInventario extends Model
             }
 
             // Días de inventario (cuántos días dura el stock actual)
-            $diasInventario = $salidas > 0
-                ? round(($stock / ($salidas / $dias)), 0)
-                : ($stock > 0 ? 999 : 0);
+            if ($stock <= 0) {
+                $diasInventario = 0;
+            } elseif ($salidas <= 0) {
+                $diasInventario = -1; // Infinito (sin salidas)
+            } else {
+                $diasInventario = round(($stock / ($salidas / $dias)), 0);
+            }
 
             $items[] = (object) [
                 'id' => $p->id,
@@ -156,11 +166,17 @@ class AnalisisInventario extends Model
                 'entradas' => $entradas,
                 'rotacion' => $rotacion,
                 'velocidad' => $velocidad,
-                'dias_inventario' => min((int) $diasInventario, 999),
+                'dias_inventario' => (int) $diasInventario,
             ];
         }
 
-        return $items;
+        return [
+            'data'    => $items,
+            'total'   => (int) $total,
+            'pages'   => (int) ceil($total / $perPage),
+            'current' => $page,
+            'perPage' => $perPage,
+        ];
     }
 
     /**

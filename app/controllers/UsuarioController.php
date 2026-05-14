@@ -363,4 +363,95 @@ class UsuarioController extends Controller
         $this->setFlash('success', "Usuario \"{$usuario->nombre}\" eliminado exitosamente.");
         $this->redirect('usuarios');
     }
+    /**
+     * Eliminar usuario de forma permanente (hard-delete).
+     * Solo disponible para administradores.
+     */
+    public function hardDestroy(string $id): void
+    {
+        $id = (int) $id;
+
+        // Solo administradores pueden realizar esta acción
+        if (currentUserRole() !== 'Admin') {
+            $this->setFlash('error', 'No tiene permisos para realizar una eliminación permanente.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // No permitir eliminarse a uno mismo
+        if ($id === currentUserId()) {
+            $this->setFlash('error', 'No puedes eliminar permanentemente tu propia cuenta.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        $usuario = $this->usuarioModel->findWithRole($id);
+        if (!$usuario) {
+            $this->setFlash('error', 'Usuario no encontrado.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // No permitir eliminar al último admin
+        if ($usuario->rol_id === 1 && $this->usuarioModel->countActiveByRole(1) <= 1) {
+            $this->setFlash('error', 'No se puede eliminar al último administrador del sistema.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // VERIFICACIÓN DE INTEGRIDAD: ¿Tiene historial asociado?
+        $hasHistory = $this->checkUserHistory($id);
+        if ($hasHistory) {
+            $this->setFlash('error', '<strong>Acción denegada:</strong> Este usuario tiene historial de movimientos, órdenes o auditoría registrado. Para mantener la integridad de los datos, solo puede ser <strong>desactivado</strong>, no eliminado permanentemente.');
+            $this->redirect('usuarios');
+            return;
+        }
+
+        // Hard-delete: eliminar de la tabla
+        try {
+            $this->usuarioModel->delete($id);
+
+            $this->securityService->logAction(
+                currentUserId(),
+                'eliminacion_permanente_usuario',
+                'usuarios',
+                "ELIMINACIÓN PERMANENTE: {$usuario->nombre} ({$usuario->email}), ID: {$id}"
+            );
+
+            $this->setFlash('success', "Usuario \"{$usuario->nombre}\" eliminado permanentemente del sistema.");
+        } catch (\Exception $e) {
+            $this->setFlash('error', 'No se pudo eliminar el usuario debido a una restricción de la base de datos.');
+        }
+
+        $this->redirect('usuarios');
+    }
+
+    /**
+     * Comprobar si el usuario tiene registros asociados en tablas críticas.
+     */
+    private function checkUserHistory(int $userId): bool
+    {
+        // Tablas a revisar
+        $tables = [
+            'movimientos' => 'usuario_id',
+            'ordenes_compra' => 'usuario_id',
+            'requisiciones' => 'usuario_id',
+            'logs' => 'usuario_id'
+        ];
+
+        foreach ($tables as $table => $column) {
+            $sql = "SELECT COUNT(*) as total FROM {$table} WHERE {$column} = :uid";
+            $result = $this->usuarioModel->rawQuery($sql, ['uid' => $userId]);
+            if ((int) ($result[0]->total ?? 0) > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

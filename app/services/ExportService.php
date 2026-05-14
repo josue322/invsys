@@ -108,17 +108,8 @@ class ExportService
         // Generar HTML del reporte
         $html = $this->buildPDFHtml($title, $systemName, $fechaGeneracion, $usuario, $sections, $meta);
 
-        // Intentar usar DomPDF si está disponible
-        $dompdfPath = ROOT_PATH . '/vendor/dompdf/autoload.inc.php';
-        if (file_exists($dompdfPath)) {
-            require_once $dompdfPath;
-            $dompdf = new \Dompdf\Dompdf(['defaultFont' => 'sans-serif']);
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('A4', 'landscape');
-            $dompdf->render();
-            $dompdf->stream($filename, ['Attachment' => true]);
-            exit;
-        }
+        // Servir como HTML imprimible de alta calidad con auto-print
+        // (Se ha deshabilitado DomPDF porque arruina el diseño CSS moderno)
 
         // Fallback: servir como HTML imprimible con auto-print
         header('Content-Type: text/html; charset=utf-8');
@@ -154,6 +145,8 @@ class ExportService
             }
             $summaryHtml .= '</div>';
         }
+
+        $assetUrl = ASSET_URL;
 
         return <<<HTML
 <!DOCTYPE html>
@@ -263,7 +256,7 @@ class ExportService
     <div class="print-toolbar no-print">
         <span>📊 {$title} — Vista previa del reporte</span>
         <div>
-            <button onclick="window.print()">🖨️ Imprimir / Guardar como PDF</button>
+            <button id="btn-print-report">🖨️ Imprimir / Guardar como PDF</button>
         </div>
     </div>
 
@@ -288,6 +281,8 @@ class ExportService
             <span>Generado el {$fecha}</span>
         </div>
     </div>
+    
+    <script src="{$assetUrl}/js/print.js"></script>
 </body>
 </html>
 HTML;

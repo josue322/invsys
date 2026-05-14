@@ -108,29 +108,23 @@
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
                                             <?php if ($u->id !== currentUserId()): ?>
-                                                <form action="<?= url("usuarios/toggle/{$u->id}") ?>" method="POST" class="d-inline">
+                                                <form method="POST" action="<?= url("usuarios/toggle/{$u->id}") ?>" 
+                                                      data-confirm='{"title":"¿<?= $u->activo ? 'Desactivar' : 'Activar' ?> usuario?","message":"El usuario <?= $u->activo ? 'no podrá iniciar sesión' : 'podrá iniciar sesión nuevamente' ?>.","type":"warning","confirmText":"Proceder","icon":"bi-<?= $u->activo ? 'toggle-off' : 'toggle-on' ?>"}'
+                                                      style="display:inline">
                                                     <?= csrfField() ?>
-                                                    <?php if ($u->activo): ?>
-                                                        <button type="submit" class="btn-action" title="Desactivar"
-                                                            style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);"
-                                                            data-confirm='{"title":"¿Desactivar usuario?","message":"El usuario <?= htmlspecialchars($u->nombre) ?> no podrá iniciar sesión.","type":"warning","confirmText":"Desactivar","icon":"bi-person-dash"}'>
-                                                            <i class="bi bi-person-dash-fill"></i>
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <button type="submit" class="btn-action" title="Activar"
-                                                            style="color: #10b981; background: rgba(16, 185, 129, 0.1);"
-                                                            data-confirm='{"title":"¿Activar usuario?","message":"El usuario <?= htmlspecialchars($u->nombre) ?> podrá iniciar sesión nuevamente.","type":"info","confirmText":"Activar","icon":"bi-person-check"}'>
-                                                            <i class="bi bi-person-check-fill"></i>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                </form>
-                                                <form action="<?= url("usuarios/eliminar/{$u->id}") ?>" method="POST" class="d-inline">
-                                                    <?= csrfField() ?>
-                                                    <button type="submit" class="btn-action btn-delete" title="Eliminar"
-                                                        data-confirm='{"title":"¿Eliminar usuario?","message":"El usuario <?= htmlspecialchars($u->nombre) ?> será desactivado permanentemente. Esta acción se registra en el log de seguridad.","type":"danger","confirmText":"Eliminar","icon":"bi-trash3"}'>
-                                                        <i class="bi bi-trash3-fill"></i>
+                                                    <button type="submit" class="btn-action <?= $u->activo ? 'btn-delete' : 'btn-ok' ?>" title="<?= $u->activo ? 'Desactivar' : 'Activar' ?>" style="<?= !$u->activo ? 'color:#10b981; background:rgba(16,185,129,0.1);' : '' ?>">
+                                                        <i class="bi bi-<?= $u->activo ? 'toggle-off' : 'toggle-on' ?>"></i>
                                                     </button>
                                                 </form>
+                                                 <?php if (currentUserRole() === 'Admin'): ?>
+                                                     <form action="<?= url("usuarios/eliminar-permanente/{$u->id}") ?>" method="POST" class="d-inline" data-confirm='{"title":"¡ELIMINACIÓN PERMANENTE!","message":"¿Está SEGURO? Esta acción borrará al usuario <?= htmlspecialchars($u->nombre) ?> de la base de datos para siempre. Esta acción NO se puede deshacer.","type":"danger","confirmText":"ELIMINAR TODO","icon":"bi-trash3-fill"}'>
+                                                         <?= csrfField() ?>
+                                                         <button type="submit" class="btn-action" title="Eliminar Permanentemente"
+                                                             style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.2);">
+                                                             <i class="bi bi-trash3-fill"></i>
+                                                         </button>
+                                                     </form>
+                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </div>

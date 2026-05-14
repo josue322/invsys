@@ -35,6 +35,16 @@
                 <i class="bi bi-grid-1x2-fill"></i>
                 <span>Dashboard</span>
             </a>
+
+            <?php if (hasPermission('alertas.ver')): ?>
+            <a href="<?= url('alertas') ?>" class="nav-link <?= isRoutePrefix('alertas') ? 'active' : '' ?>" id="nav-alertas">
+                <i class="bi bi-bell-fill"></i>
+                <span>Alertas</span>
+                <?php if (($alertasNoLeidas ?? 0) > 0): ?>
+                    <span class="badge bg-danger ms-auto"><?= $alertasNoLeidas ?></span>
+                <?php endif; ?>
+            </a>
+            <?php endif; ?>
         </div>
 
         <?php if (hasPermission('productos.ver')): ?>
@@ -58,15 +68,7 @@
             </a>
             <?php endif; ?>
 
-            <?php if (hasPermission('alertas.ver')): ?>
-            <a href="<?= url('alertas') ?>" class="nav-link <?= isRoutePrefix('alertas') ? 'active' : '' ?>" id="nav-alertas">
-                <i class="bi bi-bell-fill"></i>
-                <span>Alertas</span>
-                <?php if (($alertasNoLeidas ?? 0) > 0): ?>
-                    <span class="badge bg-danger ms-auto"><?= $alertasNoLeidas ?></span>
-                <?php endif; ?>
-            </a>
-            <?php endif; ?>
+
 
             <a href="<?= url('escaner') ?>" class="nav-link <?= isRoutePrefix('escaner') ? 'active' : '' ?>" id="nav-escaner">
                 <i class="bi bi-upc-scan"></i>

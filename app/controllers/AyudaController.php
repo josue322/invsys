@@ -15,7 +15,7 @@ class AyudaController extends Controller
         $data = [
             'titulo' => 'Centro de Ayuda - Manual',
         ];
-        
+
         $this->view('ayuda/index', $data);
     }
 
@@ -27,7 +27,7 @@ class AyudaController extends Controller
         $data = [
             'titulo' => 'Contacto a Soporte Técnico',
         ];
-        
+
         $this->view('ayuda/soporte', $data);
     }
 
@@ -46,7 +46,7 @@ class AyudaController extends Controller
         $asunto = trim($_POST['asunto'] ?? '');
         $descripcion = trim($_POST['descripcion'] ?? '');
         $telefono = trim($_POST['telefono'] ?? 'No proporcionado');
-        
+
         if (empty($categoria) || empty($asunto) || empty($descripcion)) {
             $this->redirect('ayuda/soporte?error=' . urlencode('Todos los campos marcados como obligatorios deben ser llenados.'));
             return;
@@ -58,18 +58,18 @@ class AyudaController extends Controller
             $file = $_FILES['captura'];
             $maxSize = 2 * 1024 * 1024; // 2MB
             $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-            
+
             // Validar tamaño
             if ($file['size'] > $maxSize) {
                 $this->redirect('ayuda/soporte?error=' . urlencode('La imagen seleccionada supera el límite de 2MB.'));
                 return;
             }
-            
+
             // Validar MIME type real
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime = finfo_file($finfo, $file['tmp_name']);
             finfo_close($finfo);
-            
+
             if (!in_array($mime, $allowedTypes)) {
                 $this->redirect('ayuda/soporte?error=' . urlencode('Formato de imagen no permitido. Solo JPG, PNG o WEBP.'));
                 return;
@@ -86,7 +86,7 @@ class AyudaController extends Controller
 
         // Obtener usuario actual usando el helper global
         $currentUser = currentUser();
-        
+
         $userNombre = $currentUser['nombre'] ?? 'Usuario Desconocido';
         $userEmail = $currentUser['email'] ?? 'No registrado';
         $userRol = $currentUser['rol_nombre'] ?? 'No definido';
@@ -129,11 +129,11 @@ class AyudaController extends Controller
         try {
             $mailService = MailService::getInstance();
             $enviado = $mailService->send($developerEmail, $mailSubject, $htmlBody);
-            
+
             if ($enviado) {
                 // Registrar log
                 SecurityService::getInstance()->logAction(currentUserId(), 'SOPORTE_TICKET', 'Ayuda', "El usuario ha enviado un ticket de soporte: {$asunto}");
-                
+
                 $this->redirect('ayuda/soporte?success=' . urlencode('¡Tu mensaje ha sido enviado al desarrollador! Te contactaremos pronto.'));
             } else {
                 $this->redirect('ayuda/soporte?error=' . urlencode('Hubo un problema al enviar tu mensaje. Por favor, verifica la conexión o intenta más tarde.'));
@@ -142,36 +142,36 @@ class AyudaController extends Controller
             $this->redirect('ayuda/soporte?error=' . urlencode('Error del sistema al enviar el correo: ' . $e->getMessage()));
         }
     }
-    
+
     /**
      * Descargar el manual en PDF con diseño Premium, Gráficos y FAQ
      */
     public function descargarPdf()
     {
         require_once APP_PATH . '/helpers/PdfGenerator.php';
-        
+
         $pdf = new PdfGenerator();
         $pdf->AliasNbPages();
         $pdf->setDocumentTitle('Manual de Usuario Oficial');
         $pdf->SetMargins(15, 20, 15);
         $pdf->SetAutoPageBreak(true, 25);
-        
+
         // --- PORTADA ---
         $pdf->AddPage();
-        
+
         // Fondo decorativo en la portada
         $pdf->SetFillColor(79, 70, 229); // Primary color (Indigo)
         $pdf->Rect(0, 0, 210, 60, 'F');
-        
+
         $pdf->Ln(20);
         $pdf->SetFont('Arial', 'B', 28);
         $pdf->SetTextColor(255, 255, 255);
         $pdf->Cell(0, 10, PdfGenerator::decode('INVSYS ENTERPRISE'), 0, 1, 'C');
-        
+
         $pdf->SetFont('Arial', '', 14);
         $pdf->SetTextColor(200, 200, 255);
         $pdf->Cell(0, 10, PdfGenerator::decode('Sistema de Gestión de Almacenes (WMS)'), 0, 1, 'C');
-        
+
         $pdf->Ln(40);
         $pdf->SetFont('Arial', 'B', 22);
         $pdf->SetTextColor(33, 37, 41);
@@ -179,7 +179,7 @@ class AyudaController extends Controller
         $pdf->SetFont('Arial', '', 12);
         $pdf->SetTextColor(108, 117, 125);
         $pdf->Cell(0, 10, PdfGenerator::decode('Versión 2.0 - Generado el: ' . date('d/m/Y')), 0, 1, 'C');
-        
+
         // --- GRAFICO: FLUJO DE INVENTARIO ---
         $pdf->Ln(25);
         $pdf->SetFont('Arial', 'B', 14);
@@ -197,30 +197,30 @@ class AyudaController extends Controller
 
         $pasos = ['Proveedor', 'Entrada', 'Kardex (Stock)', 'Salida / Despacho'];
         $pdf->SetFont('Arial', 'B', 9);
-        
-        for ($i=0; $i<count($pasos); $i++) {
+
+        for ($i = 0; $i < count($pasos); $i++) {
             // Caja
             $pdf->SetFillColor(238, 242, 255); // Indigo muy claro
             $pdf->SetDrawColor(79, 70, 229);
             $pdf->SetLineWidth(0.5);
             $pdf->Rect($startX, $startY, $boxW, $boxH, 'DF');
-            
+
             // Texto centrado en la caja
             $pdf->SetTextColor(55, 48, 163);
             $pdf->SetXY($startX, $startY + 4);
             $pdf->Cell($boxW, 7, PdfGenerator::decode($pasos[$i]), 0, 0, 'C');
-            
+
             // Flecha al siguiente paso
             if ($i < count($pasos) - 1) {
                 $pdf->SetDrawColor(156, 163, 175); // Gris
                 $pdf->SetLineWidth(0.8);
                 // Linea
-                $pdf->Line($startX + $boxW, $startY + ($boxH/2), $startX + $boxW + $gap, $startY + ($boxH/2));
+                $pdf->Line($startX + $boxW, $startY + ($boxH / 2), $startX + $boxW + $gap, $startY + ($boxH / 2));
                 // Punta de flecha
-                $pdf->Line($startX + $boxW + $gap - 2, $startY + ($boxH/2) - 2, $startX + $boxW + $gap, $startY + ($boxH/2));
-                $pdf->Line($startX + $boxW + $gap - 2, $startY + ($boxH/2) + 2, $startX + $boxW + $gap, $startY + ($boxH/2));
+                $pdf->Line($startX + $boxW + $gap - 2, $startY + ($boxH / 2) - 2, $startX + $boxW + $gap, $startY + ($boxH / 2));
+                $pdf->Line($startX + $boxW + $gap - 2, $startY + ($boxH / 2) + 2, $startX + $boxW + $gap, $startY + ($boxH / 2));
             }
-            
+
             $startX += $boxW + $gap;
         }
         $pdf->Ln(25);
@@ -228,26 +228,26 @@ class AyudaController extends Controller
         // --- CONTENIDO DEL MANUAL ---
         $secciones = [
             '1. Introducción al WMS' => "InvSys Enterprise es un Sistema de Gestión de Almacenes (WMS) de nivel corporativo.\nDiseñado para mantener un registro inmutable de todas las transacciones de inventario, el sistema garantiza una trazabilidad total desde el momento en que un producto ingresa al almacén hasta que es despachado o consumido.",
-            
+
             '2. Dashboard y KPIs' => "El Dashboard es el centro de mando. Al iniciar sesión, verás indicadores clave (KPIs) en tiempo real:\n\n- Total de Productos: Variedad de SKUs únicos registrados.\n- Alertas de Stock: Productos por debajo del umbral de seguridad.\n- Valor del Inventario: Capital total invertido (Stock * Precio unitario).",
-            
+
             '3. Catálogos Base' => "Es vital configurar la estructura lógica de su almacén:\n\n- Categorías: Agrupan los productos (Ej: Electrónicos, Perecederos).\n- Ubicaciones: Espacios físicos (Ej: Pasillo 1, Estante A).\n- Proveedores: Entidades que suministran artículos.\n- Departamentos: Áreas internas que solicitarán requisiciones.",
-            
+
             '4. Gestión de Productos' => "Paso a paso para crear un producto:\n1. Vaya a Productos > + Nuevo Producto.\n2. Llene la Información Básica (Nombre, SKU, Categoría).\n3. Establezca Stock Mínimo y Máximo.\n4. Control de Lotes: Active si el producto tiene caducidad.",
-            
+
             '5. Entradas y Salidas' => "[WARNING] NUNCA se debe editar el stock manualmente sin dejar rastro.\n\n- Entrada: Úselo cuando reciba mercancía. Si maneja lotes, el sistema exigirá Fecha de Vencimiento.\n- Salida: Úselo para mermas o consumo directo con motivo obligatorio.",
-            
+
             '6. Conteo y Auditoría' => "Para conciliar el stock virtual vs físico:\n1. Iniciar Nuevo Conteo (Filtre por categoría o ubicación).\n2. Ejecución: Use el Escáner para sumar unidades rápidamente.\n3. Conciliación: El sistema resaltará faltantes/sobrantes. Al Aplicar Ajustes, el Kardex se actualiza con un 'Ajuste por Auditoría'.",
-            
+
             '7. Logística Interna (Requisiciones)' => "Para empresas donde departamentos consumen del almacén central:\n1. Menú Requisiciones > Nueva Requisición.\n2. Seleccione departamento y añada productos.\n3. Al procesar, el stock se descuenta inmediatamente y se genera un vale PDF.\n\n[TIP] Use el buscador global para añadir productos rápidamente al carrito de requisición.",
-            
+
             '8. Análisis y Reportes' => "- Kardex General: Libro mayor de entradas y salidas de un producto.\n- Análisis ABC: Clasifica inventario por impacto financiero.\n- Rotación: Artículos de alta demanda.\n- Inventario Muerto: Detecta productos estancados.",
-            
+
             '9. Administración (Seguridad)' => "Módulo exclusivo para Administradores.\n\n- Usuarios: Cree cuentas y asigne roles (RBAC).\n- Backups: Descargue copias de la base de datos SQL regularmente.\n- Logs de Auditoría: Registro inmutable de inicios de sesión y configuración."
         ];
 
         $pdf->AddPage();
-        
+
         foreach ($secciones as $titulo => $contenido) {
             // Título de Sección con caja de color
             $pdf->SetFillColor(238, 242, 255); // Indigo muy claro
@@ -255,20 +255,20 @@ class AyudaController extends Controller
             $pdf->SetLineWidth(0.5);
             $pdf->SetFont('Arial', 'B', 14);
             $pdf->SetTextColor(55, 48, 163); // Texto indigo oscuro
-            
+
             $pdf->Cell(0, 12, '  ' . PdfGenerator::decode($titulo), 'L', 1, 'L', true);
             $pdf->Ln(4);
-            
+
             $pdf->SetFont('Arial', '', 11);
             $pdf->SetTextColor(71, 85, 105); // Slate 600
-            
+
             $lineas = explode("\n", $contenido);
             foreach ($lineas as $linea) {
                 if (trim($linea) === '') {
                     $pdf->Ln(2);
                     continue;
                 }
-                
+
                 // Procesamiento de Alertas Visuales
                 if (str_starts_with(trim($linea), '[WARNING]')) {
                     $texto = str_replace('[WARNING]', '', trim($linea));
@@ -280,7 +280,7 @@ class AyudaController extends Controller
                     $pdf->SetTextColor(71, 85, 105); // Restaurar color normal
                     continue;
                 }
-                
+
                 if (str_starts_with(trim($linea), '[TIP]')) {
                     $texto = str_replace('[TIP]', '', trim($linea));
                     $pdf->SetFillColor(240, 253, 244); // Green muy claro
@@ -306,7 +306,7 @@ class AyudaController extends Controller
 
         // --- SECCIÓN FAQ ---
         $pdf->AddPage();
-        
+
         $pdf->SetFillColor(238, 242, 255);
         $pdf->SetDrawColor(14, 165, 233); // Cyan
         $pdf->SetLineWidth(0.5);
@@ -317,13 +317,13 @@ class AyudaController extends Controller
 
         $faqs = [
             '¿Cómo corrijo un error si me equivoqué al registrar una entrada?' => 'Por cuestiones de auditoría inmutable, no se puede borrar ni editar una transacción pasada del Kardex. Para solucionarlo, debe registrar un Movimiento de Salida seleccionando el motivo "Ajuste de Inventario / Corrección" por la misma cantidad que ingresó por error.',
-            
+
             '¿Por qué un producto no me aparece para imprimir etiquetas?' => 'Verifique que el producto tenga un SKU válido asignado. El sistema de códigos de barras ignora automáticamente cualquier producto que carezca de un código único para prevenir impresiones erróneas.',
-            
+
             '¿Qué significa cuando el stock aparece en números negativos?' => 'Ocurre cuando se registran salidas (ventas o despachos) antes de registrar las entradas correspondientes del proveedor. Debe hacer una entrada para regularizarlo a positivo.',
-            
+
             '¿Puedo cambiar la categoría de un producto que ya tiene movimientos?' => 'Sí, puede editar el producto y reasignarlo a otra categoría sin problema. Sin embargo, los reportes pasados filtrados por esa fecha podrían reflejar el cambio estructural.',
-            
+
             'Olvidé mi contraseña o no tengo permisos para módulos' => 'Solo el Administrador Principal del sistema puede resetear contraseñas o modificar sus niveles de permiso de seguridad (Roles).'
         ];
 
@@ -332,7 +332,7 @@ class AyudaController extends Controller
             $pdf->SetTextColor(30, 41, 59); // Slate 800
             $pdf->SetX(15);
             $pdf->MultiCell(0, 7, 'Q: ' . PdfGenerator::decode($pregunta));
-            
+
             $pdf->SetFont('Arial', '', 10);
             $pdf->SetTextColor(100, 116, 139); // Slate 500
             $pdf->SetX(20);

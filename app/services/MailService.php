@@ -34,22 +34,22 @@ class MailService
     private function __construct()
     {
         $this->systemName = Config::get('nombre_sistema', 'InvSys');
-        
+
         // Leer de BD primero, fallback a .env
-        $this->fromEmail = Config::get('mail_from_address') 
+        $this->fromEmail = Config::get('mail_from_address')
             ?: EnvLoader::get('MAIL_FROM_ADDRESS', 'noreply@invsys.com');
-        $this->fromName = Config::get('mail_from_name') 
+        $this->fromName = Config::get('mail_from_name')
             ?: EnvLoader::get('MAIL_FROM_NAME', $this->systemName);
 
         // SMTP config from DB
         $this->smtpActive = Config::get('smtp_activo', '0') === '1';
         $this->smtpConfig = [
-            'host'       => Config::get('smtp_host', ''),
-            'port'       => (int) Config::get('smtp_port', '587'),
+            'host' => Config::get('smtp_host', ''),
+            'port' => (int) Config::get('smtp_port', '587'),
             'encryption' => Config::get('smtp_encryption', 'tls'),
-            'auth'       => Config::get('smtp_auth', '1') === '1',
-            'username'   => Config::get('smtp_username', ''),
-            'password'   => Config::get('smtp_password', ''),
+            'auth' => Config::get('smtp_auth', '1') === '1',
+            'username' => Config::get('smtp_username', ''),
+            'password' => Config::get('smtp_password', ''),
         ];
     }
 
@@ -87,8 +87,8 @@ class MailService
         $subject = "Bienvenido a {$this->systemName} — Cuenta creada exitosamente";
 
         $loginUrl = $this->getLoginUrl();
-        $year     = date('Y');
-        $color    = Config::get('color_principal', '#6366f1');
+        $year = date('Y');
+        $color = Config::get('color_principal', '#6366f1');
 
         // Mensaje según el método de creación
         $introMessage = match ($method) {
@@ -118,7 +118,7 @@ class MailService
         $subject = "[{$this->systemName}] Correo de prueba SMTP";
         $date = formatDate(date('Y-m-d H:i:s'));
         $mode = $this->smtpActive ? 'SMTP (' . $this->smtpConfig['host'] . ':' . $this->smtpConfig['port'] . ')' : 'mail() nativo';
-        
+
         $html = <<<HTML
 <!DOCTYPE html>
 <html lang="es">
@@ -156,8 +156,8 @@ HTML;
             $result = $this->send($toEmail, $subject, $html);
             return [
                 'success' => $result,
-                'message' => $result 
-                    ? "Correo de prueba enviado a {$toEmail}" 
+                'message' => $result
+                    ? "Correo de prueba enviado a {$toEmail}"
                     : 'No se pudo enviar el correo. Verifica la configuración SMTP.'
             ];
         } catch (\Throwable $e) {
@@ -191,7 +191,7 @@ HTML;
      */
     private function sendViaMail(string $to, string $subject, string $body): bool
     {
-        $headers  = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
+        $headers = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
         $headers .= "Reply-To: {$this->fromEmail}\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -283,7 +283,7 @@ HTML;
             $this->smtpCommand($socket, "DATA");
 
             // Construir headers del mensaje
-            $message  = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
+            $message = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
             $message .= "To: {$to}\r\n";
             $message .= "Subject: {$subject}\r\n";
             $message .= "MIME-Version: 1.0\r\n";
@@ -332,7 +332,8 @@ HTML;
         while ($line = fgets($socket, 515)) {
             $response .= $line;
             // Si el 4to carácter es un espacio, es la última línea
-            if (isset($line[3]) && $line[3] === ' ') break;
+            if (isset($line[3]) && $line[3] === ' ')
+                break;
         }
         return $response;
     }
@@ -342,7 +343,7 @@ HTML;
      */
     private function logMailAttempt(string $to, string $subject, bool $success, string $error = '', string $method = 'mail()'): void
     {
-        $logDir  = STORAGE_PATH . '/logs';
+        $logDir = STORAGE_PATH . '/logs';
         $logFile = $logDir . '/mail.log';
 
         if (!is_dir($logDir)) {
@@ -350,7 +351,7 @@ HTML;
         }
 
         $status = $success ? 'OK' : 'FAIL';
-        $entry  = sprintf(
+        $entry = sprintf(
             "[%s] [%s] [%s] To: %s | Subject: %s%s\n",
             date('Y-m-d H:i:s'),
             $status,
@@ -369,8 +370,8 @@ HTML;
     private function getLoginUrl(): string
     {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $base     = rtrim(BASE_URL, '/');
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base = rtrim(BASE_URL, '/');
 
         return "{$protocol}://{$host}{$base}/login";
     }
@@ -385,9 +386,9 @@ HTML;
         string $color,
         string $year
     ): string {
-        $escapedName  = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-        $escapedUrl   = htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8');
-        $systemName   = htmlspecialchars($this->systemName, ENT_QUOTES, 'UTF-8');
+        $escapedName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        $escapedUrl = htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8');
+        $systemName = htmlspecialchars($this->systemName, ENT_QUOTES, 'UTF-8');
 
         return <<<HTML
 <!DOCTYPE html>

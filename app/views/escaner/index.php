@@ -1,5 +1,3 @@
-
-
 <!-- CSRF Meta for AJAX -->
 <meta name="csrf-token" content="<?= $csrfToken ?? '' ?>">
 
@@ -23,9 +21,9 @@
                 <!-- Manual input -->
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-upc"></i></span>
-                    <input type="text" class="form-control" id="manualCode" 
-                           placeholder="Ingrese el SKU manualmente o escanee con la cámara..." 
-                           autocomplete="off" autofocus>
+                    <input type="text" class="form-control" id="manualCode"
+                        placeholder="Ingrese el SKU manualmente o escanee con la cámara..." autocomplete="off"
+                        autofocus>
                     <button class="btn btn-primary" id="btnManualSearch">
                         <i class="bi bi-search me-1"></i>Buscar
                     </button>
@@ -79,13 +77,15 @@
                     <div class="col-md-3">
                         <div class="d-flex align-items-start gap-2">
                             <span class="badge bg-primary rounded-pill">3</span>
-                            <small>Escuche el <strong>sonido</strong>: agudo = encontrado, grave = no encontrado.</small>
+                            <small>Escuche el <strong>sonido</strong>: agudo = encontrado, grave = no
+                                encontrado.</small>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex align-items-start gap-2">
                             <span class="badge bg-primary rounded-pill">4</span>
-                            <small>Use <strong>Movimiento Rápido</strong> para registrar entradas/salidas sin salir.</small>
+                            <small>Use <strong>Movimiento Rápido</strong> para registrar entradas/salidas sin
+                                salir.</small>
                         </div>
                     </div>
                 </div>

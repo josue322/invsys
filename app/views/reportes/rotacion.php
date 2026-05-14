@@ -51,10 +51,10 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0 fw-bold"><i class="bi bi-arrow-repeat me-2"></i>Rotación (<?= $dias ?> días)</h6>
-        <span class="badge bg-primary"><?= count($items) ?> productos</span>
+        <span class="badge bg-primary"><?= $rotacion['total'] ?> productos</span>
     </div>
     <div class="card-body p-0">
-        <?php if (empty($items)): ?>
+        <?php if (empty($rotacion['data'])): ?>
             <div class="empty-state py-5">
                 <div class="empty-state-icon" style="width:64px;height:64px;margin-bottom:1rem;">
                     <svg viewBox="0 0 100 100">
@@ -82,7 +82,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($items as $item): ?>
+                        <?php foreach ($rotacion['data'] as $item): ?>
                         <tr>
                             <td><code class="text-primary"><?= $item->sku ?></code></td>
                             <td><strong><?= htmlspecialchars($item->nombre) ?></strong></td>
@@ -103,10 +103,10 @@
                                 <span class="badge <?= $velBadge ?>"><?= ucfirst($item->velocidad) ?></span>
                             </td>
                             <td class="text-end">
-                                <?php if ($item->dias_inventario >= 999): ?>
-                                    <span class="text-danger fw-bold">+999</span>
+                                <?php if ($item->dias_inventario === -1): ?>
+                                    <span class="text-muted fw-bold" title="Stock estancado (Sin salidas)">∞</span>
                                 <?php else: ?>
-                                    <?= $item->dias_inventario ?> <small class="text-muted">días</small>
+                                    <span class="tabular-nums"><?= number_format($item->dias_inventario) ?></span> <small class="text-muted">días</small>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -114,6 +114,13 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <?php
+            $pg = $rotacion;
+            $baseUrl = 'reportes/analisis/rotacion?dias=' . urlencode($dias);
+            include APP_PATH . '/views/layouts/_pagination.php';
+            ?>
         <?php endif; ?>
     </div>
 </div>

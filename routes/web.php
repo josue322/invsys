@@ -930,6 +930,13 @@ return [
         'action' => 'destroy',
         'middleware' => ['auth', 'permiso:usuarios.eliminar'],
     ],
+    [
+        'method' => 'POST',
+        'path' => 'usuarios/eliminar-permanente/{id}',
+        'controller' => 'UsuarioController',
+        'action' => 'hardDestroy',
+        'middleware' => ['auth', 'permiso:usuarios.eliminar'],
+    ],
 
     // =====================================================
     // CONFIGURACIÓN (solo Admin)

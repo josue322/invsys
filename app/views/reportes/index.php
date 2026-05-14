@@ -97,7 +97,7 @@
                 <h6>Reporte Completo PDF</h6>
                 <small>Inventario, stock bajo, top productos y categorías</small>
             </div>
-            <i class="bi bi-box-arrow-up-right export-card-arrow"></i>
+            <i class="bi bi-download export-card-arrow"></i>
         </a>
     </div>
     <div class="col-md-4">

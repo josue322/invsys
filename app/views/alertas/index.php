@@ -58,10 +58,11 @@
         <?php foreach ($alertas['data'] as $alerta): 
             $isUnread = !$alerta->leida;
             
+            // Usar colores nativos del sistema InvSys
             $theme = match($alerta->tipo) {
-                'stock_agotado' => ['color' => 'danger', 'icon' => 'bi-x-circle', 'bg' => 'bg-danger-subtle'],
-                'stock_minimo' => ['color' => 'warning', 'icon' => 'bi-exclamation-triangle', 'bg' => 'bg-warning-subtle'],
-                default => ['color' => 'primary', 'icon' => 'bi-clock-history', 'bg' => 'bg-primary-subtle'] // Vencimientos
+                'stock_agotado' => ['color' => '#ef4444', 'icon' => 'bi-x-octagon-fill', 'bg' => 'rgba(239, 68, 68, 0.1)', 'border' => 'rgba(239, 68, 68, 0.2)'],
+                'stock_minimo' => ['color' => '#f59e0b', 'icon' => 'bi-exclamation-triangle-fill', 'bg' => 'rgba(245, 158, 11, 0.1)', 'border' => 'rgba(245, 158, 11, 0.2)'],
+                default => ['color' => 'var(--primary)', 'icon' => 'bi-info-circle-fill', 'bg' => 'rgba(99, 102, 241, 0.1)', 'border' => 'rgba(99, 102, 241, 0.2)']
             };
 
             $porcentaje = 100;
@@ -69,15 +70,15 @@
                 $porcentaje = min(100, max(0, ($alerta->stock / $alerta->stock_minimo) * 100));
             }
         ?>
-        <div class="card border-0 shadow-sm rounded-3 overflow-hidden <?= $isUnread ? '' : 'opacity-75' ?>" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden <?= $isUnread ? '' : 'opacity-75' ?>" style="transition: all 0.2s ease; border: 1px solid <?= $isUnread ? $theme['border'] : 'var(--border-color)' ?> !important;">
             <!-- Fina línea indicadora de estado -->
-            <div class="position-absolute top-0 start-0 bottom-0 bg-<?= $isUnread ? $theme['color'] : 'secondary' ?>" style="width: 4px;"></div>
+            <div class="position-absolute top-0 start-0 bottom-0" style="width: 4px; background-color: <?= $isUnread ? $theme['color'] : 'var(--text-muted)' ?>;"></div>
             
             <div class="card-body p-3 ps-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
                 
                 <!-- Icono -->
                 <div class="flex-shrink-0">
-                    <div class="<?= $isUnread ? $theme['bg'] : 'bg-secondary-subtle' ?> text-<?= $isUnread ? $theme['color'] : 'secondary' ?> rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 46px; height: 46px; background-color: <?= $isUnread ? $theme['bg'] : 'rgba(100,116,139,0.1)' ?>; color: <?= $isUnread ? $theme['color'] : 'var(--text-muted)' ?>;">
                         <i class="<?= $theme['icon'] ?> fs-5"></i>
                     </div>
                 </div>
@@ -85,33 +86,33 @@
                 <!-- Información Principal -->
                 <div class="flex-grow-1 min-w-0">
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                        <h6 class="mb-0 fw-bold text-truncate <?= $isUnread ? 'text-body' : 'text-muted' ?>" style="max-width: 100%;">
+                        <h6 class="mb-0 fw-bold text-truncate <?= $isUnread ? 'text-body' : 'text-muted' ?>" style="max-width: 100%; font-size: 1rem;">
                             <?= htmlspecialchars($alerta->producto_nombre) ?>
                         </h6>
                         <?php if ($isUnread): ?>
-                            <span class="badge bg-danger rounded-pill px-2 py-0" style="font-size: 0.65rem; height: 16px; line-height: 16px;">Nueva</span>
+                            <span class="badge rounded-pill px-2 py-0" style="font-size: 0.65rem; height: 18px; line-height: 18px; background-color: <?= $theme['color'] ?>;">Nueva</span>
                         <?php endif; ?>
                     </div>
                     
-                    <p class="mb-1 text-muted small text-truncate">
+                    <p class="mb-1 text-muted text-truncate" style="font-size: 0.9rem;">
                         <?= htmlspecialchars($alerta->mensaje) ?>
                     </p>
 
                     <!-- Indicadores de Stock (Burn-down) y Metadatos -->
                     <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
-                        <span class="text-muted font-monospace" style="font-size: 0.75rem;">
+                        <span class="text-muted font-monospace" style="font-size: 0.8rem; background: var(--bg-color); padding: 2px 6px; border-radius: 4px;">
                             <i class="bi bi-upc-scan me-1"></i><?= $alerta->producto_sku ?>
                         </span>
-                        <span class="text-muted" style="font-size: 0.75rem;">
+                        <span class="text-muted" style="font-size: 0.8rem;">
                             <i class="bi bi-clock me-1"></i><?= date('d/m/Y H:i', strtotime($alerta->created_at)) ?>
                         </span>
 
                         <?php if (in_array($alerta->tipo, ['stock_minimo', 'stock_agotado'])): ?>
-                            <div class="d-flex align-items-center gap-2 ms-md-auto" style="min-width: 150px;">
-                                <div class="progress flex-grow-1 bg-light" style="height: 5px;">
-                                    <div class="progress-bar bg-<?= $theme['color'] ?>" role="progressbar" style="width: <?= $porcentaje ?>%"></div>
+                            <div class="d-flex align-items-center gap-2 ms-md-auto" style="min-width: 150px; background: var(--bg-color); padding: 4px 10px; border-radius: 20px;">
+                                <div class="progress flex-grow-1" style="height: 6px; background-color: rgba(100,116,139,0.1);">
+                                    <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%; background-color: <?= $theme['color'] ?>; border-radius: 6px;"></div>
                                 </div>
-                                <span class="small fw-medium text-muted" style="font-size: 0.75rem;">
+                                <span class="fw-bold" style="font-size: 0.8rem; color: <?= $theme['color'] ?>;">
                                     <?= $alerta->stock ?> / <?= $alerta->stock_minimo ?>
                                 </span>
                             </div>
@@ -120,25 +121,25 @@
                 </div>
 
                 <!-- Acciones -->
-                <div class="flex-shrink-0 d-flex flex-row flex-md-column gap-2 mt-3 mt-md-0 border-top border-md-top-0 pt-3 pt-md-0 ps-md-3 ms-md-2" style="border-left: 1px solid rgba(0,0,0,0.05);">
-                    <a href="<?= url('productos/ver/' . $alerta->producto_id) ?>" class="btn btn-sm btn-light text-secondary border hover-bg-secondary w-100 px-3" title="Ver producto">
+                <div class="flex-shrink-0 d-flex flex-row flex-md-column gap-2 mt-3 mt-md-0 border-top border-md-top-0 pt-3 pt-md-0 ps-md-3 ms-md-2" style="border-left: 1px solid var(--border-color);">
+                    <a href="<?= url('productos/ver/' . $alerta->producto_id) ?>" class="btn btn-sm btn-light text-secondary border hover-bg-secondary w-100 px-3" title="Ver producto" style="border-radius: 6px;">
                         <i class="bi bi-box-arrow-up-right d-md-none me-1"></i>
-                        <span class="d-none d-md-inline">Detalles</span>
+                        <span class="d-none d-md-inline fw-medium"><i class="bi bi-eye me-1"></i>Detalles</span>
                     </a>
                     
                     <?php if (in_array($alerta->tipo, ['stock_minimo', 'stock_agotado']) && hasPermission('requisiciones.crear')): ?>
-                    <a href="<?= url('requisiciones/crear') ?>" class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle hover-bg-primary w-100 px-3" title="Solicitar stock">
+                    <a href="<?= url('requisiciones/crear') ?>" class="btn btn-sm w-100 px-3" title="Solicitar stock" style="border-radius: 6px; background-color: rgba(99, 102, 241, 0.1); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2);">
                         <i class="bi bi-cart-plus d-md-none me-1"></i>
-                        <span class="d-none d-md-inline">Solicitar</span>
+                        <span class="d-none d-md-inline fw-medium"><i class="bi bi-cart-plus me-1"></i>Solicitar</span>
                     </a>
                     <?php endif; ?>
 
                     <?php if ($isUnread && hasPermission('alertas.gestionar')): ?>
                     <form method="POST" action="<?= url("alertas/leer/{$alerta->id}") ?>" class="m-0 w-100">
                         <?= csrfField() ?>
-                        <button type="submit" class="btn btn-sm btn-success-subtle text-success border border-success-subtle hover-bg-success w-100 px-3" title="Marcar leída">
+                        <button type="submit" class="btn btn-sm w-100 px-3" title="Marcar leída" style="border-radius: 6px; background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
                             <i class="bi bi-check2 d-md-none me-1"></i>
-                            <span class="d-none d-md-inline">Leída</span>
+                            <span class="d-none d-md-inline fw-medium"><i class="bi bi-check2-all me-1"></i>Leída</span>
                         </button>
                     </form>
                     <?php endif; ?>
