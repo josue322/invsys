@@ -322,25 +322,50 @@ class ConteoController extends Controller
     }
 
     /**
-     * Eliminar sesión (solo si está abierta).
+     * Eliminar sesión permanentemente (Solo autorizados)
      */
     public function destroy(string $id): void
     {
+        if (!hasPermission('movimientos.crear') && !hasPermission('admin')) {
+            $this->setFlash('error', 'No tiene permisos para eliminar sesiones de conteo.');
+            $this->redirect('conteos');
+            return;
+        }
+
         if (!$this->validateCSRF()) {
             $this->redirect('conteos');
             return;
         }
 
         $conteoId = (int) $id;
+        $conteo = $this->conteoModel->findById($conteoId);
 
-        if ($this->conteoModel->deleteIfOpen($conteoId)) {
+        if (!$conteo) {
+            $this->setFlash('error', 'Sesión de conteo no encontrada.');
+            $this->redirect('conteos');
+            return;
+        }
+
+        try {
+            $this->conteoModel->beginTransaction();
+            
+            // Eliminar detalles primero
+            $this->detalleModel->rawQuery("DELETE FROM conteo_detalle WHERE conteo_id = ?", [$conteoId]);
+            
+            // Eliminar conteo
+            $this->conteoModel->rawQuery("DELETE FROM conteos WHERE id = ?", [$conteoId]);
+
+            $this->conteoModel->commit();
+            
             $this->securityService->logAction(
-                currentUserId(), 'eliminar_conteo', 'conteos',
-                "Sesión #{$conteoId} eliminada"
+                currentUserId(), 'delete', 'conteos',
+                "Eliminó permanentemente la sesión de conteo '{$conteo->nombre}' (ID: {$conteoId})"
             );
-            $this->setFlash('success', 'Sesión de conteo eliminada.');
-        } else {
-            $this->setFlash('error', 'No se puede eliminar. Solo sesiones abiertas pueden eliminarse.');
+            $this->setFlash('success', "Sesión de conteo '{$conteo->nombre}' eliminada permanentemente.");
+
+        } catch (Exception $e) {
+            $this->conteoModel->rollback();
+            $this->setFlash('error', 'Error al eliminar la sesión: ' . $e->getMessage());
         }
 
         $this->redirect('conteos');

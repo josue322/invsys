@@ -103,9 +103,21 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="<?= url('compras/show/' . $o->id) ?>" class="btn btn-sm btn-light btn-icon" title="Ver Detalle">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="<?= url('compras/show/' . $o->id) ?>" class="btn btn-sm btn-light btn-icon" title="Ver Detalle">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <?php if (hasPermission('compras.eliminar')): ?>
+                                        <form method="POST" action="<?= url('compras/destroy/' . $o->id) ?>" 
+                                              data-confirm='{"title":"¿Eliminar orden permanentemente?","message":"Esta acción eliminará la orden de compra y todos sus detalles. Esta acción no se puede deshacer.","type":"danger","confirmText":"Sí, eliminar","icon":"bi-trash"}'
+                                              style="display:inline">
+                                            <?= csrfField() ?>
+                                            <button type="submit" class="btn btn-sm btn-light btn-icon text-danger" title="Eliminar Orden">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

@@ -688,6 +688,13 @@ return [
     ],
     [
         'method' => 'POST',
+        'path' => 'compras/destroy/{id}',
+        'controller' => 'OrdenCompraController',
+        'action' => 'destroy',
+        'middleware' => ['auth', 'permiso:compras.eliminar'],
+    ],
+    [
+        'method' => 'POST',
         'path' => 'compras/aprobar/{id}',
         'controller' => 'OrdenCompraController',
         'action' => 'aprobar',

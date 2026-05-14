@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let options = '<option value="">— Seleccionar —</option>';
         productos.forEach(p => {
-            options += `<option value="${p.id}" data-precio="${p.precio_compra || 0}">${p.sku} — ${p.nombre}</option>`;
+            options += `<option value="${p.id}" data-precio="${p.costo || 0}">${p.sku} — ${p.nombre}</option>`;
         });
 
         tr.innerHTML = `

@@ -110,17 +110,17 @@
                                     <a href="<?= url("conteos/{$c->id}") ?>" class="btn-action btn-edit" title="Ver / Editar">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
-                                    <?php if ($c->estado === 'abierto'): ?>
+                                    <?php if (hasPermission('movimientos.crear') || hasPermission('admin')): ?>
                                     <form method="POST" action="<?= url("conteos/eliminar/{$c->id}") ?>" style="display:inline"
                                           data-confirm='<?= json_encode([
-                                              "title" => "¿Eliminar sesión?",
-                                              "message" => "Se eliminará <strong>" . htmlspecialchars($c->nombre) . "</strong> y todos sus conteos.",
+                                              "title" => "¿Eliminar sesión permanentemente?",
+                                              "message" => "Se eliminará permanentemente la sesión <strong>" . htmlspecialchars($c->nombre) . "</strong> y todos sus registros físicos. Esta acción no se puede deshacer.",
                                               "type" => "danger",
-                                              "confirmText" => "Sí, eliminar",
+                                              "confirmText" => "Sí, eliminar permanentemente",
                                               "icon" => "bi-trash-fill"
                                           ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
                                         <?= csrfField() ?>
-                                        <button type="submit" class="btn-action btn-delete" title="Eliminar">
+                                        <button type="submit" class="btn-action btn-delete text-danger" title="Eliminar permanentemente">
                                             <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </form>

@@ -19,9 +19,9 @@
 <?php
 /**
  * Mini-paginador inline para secciones de detalle.
- * Construye URLs que preservan ambos parámetros de paginación (pg_mov y pg_act).
+ * Construye URLs que preservan los parámetros de paginación (pg_mov, pg_act, pg_ses).
  */
-function buildDetailPagination(array $pg, string $paramName, int $userId, int $pgMov, int $pgAct): string
+function buildDetailPagination(array $pg, string $paramName, int $userId, int $pgMov, int $pgAct, int $pgSes): string
 {
     if ($pg['pages'] <= 1)
         return '';
@@ -35,9 +35,9 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
 
     $html .= '<nav><ul class="pagination pagination-sm mb-0">';
 
-    // Construir parámetros preservando el otro paginador
-    $buildUrl = function (int $page) use ($paramName, $userId, $pgMov, $pgAct) {
-        $params = ['pg_mov' => $pgMov, 'pg_act' => $pgAct];
+    // Construir parámetros preservando los otros paginadores
+    $buildUrl = function (int $page) use ($paramName, $userId, $pgMov, $pgAct, $pgSes) {
+        $params = ['pg_mov' => $pgMov, 'pg_act' => $pgAct, 'pg_ses' => $pgSes];
         $params[$paramName] = $page;
         return url("usuarios/ver/{$userId}?" . http_build_query($params));
     };
@@ -82,9 +82,7 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
         <!-- Avatar & Estado -->
         <div class="card mb-3">
             <div class="card-body text-center py-4">
-                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: 700;
-                            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
-                            color: #fff;">
+                <div class="perfil-avatar mb-3">
                     <?= userInitials($usuario->nombre) ?>
                 </div>
                 <h5 class="fw-bold mb-1"><?= htmlspecialchars($usuario->nombre) ?></h5>
@@ -110,25 +108,25 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                 <table class="table table-borderless mb-0">
                     <tbody>
                         <tr>
-                            <td class="text-muted" style="width:45%">ID</td>
+                            <td class="text-muted fw-semibold" style="width:45%">ID</td>
                             <td><code>#<?= $usuario->id ?></code></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Nombre</td>
+                            <td class="text-muted fw-semibold">Nombre</td>
                             <td><strong><?= htmlspecialchars($usuario->nombre) ?></strong></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Email</td>
+                            <td class="text-muted fw-semibold">Email</td>
                             <td><?= htmlspecialchars($usuario->email) ?></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Rol</td>
+                            <td class="text-muted fw-semibold">Rol</td>
                             <td><span
                                     class="badge <?= roleBadgeClass($usuario->rol_nombre ?? '') ?>"><?= $usuario->rol_nombre ?? '-' ?></span>
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Estado</td>
+                            <td class="text-muted fw-semibold">Estado</td>
                             <td>
                                 <?php if ($usuario->activo): ?>
                                     <span class="badge badge-stock-ok">Activo</span>
@@ -138,17 +136,17 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Último Login</td>
+                            <td class="text-muted fw-semibold">Último Login</td>
                             <td><?= $usuario->ultimo_login ? formatDate($usuario->ultimo_login) : '<span class="text-muted">Nunca</span>' ?>
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Registrado</td>
+                            <td class="text-muted fw-semibold">Registrado</td>
                             <td><small><?= formatDate($usuario->created_at) ?></small></td>
                         </tr>
                         <?php if ($usuario->updated_at): ?>
                             <tr>
-                                <td class="text-muted">Actualizado</td>
+                                <td class="text-muted fw-semibold">Actualizado</td>
                                 <td><small><?= formatDate($usuario->updated_at) ?></small></td>
                             </tr>
                         <?php endif; ?>
@@ -161,10 +159,10 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2"></i>Sesiones Activas</h6>
-                <span class="badge bg-primary rounded-pill"><?= count($sesiones) ?></span>
+                <span class="badge bg-primary rounded-pill"><?= $sesiones['total'] ?></span>
             </div>
             <div class="card-body p-0">
-                <?php if (empty($sesiones)): ?>
+                <?php if (empty($sesiones['data'])): ?>
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-shield-slash" style="font-size: 1.5rem;"></i>
                         <p class="mb-0 mt-2"><small>Sin sesiones activas</small></p>
@@ -180,18 +178,17 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($sesiones as $s): ?>
+                                <?php foreach ($sesiones['data'] as $s): ?>
                                     <tr>
-                                        <td><code><?= htmlspecialchars($s->ip ?? '—') ?></code></td>
-                                        <td><small
-                                                class="text-muted"><?= htmlspecialchars(truncate($s->user_agent ?? '—', 40)) ?></small>
-                                        </td>
+                                        <td><span class="font-monospace fw-bold"><?= htmlspecialchars($s->ip ?? '—') ?></span></td>
+                                        <td><small class="text-secondary"><?= htmlspecialchars(truncate($s->user_agent ?? '—', 40)) ?></small></td>
                                         <td><small><?= formatDate($s->inicio, 'short') ?></small></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
+                    <?= buildDetailPagination($sesiones, 'pg_ses', $usuario->id, $pgMov, $pgAct, $pgSes) ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -248,8 +245,7 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="<?= url("productos/ver/{$m->producto_id}") ?>"
-                                                class="text-decoration-none">
+                                            <a href="<?= url("productos/ver/{$m->producto_id}") ?>" class="text-decoration-none">
                                                 <?= htmlspecialchars($m->producto_nombre) ?>
                                             </a>
                                             <br><small class="text-muted"><?= htmlspecialchars($m->producto_sku) ?></small>
@@ -267,7 +263,7 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                             </tbody>
                         </table>
                     </div>
-                    <?= buildDetailPagination($movimientos, 'pg_mov', $usuario->id, $pgMov, $pgAct) ?>
+                    <?= buildDetailPagination($movimientos, 'pg_mov', $usuario->id, $pgMov, $pgAct, $pgSes) ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -311,7 +307,7 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                             </tbody>
                         </table>
                     </div>
-                    <?= buildDetailPagination($actividad, 'pg_act', $usuario->id, $pgMov, $pgAct) ?>
+                    <?= buildDetailPagination($actividad, 'pg_act', $usuario->id, $pgMov, $pgAct, $pgSes) ?>
                 <?php endif; ?>
             </div>
         </div>

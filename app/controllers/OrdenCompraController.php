@@ -330,6 +330,50 @@ class OrdenCompraController extends Controller
     }
 
     /**
+     * Eliminar orden permanentemente (Solo autorizados)
+     */
+    public function destroy(int $id): void
+    {
+        if (!hasPermission('compras.eliminar')) {
+            $this->setFlash('error', 'No tiene permisos para eliminar órdenes de compra.');
+            $this->redirect('compras');
+            return;
+        }
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('compras');
+            return;
+        }
+
+        $orden = $this->ordenModel->findById($id);
+        if (!$orden) {
+            $this->setFlash('error', 'Orden no encontrada.');
+            $this->redirect('compras');
+            return;
+        }
+
+        try {
+            $this->ordenModel->beginTransaction();
+            
+            // Eliminar detalles explícitamente (por seguridad aunque haya CASCADE)
+            $this->detalleModel->rawQuery("DELETE FROM orden_compra_detalles WHERE orden_compra_id = ?", [$id]);
+            
+            // Eliminar la orden
+            $this->ordenModel->rawQuery("DELETE FROM ordenes_compra WHERE id = ?", [$id]);
+
+            $this->ordenModel->commit();
+            $this->securityService->logAction(currentUserId(), 'delete', 'compras', "Eliminó permanentemente la orden de compra {$orden->numero_orden}");
+            $this->setFlash('success', "Orden de compra {$orden->numero_orden} eliminada permanentemente.");
+
+        } catch (Exception $e) {
+            $this->ordenModel->rollback();
+            $this->setFlash('error', 'Error al eliminar la orden: ' . $e->getMessage());
+        }
+
+        $this->redirect('compras');
+    }
+
+    /**
      * Exportar Orden de Compra a PDF
      */
     public function exportPDF(int $id): void

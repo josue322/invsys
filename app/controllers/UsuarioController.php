@@ -62,9 +62,9 @@ class UsuarioController extends Controller
 
         $perPage = 10;
 
-        // Sesiones activas
-        $sesionModel = new Sesion();
-        $sesiones = $sesionModel->getActiveByUserId($userId);
+        // Sesiones activas — paginadas
+        $pgSes = max(1, (int) $this->query('pg_ses', 1));
+        $sesiones = $this->getSesionesByUser($userId, $pgSes, $perPage);
 
         // Actividad (logs) — paginada
         $pgAct = max(1, (int) $this->query('pg_act', 1));
@@ -85,6 +85,7 @@ class UsuarioController extends Controller
             'movimientos' => $movimientos,
             'pgAct' => $pgAct,
             'pgMov' => $pgMov,
+            'pgSes' => $pgSes,
             'flash' => $flash,
         ]);
     }
@@ -106,6 +107,31 @@ class UsuarioController extends Controller
                 ORDER BY m.created_at DESC
                 LIMIT {$perPage} OFFSET {$offset}";
         $data = (new Movimiento())->rawQuery($sql, ['uid' => $userId]);
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'pages' => (int) ceil($total / $perPage),
+            'current' => $page,
+            'perPage' => $perPage,
+        ];
+    }
+
+    /**
+     * Obtener sesiones paginadas de un usuario.
+     */
+    private function getSesionesByUser(int $userId, int $page, int $perPage): array
+    {
+        $offset = ($page - 1) * $perPage;
+
+        $countSql = "SELECT COUNT(*) as total FROM sesiones WHERE usuario_id = :uid AND activa = 1";
+        $total = (int) (new Sesion())->rawQuery($countSql, ['uid' => $userId])[0]->total ?? 0;
+
+        $sql = "SELECT * FROM sesiones
+                WHERE usuario_id = :uid AND activa = 1
+                ORDER BY ultimo_acceso DESC
+                LIMIT {$perPage} OFFSET {$offset}";
+        $data = (new Sesion())->rawQuery($sql, ['uid' => $userId]);
 
         return [
             'data' => $data,
