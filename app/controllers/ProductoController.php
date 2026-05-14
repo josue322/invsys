@@ -282,12 +282,14 @@ class ProductoController extends Controller
             }
         }
 
-        // Registrar cambio de costo si hubo modificación
-        if ((float) $producto->costo !== $data['costo']) {
+        // Registrar cambio de costo si hubo modificación real
+        // No registrar cuando el costo anterior era 0 (precio inicial, no un cambio real)
+        $costoAnterior = (float) $producto->costo;
+        if ($costoAnterior !== $data['costo'] && $costoAnterior > 0) {
             $costoHistorial = new CostoHistorial();
             $costoHistorial->registrar(
                 $id,
-                (float) $producto->costo,
+                $costoAnterior,
                 $data['costo'],
                 currentUserId()
             );

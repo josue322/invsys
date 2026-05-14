@@ -771,6 +771,20 @@ return [
         'action' => 'update',
         'middleware' => ['auth', 'permiso:departamentos.crear'],
     ],
+    [
+        'method' => 'POST',
+        'path' => 'departamentos/toggle/{id}',
+        'controller' => 'DepartamentoController',
+        'action' => 'toggle',
+        'middleware' => ['auth', 'permiso:departamentos.crear'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'departamentos/eliminar/{id}',
+        'controller' => 'DepartamentoController',
+        'action' => 'eliminar',
+        'middleware' => ['auth', 'permiso:departamentos.eliminar'],
+    ],
 
     // ==========================================
     // FASE 7: REQUISICIONES
@@ -831,6 +845,13 @@ return [
         'action' => 'cancelar',
         'middleware' => ['auth', 'permiso:requisiciones.crear'],
     ],
+    [
+        'method' => 'POST',
+        'path' => 'requisiciones/destroy/{id}',
+        'controller' => 'RequisicionController',
+        'action' => 'destroy',
+        'middleware' => ['auth', 'permiso:requisiciones.eliminar'],
+    ],
 
     // =====================================================
     // DEVOLUCIONES
@@ -869,6 +890,13 @@ return [
         'controller' => 'DevolucionController',
         'action' => 'aprobar',
         'middleware' => ['auth', 'permiso:devoluciones.aprobar'],
+    ],
+    [
+        'method' => 'POST',
+        'path' => 'devoluciones/destroy/{id}',
+        'controller' => 'DevolucionController',
+        'action' => 'destroy',
+        'middleware' => ['auth', 'permiso:devoluciones.eliminar'],
     ],
     [
         'method' => 'POST',

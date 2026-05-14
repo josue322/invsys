@@ -12,6 +12,7 @@ class DevolucionController extends Controller
     private Requisicion $requisicionModel;
     private Movimiento $movimientoModel;
     private Lote $loteModel;
+    private SecurityService $securityService;
 
     public function __construct()
     {
@@ -22,6 +23,7 @@ class DevolucionController extends Controller
         $this->requisicionModel = new Requisicion();
         $this->movimientoModel = new Movimiento();
         $this->loteModel = new Lote();
+        $this->securityService = SecurityService::getInstance();
     }
 
     /**
@@ -266,5 +268,49 @@ class DevolucionController extends Controller
 
         $this->setFlash('success', 'Devolución rechazada correctamente.');
         $this->redirect('devoluciones/ver/' . $id);
+    }
+
+    /**
+     * Eliminar devolución permanentemente
+     */
+    public function destroy(int $id): void
+    {
+        if (!hasPermission('devoluciones.eliminar')) {
+            $this->setFlash('error', 'No tiene permisos para eliminar devoluciones.');
+            $this->redirect('devoluciones');
+            return;
+        }
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('devoluciones');
+            return;
+        }
+
+        $devolucion = $this->devolucionModel->findById($id);
+        if (!$devolucion) {
+            $this->setFlash('error', 'Devolución no encontrada.');
+            $this->redirect('devoluciones');
+            return;
+        }
+
+        try {
+            $this->devolucionModel->beginTransaction();
+            
+            // Eliminar detalles explícitamente
+            $this->devolucionModel->rawQuery("DELETE FROM devolucion_detalles WHERE devolucion_id = ?", [$id]);
+            
+            // Eliminar la devolución
+            $this->devolucionModel->rawQuery("DELETE FROM devoluciones WHERE id = ?", [$id]);
+
+            $this->devolucionModel->commit();
+            $this->securityService->logAction(currentUserId(), 'delete', 'devoluciones', "Eliminó permanentemente la devolución ID: {$id}");
+            $this->setFlash('success', "Devolución eliminada permanentemente.");
+
+        } catch (Exception $e) {
+            $this->devolucionModel->rollback();
+            $this->setFlash('error', 'Error al eliminar la devolución: ' . $e->getMessage());
+        }
+
+        $this->redirect('devoluciones');
     }
 }

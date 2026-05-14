@@ -8,7 +8,7 @@
     </a>
 </div>
 
-<form method="POST" action="<?= url('requisiciones/store') ?>" id="form-requisicion">
+<form method="POST" action="<?= url('requisiciones/store') ?>" id="form-requisicion" autocomplete="off">
     <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
 
     <div class="row">
@@ -81,7 +81,7 @@
                                 <!-- Fila inicial -->
                                 <tr>
                                     <td>
-                                        <select name="producto_id[]" class="form-select select-producto" required>
+                                        <select name="producto_id[]" class="form-select select-producto" required autocomplete="off">
                                             <option value="">— Seleccionar —</option>
                                             <?php foreach ($productos as $p): ?>
                                                 <option value="<?= $p->id ?>" data-stock="<?= $p->stock ?>"
@@ -98,7 +98,7 @@
                                     </td>
                                     <td>
                                         <input type="number" name="cantidad[]" class="form-control input-qty" min="1"
-                                            required>
+                                            required autocomplete="off">
                                     </td>
                                     <td class="text-end">
                                         <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row"><i

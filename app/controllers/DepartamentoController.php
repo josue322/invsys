@@ -181,4 +181,75 @@ class DepartamentoController extends Controller
             $this->redirect('departamentos/edit/' . $id);
         }
     }
+
+    /**
+     * Activar / Desactivar departamento
+     */
+    public function toggle(int $id): void
+    {
+        if (!$this->validateCSRF()) {
+            $this->redirect('departamentos');
+            return;
+        }
+
+        if (!hasPermission('departamentos.crear')) {
+            $this->setFlash('error', 'No tiene permisos para modificar departamentos.');
+            $this->redirect('departamentos');
+            return;
+        }
+
+        $departamento = $this->departamentoModel->findById($id);
+        if (!$departamento) {
+            $this->setFlash('error', 'Departamento no encontrado.');
+            $this->redirect('departamentos');
+            return;
+        }
+
+        $nuevoEstado = $departamento->activo ? 0 : 1;
+        $this->departamentoModel->update($id, ['activo' => $nuevoEstado]);
+        
+        $accion = $nuevoEstado ? "Activó" : "Desactivó";
+        $this->securityService->logAction(currentUserId(), 'update', 'departamentos', "$accion el departamento: {$departamento->nombre}");
+        
+        $this->setFlash('success', "Departamento " . strtolower($accion) . " exitosamente.");
+        $this->redirect('departamentos');
+    }
+
+    /**
+     * Eliminar departamento (si no tiene dependencias o si se usa borrado lógico/físico seguro)
+     */
+    public function eliminar(int $id): void
+    {
+        if (!$this->validateCSRF()) {
+            $this->redirect('departamentos');
+            return;
+        }
+
+        if (!hasPermission('departamentos.eliminar')) {
+            $this->setFlash('error', 'No tiene permisos para eliminar departamentos.');
+            $this->redirect('departamentos');
+            return;
+        }
+
+        $departamento = $this->departamentoModel->findById($id);
+        if (!$departamento) {
+            $this->setFlash('error', 'Departamento no encontrado.');
+            $this->redirect('departamentos');
+            return;
+        }
+
+        try {
+            // Eliminar el departamento
+            $this->departamentoModel->rawQuery("DELETE FROM departamentos WHERE id = ?", [$id]);
+
+            $this->securityService->logAction(currentUserId(), 'delete', 'departamentos', "Eliminó el departamento: {$departamento->nombre}");
+            $this->setFlash('success', 'Departamento eliminado permanentemente.');
+
+        } catch (Exception $e) {
+            // Seguramente error por llave foránea
+            $this->setFlash('error', 'No se puede eliminar el departamento porque tiene registros asociados (ej: requisiciones, usuarios). Le recomendamos desactivarlo.');
+        }
+
+        $this->redirect('departamentos');
+    }
 }

@@ -102,15 +102,19 @@ class RequisicionController extends Controller
             $detalles = [];
 
             foreach ($productosIds as $index => $prodId) {
+                $prodId = (int) $prodId;
                 $qty = (int) ($cantidades[$index] ?? 0);
 
-                if ($qty > 0) {
-                    $detalles[] = [
-                        'producto_id' => (int) $prodId,
-                        'cantidad_solicitada' => $qty,
-                        'cantidad_despachada' => 0
-                    ];
+                // Ignorar filas sin producto seleccionado o sin cantidad
+                if ($prodId <= 0 || $qty <= 0) {
+                    continue;
                 }
+
+                $detalles[] = [
+                    'producto_id' => $prodId,
+                    'cantidad_solicitada' => $qty,
+                    'cantidad_despachada' => 0
+                ];
             }
 
             if (empty($detalles)) {
@@ -435,5 +439,49 @@ class RequisicionController extends Controller
 
         // Descargar PDF
         $pdf->Output('D', 'Requisicion_' . $requisicion->numero_requisicion . '.pdf');
+    }
+
+    /**
+     * Eliminar requisición permanentemente
+     */
+    public function destroy(int $id): void
+    {
+        if (!hasPermission('requisiciones.eliminar')) {
+            $this->setFlash('error', 'No tiene permisos para eliminar requisiciones.');
+            $this->redirect('requisiciones');
+            return;
+        }
+
+        if (!$this->validateCSRF()) {
+            $this->redirect('requisiciones');
+            return;
+        }
+
+        $requisicion = $this->requisicionModel->findById($id);
+        if (!$requisicion) {
+            $this->setFlash('error', 'Requisición no encontrada.');
+            $this->redirect('requisiciones');
+            return;
+        }
+
+        try {
+            $this->requisicionModel->beginTransaction();
+            
+            // Eliminar detalles explícitamente
+            $this->requisicionModel->rawQuery("DELETE FROM requisicion_detalles WHERE requisicion_id = ?", [$id]);
+            
+            // Eliminar la requisición
+            $this->requisicionModel->rawQuery("DELETE FROM requisiciones WHERE id = ?", [$id]);
+
+            $this->requisicionModel->commit();
+            $this->securityService->logAction(currentUserId(), 'delete', 'requisiciones', "Eliminó permanentemente la requisición {$requisicion->numero_requisicion}");
+            $this->setFlash('success', "Requisición {$requisicion->numero_requisicion} eliminada permanentemente.");
+
+        } catch (Exception $e) {
+            $this->requisicionModel->rollback();
+            $this->setFlash('error', 'Error al eliminar la requisición: ' . $e->getMessage());
+        }
+
+        $this->redirect('requisiciones');
     }
 }

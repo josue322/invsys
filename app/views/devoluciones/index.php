@@ -107,9 +107,21 @@
                                 <small class="text-muted"><i class="bi bi-person me-1"></i><?= htmlspecialchars($dev->usuario_nombre) ?></small>
                             </td>
                             <td class="text-end">
-                                <a href="<?= url("devoluciones/ver/{$dev->id}") ?>" class="btn btn-sm btn-outline-primary" style="color: var(--primary); border-color: var(--primary);">
-                                    <i class="bi bi-eye"></i> Ver
-                                </a>
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a href="<?= url("devoluciones/ver/{$dev->id}") ?>" class="btn btn-sm btn-outline-primary" style="color: var(--primary); border-color: var(--primary);" title="Ver Detalle">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                    <?php if (hasPermission('devoluciones.eliminar')): ?>
+                                    <form method="POST" action="<?= url('devoluciones/destroy/' . $dev->id) ?>" 
+                                          data-confirm='{"title":"¿Eliminar devolución permanentemente?","message":"Esta acción eliminará la devolución y todos sus detalles. Esta acción no se puede deshacer.","type":"danger","confirmText":"Sí, eliminar","icon":"bi-trash"}'
+                                          style="display:inline">
+                                        <?= csrfField() ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Devolución">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
