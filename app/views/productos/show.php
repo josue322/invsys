@@ -135,17 +135,113 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Columna Derecha: Historial de Movimientos -->
+    <div class="col-lg-7">
         <!-- Vencimiento (si aplica) -->
         <?php if (!empty($producto->es_perecedero)): ?>
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-box-seam me-2"></i>Gestión de Lotes</h6>
                 </div>
-                <div class="card-body">
-                    <div
-                        class="alert alert-primary bg-opacity-10 border-primary border-opacity-25 text-primary mb-0 py-2 fs-6">
-                        <i class="bi bi-info-circle me-1"></i>Producto regulado por <strong>Lotes (FEFO)</strong>. Sus
-                        fechas de caducidad y stock individual se ubican en el control de almacén corporativo.
+                <div class="card-body p-0">
+                    <?php if (empty($lotes)): ?>
+                        <div class="p-3 text-center text-muted">
+                            <i class="bi bi-info-circle mb-2 d-block fs-4"></i>
+                            No hay lotes registrados para este producto.
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light text-muted small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3">Lote</th>
+                                        <th>Vencimiento</th>
+                                        <th>Stock Actual</th>
+                                        <th>Estado</th>
+                                        <?php if (hasPermission('productos.editar')): ?>
+                                        <th class="text-end pe-3">Acciones</th>
+                                        <?php endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($lotes as $lote): ?>
+                                    <tr>
+                                        <td class="ps-3 fw-medium">#<?= htmlspecialchars($lote->numero_lote) ?></td>
+                                        <td>
+                                            <?php if ($lote->fecha_vencimiento): ?>
+                                                <?php 
+                                                    $isExpired = strtotime($lote->fecha_vencimiento) < time();
+                                                    $isExpiring = strtotime($lote->fecha_vencimiento) < strtotime('+30 days');
+                                                    $badgeClass = $isExpired ? 'bg-danger' : ($isExpiring ? 'bg-warning text-dark' : 'bg-success bg-opacity-10 text-success');
+                                                ?>
+                                                <span class="badge <?= $badgeClass ?>">
+                                                    <i class="bi bi-calendar-event me-1"></i><?= formatDate($lote->fecha_vencimiento) ?>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="text-muted">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border"><?= $lote->stock_actual ?></span>
+                                        </td>
+                                        <td>
+                                            <?php if ($lote->estado === 'disponible'): ?>
+                                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Disponible</span>
+                                            <?php elseif ($lote->estado === 'agotado'): ?>
+                                                <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Agotado</span>
+                                            <?php else: ?>
+                                                <span class="text-secondary"><?= ucfirst($lote->estado) ?></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <?php if (hasPermission('productos.editar')): ?>
+                                        <td class="text-end pe-3">
+                                            <button class="btn-action btn-edit btn-sm btn-editar-lote" title="Editar Vencimiento" 
+                                                    data-lote-id="<?= $lote->id ?>" 
+                                                    data-lote-numero="<?= htmlspecialchars($lote->numero_lote) ?>" 
+                                                    data-lote-fecha="<?= $lote->fecha_vencimiento ?>">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Modal Editar Lote -->
+            <div class="modal fade" id="modalEditarLote" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header border-bottom-0 pb-0">
+                            <h5 class="modal-title fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i>Editar Vencimiento</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="<?= url('productos/updateLote') ?>">
+                            <div class="modal-body">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="producto_id" value="<?= $producto->id ?>">
+                                <input type="hidden" name="lote_id" id="edit_lote_id">
+                                
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Número de Lote</label>
+                                    <div class="fw-bold fs-6" id="edit_lote_numero">LOTE-000</div>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="edit_fecha_vencimiento" class="form-label">Nueva Fecha de Vencimiento *</label>
+                                    <input type="date" class="form-control" id="edit_fecha_vencimiento" name="fecha_vencimiento" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top-0 pt-0">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary px-4">Guardar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -277,10 +373,6 @@
             </div>
         </div>
         <?php endif; ?>
-    </div>
-
-    <!-- Columna Derecha: Historial de Movimientos -->
-    <div class="col-lg-7">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Historial de Movimientos</h6>

@@ -1,6 +1,6 @@
-/* =====================================================
+﻿/* =====================================================
    InvSys - Estilos Principales
-   Sistema de Gestión de Inventario Web Empresarial
+   Sistema de GestiÃ³n de Inventario Web Empresarial
    ===================================================== */
 
 /* === CSS Variables (Design Tokens) === */
@@ -817,7 +817,7 @@ body {
     padding: 1rem;
 }
 
-/* === KPI Cards (Dashboard) — Data-Dense Style === */
+/* === KPI Cards (Dashboard) â€” Data-Dense Style === */
 .kpi-card {
     border: none;
     border-radius: var(--radius-md);
@@ -905,7 +905,7 @@ body {
     font-weight: 500;
 }
 
-/* === Tables — Data-Dense Style === */
+/* === Tables â€” Data-Dense Style === */
 .table-wrapper {
     overflow-x: auto;
     border-radius: var(--radius-sm);
@@ -977,23 +977,23 @@ body {
 }
 
 .badge-tipo-entrada {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
+    background-color: #10b981;
+    color: #ffffff;
 }
 
 .badge-tipo-salida {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    background-color: #ef4444;
+    color: #ffffff;
 }
 
 .badge-tipo-ajuste {
-    background: rgba(6, 182, 212, 0.1);
-    color: #0891b2;
+    background-color: #0ea5e9;
+    color: #ffffff;
 }
 
 .badge-tipo-transferencia {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
+    background-color: #f59e0b;
+    color: #ffffff;
 }
 
 /* === Buttons === */
@@ -1446,7 +1446,7 @@ body {
         width: 100%;
     }
 
-    /* Hamburger button — more visible on tablet */
+    /* Hamburger button â€” more visible on tablet */
     .sidebar-toggle#sidebarOpen {
         width: 40px;
         height: 40px;
@@ -2576,7 +2576,7 @@ body.no-animations .confirm-modal-dialog {
     animation: fadeIn 0.25s ease-out;
 }
 
-/* Valid state — subtle green border + check icon */
+/* Valid state â€” subtle green border + check icon */
 .form-control.is-valid,
 .form-select.is-valid {
     border-color: var(--accent-success) !important;
@@ -2588,7 +2588,7 @@ body.no-animations .confirm-modal-dialog {
     padding-right: 2.5rem;
 }
 
-/* Invalid state — red border */
+/* Invalid state â€” red border */
 .form-control.is-invalid,
 .form-select.is-invalid {
     border-color: var(--accent-danger) !important;
@@ -2601,7 +2601,7 @@ body.no-animations .confirm-modal-dialog {
     background-position: right 0.75rem center;
 }
 
-/* Password strength bar — segmented pills */
+/* Password strength bar â€” segmented pills */
 .password-strength-bar {
     display: flex;
     align-items: center;
@@ -2924,7 +2924,7 @@ body.no-animations .confirm-modal-dialog {
 }
 
 /* =====================================================
-   Empty States — Premium with SVG decoration
+   Empty States â€” Premium with SVG decoration
    ===================================================== */
 .empty-state {
     text-align: center;
@@ -2999,7 +2999,7 @@ body.no-animations .confirm-modal-dialog {
 }
 
 /* =====================================================
-   KPI Value — Decimal Formatting
+   KPI Value â€” Decimal Formatting
    ===================================================== */
 .kpi-decimal {
     font-size: 0.55em;
@@ -3222,7 +3222,7 @@ button:not(:disabled),
 }
 
 /* =====================================================
-   M�DULO ESC�NER
+   MÓDULO ESCÁNER
    ===================================================== */
 .scanner-viewport {
     position: relative;
@@ -3261,7 +3261,7 @@ button:not(:disabled),
 #reader #qr-shaded-region { border-color: rgba(255,255,255,0.3) !important; }
 
 /* =====================================================
-   M�DULO ALERTAS
+   MÓDULO ALERTAS
    ===================================================== */
 .card:hover { transform: translateY(-1px); box-shadow: 0 .25rem .75rem rgba(0,0,0,.05) !important; }
 .bg-danger-subtle { background-color: rgba(239, 68, 68, 0.1) !important; color: #dc2626 !important; }
@@ -3298,7 +3298,7 @@ button:not(:disabled),
 }
 
 /* =====================================================
-   M�DULO CATEGOR�AS
+   MÓDULO CATEGORÍAS
    ===================================================== */
 .text-hover-primary {
     transition: color 0.2s ease, opacity 0.2s ease;
@@ -3321,7 +3321,7 @@ button:not(:disabled),
 }
 
 /* =====================================================
-   M�DULO DE IMPRESI�N Y COMPRAS/DEVOLUCIONES
+   MÓDULO DE IMPRESIÓN Y COMPRAS/DEVOLUCIONES
    ===================================================== */
 @media print {
     body { background-color: #fff !important; }
@@ -3341,7 +3341,7 @@ button:not(:disabled),
    Fuerza colores legibles para .text-muted y .text-secondary
    ===================================================== */
 
-/* Modo claro explícito */
+/* Modo claro explÃ­cito */
 [data-bs-theme="light"] .text-muted {
     color: #475569 !important;
 }
@@ -3403,3 +3403,4 @@ html:not([data-bs-theme="dark"]) code {
 html:not([data-bs-theme="dark"]) a.text-decoration-none {
     color: #6366f1;
 }
+

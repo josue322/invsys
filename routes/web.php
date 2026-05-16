@@ -173,6 +173,13 @@ return [
         'action' => 'removeProveedor',
         'middleware' => ['auth', 'permiso:productos.editar'],
     ],
+    [
+        'method' => 'POST',
+        'path' => 'productos/updateLote',
+        'controller' => 'ProductoController',
+        'action' => 'updateLote',
+        'middleware' => ['auth', 'permiso:productos.editar'],
+    ],
 
     // =====================================================
     // CATEGORÍAS

@@ -87,8 +87,34 @@
                             <br><small class="text-muted"><?= $m->producto_sku ?></small>
                         </td>
                         <td>
-                            <span class="badge badge-tipo-<?= $m->tipo ?> fw-bold">
-                                <?= ucfirst($m->tipo) ?>
+                            <?php 
+                            $badgeClass = '';
+                            $iconClass = '';
+                            switch ($m->tipo) {
+                                case 'entrada':
+                                    $badgeClass = 'bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+                                    $iconClass = 'bi-box-arrow-in-right';
+                                    break;
+                                case 'salida':
+                                    $badgeClass = 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+                                    $iconClass = 'bi-box-arrow-right';
+                                    break;
+                                case 'ajuste':
+                                    $badgeClass = 'bg-info bg-opacity-10 text-info border border-info border-opacity-25';
+                                    $iconClass = 'bi-sliders';
+                                    break;
+                                case 'transferencia':
+                                    $badgeClass = 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25';
+                                    $iconClass = 'bi-arrow-left-right';
+                                    break;
+                                case 'devolucion':
+                                    $badgeClass = 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+                                    $iconClass = 'bi-arrow-return-left';
+                                    break;
+                            }
+                            ?>
+                            <span class="badge <?= $badgeClass ?> fw-bold">
+                                <i class="bi <?= $iconClass ?> me-1"></i><?= ucfirst($m->tipo) ?>
                             </span>
                         </td>
                         <td class="fw-bold tabular-nums">

@@ -6,18 +6,62 @@ document.addEventListener('DOMContentLoaded', function () {
     const PAGE_DATA = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
     const isEdit = !!PAGE_DATA.sku;
 
-    // === Perecedero Toggle ===
+    // === Perecedero Toggle (Create page) ===
     const perecederoSwitch = document.getElementById('es_perecedero');
-    const perecederoAlert = document.getElementById('perecederoAlert');
-    if (perecederoSwitch && perecederoAlert) {
-        perecederoSwitch.addEventListener('change', function () {
-            if (isEdit) {
-                perecederoAlert.style.setProperty('display', this.checked ? 'block' : 'none', 'important');
+    const loteContainer = document.getElementById('loteFieldsContainer');
+    const stockInput = document.getElementById('stock');
+    const inputLote = document.getElementById('lote_inicial');
+    const inputFecha = document.getElementById('fecha_vencimiento_inicial');
+
+    if (perecederoSwitch && loteContainer) {
+        function toggleLoteFields() {
+            const isPerecedero = perecederoSwitch.checked;
+            const stock = stockInput ? (parseFloat(stockInput.value) || 0) : 0;
+
+            // Mostrar el contenedor siempre que se active la gestión por lotes
+            if (isPerecedero) {
+                loteContainer.classList.remove('d-none');
             } else {
-                perecederoAlert.classList.toggle('d-none', !this.checked);
+                loteContainer.classList.add('d-none');
+                if (inputLote) inputLote.value = '';
+                if (inputFecha) inputFecha.value = '';
             }
+
+            // Hacer los campos requeridos solo si hay stock inicial y es perecedero
+            if (inputLote && inputFecha) {
+                inputLote.required = (stock > 0 && isPerecedero);
+                inputFecha.required = (stock > 0 && isPerecedero);
+            }
+        }
+
+        perecederoSwitch.addEventListener('change', toggleLoteFields);
+        if (stockInput) stockInput.addEventListener('input', toggleLoteFields);
+        toggleLoteFields(); // Ejecutar al inicio
+    }
+
+    // === Perecedero Toggle (Edit page - legacy alert) ===
+    const perecederoAlert = document.getElementById('perecederoAlert');
+    if (perecederoSwitch && perecederoAlert && !loteContainer) {
+        perecederoSwitch.addEventListener('change', function () {
+            perecederoAlert.style.setProperty('display', this.checked ? 'block' : 'none', 'important');
         });
     }
+
+    // === Editar Lote (Show page) ===
+    document.querySelectorAll('.btn-editar-lote').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var loteId = this.dataset.loteId;
+            var loteNumero = this.dataset.loteNumero;
+            var loteFecha = this.dataset.loteFecha;
+
+            document.getElementById('edit_lote_id').value = loteId;
+            document.getElementById('edit_lote_numero').textContent = '#' + loteNumero;
+            document.getElementById('edit_fecha_vencimiento').value = loteFecha;
+
+            var modal = new bootstrap.Modal(document.getElementById('modalEditarLote'));
+            modal.show();
+        });
+    });
 
     // === Image Upload ===
     const zone = document.getElementById('imageUploadZone');

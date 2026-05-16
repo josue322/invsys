@@ -166,6 +166,46 @@ class ProductoController extends Controller
 
         $id = $this->productoModel->create($data);
 
+        // Si hay stock inicial, registrar el movimiento de Ajuste
+        if ($data['stock'] > 0) {
+            require_once APP_PATH . '/models/Movimiento.php';
+            $movimientoModel = new Movimiento();
+            
+            $loteId = null;
+            
+            // Si es perecedero, crear el lote inicial
+            if ($esPerecedero) {
+                $loteInicial = $this->input('lote_inicial');
+                $fechaVencimiento = $this->input('fecha_vencimiento_inicial');
+                
+                if (!empty($loteInicial) && !empty($fechaVencimiento)) {
+                    require_once APP_PATH . '/models/Lote.php';
+                    $loteModel = new Lote();
+                    $loteId = $loteModel->create([
+                        'producto_id' => $id,
+                        'numero_lote' => strtoupper($loteInicial),
+                        'fecha_vencimiento' => $fechaVencimiento,
+                        'cantidad_inicial' => $data['stock'],
+                        'stock_actual' => $data['stock'],
+                        'estado' => 'disponible',
+                    ]);
+                }
+            }
+
+            // Registrar el movimiento de entrada por stock inicial
+            $movimientoModel->create([
+                'producto_id' => $id,
+                'usuario_id' => currentUserId(),
+                'lote_id' => $loteId,
+                'tipo' => 'ajuste',
+                'cantidad' => $data['stock'],
+                'stock_anterior' => 0,
+                'stock_nuevo' => $data['stock'],
+                'referencia' => 'Stock Inicial',
+                'observaciones' => 'Ajuste automático por stock inicial al crear producto.'
+            ]);
+        }
+
         // Log de auditoría
         $this->securityService->logAction(
             currentUserId(),
@@ -578,6 +618,14 @@ class ProductoController extends Controller
         // Todos los proveedores (para el modal de vincular)
         $todosProveedores = $this->proveedorModel->findAll('nombre', 'ASC');
 
+        // Lotes del producto si es perecedero
+        $lotes = [];
+        if ($producto->es_perecedero) {
+            require_once APP_PATH . '/models/Lote.php';
+            $loteModel = new Lote();
+            $lotes = $loteModel->rawQuery("SELECT * FROM lotes WHERE producto_id = ? ORDER BY fecha_vencimiento ASC", [(int)$id]);
+        }
+
         $flash = $this->getFlash();
         $csrfToken = $this->generateCSRF();
 
@@ -589,10 +637,54 @@ class ProductoController extends Controller
             'costoChartData' => $costoChartData,
             'proveedores' => $proveedores,
             'todosProveedores' => $todosProveedores,
+            'lotes' => $lotes,
             'csrfToken' => $csrfToken,
             'flash' => $flash,
             'loadChartJS' => true,
         ]);
+    }
+
+    /**
+     * Actualizar la fecha de vencimiento de un lote.
+     */
+    public function updateLote(): void
+    {
+        if (!$this->validateCSRF()) {
+            $this->redirect('productos');
+            return;
+        }
+
+        $productoId = (int) $this->input('producto_id');
+        $loteId = (int) $this->input('lote_id');
+        $fechaVencimiento = $this->input('fecha_vencimiento');
+
+        if (empty($loteId) || empty($fechaVencimiento)) {
+            $this->setFlash('error', 'Datos del lote incompletos.');
+            $this->redirect('productos/ver/' . $productoId);
+            return;
+        }
+
+        require_once APP_PATH . '/models/Lote.php';
+        $loteModel = new Lote();
+        
+        $lote = $loteModel->findById($loteId);
+        if (!$lote) {
+            $this->setFlash('error', 'Lote no encontrado.');
+            $this->redirect('productos/ver/' . $productoId);
+            return;
+        }
+
+        $loteModel->update($loteId, ['fecha_vencimiento' => $fechaVencimiento]);
+        
+        $this->securityService->logAction(
+            currentUserId(),
+            'update_lote',
+            'productos',
+            "Fecha de vencimiento actualizada para Lote #{$lote->numero_lote} (ID: {$loteId})"
+        );
+
+        $this->setFlash('success', 'Fecha de vencimiento actualizada correctamente.');
+        $this->redirect('productos/ver/' . $productoId);
     }
 
     /**

@@ -32,12 +32,13 @@
                     <a href="#dashboard" class="docs-nav-item"><i class="bi bi-speedometer2 me-2"></i>2. Dashboard y KPIs</a>
                     <a href="#catalogos" class="docs-nav-item"><i class="bi bi-tags me-2"></i>3. Catálogos Base</a>
                     <a href="#productos" class="docs-nav-item"><i class="bi bi-box me-2"></i>4. Gestión de Productos</a>
-                    <a href="#movimientos" class="docs-nav-item"><i class="bi bi-arrow-left-right me-2"></i>5. Entradas y Salidas</a>
-                    <a href="#auditoria" class="docs-nav-item"><i class="bi bi-upc-scan me-2"></i>6. Conteo y Auditorías</a>
-                    <a href="#logistica" class="docs-nav-item"><i class="bi bi-truck me-2"></i>7. Logística Interna</a>
-                    <a href="#reportes" class="docs-nav-item"><i class="bi bi-graph-up me-2"></i>8. Análisis y Reportes</a>
-                    <a href="#admin" class="docs-nav-item"><i class="bi bi-shield-lock me-2"></i>9. Administración</a>
-                    <a href="#faq" class="docs-nav-item"><i class="bi bi-chat-left-text me-2"></i>10. Preguntas Frecuentes</a>
+                    <a href="#compras" class="docs-nav-item"><i class="bi bi-cart me-2"></i>5. Compras y Proveedores</a>
+                    <a href="#movimientos" class="docs-nav-item"><i class="bi bi-arrow-left-right me-2"></i>6. Entradas y Salidas</a>
+                    <a href="#auditoria" class="docs-nav-item"><i class="bi bi-upc-scan me-2"></i>7. Conteo y Auditorías</a>
+                    <a href="#logistica" class="docs-nav-item"><i class="bi bi-truck me-2"></i>8. Logística Interna</a>
+                    <a href="#reportes" class="docs-nav-item"><i class="bi bi-graph-up me-2"></i>9. Análisis y Reportes</a>
+                    <a href="#admin" class="docs-nav-item"><i class="bi bi-shield-lock me-2"></i>10. Administración</a>
+                    <a href="#faq" class="docs-nav-item"><i class="bi bi-chat-left-text me-2"></i>11. Preguntas Frecuentes</a>
                 </nav>
 
                 <div class="mt-5 p-3 bg-white rounded-3 border">
@@ -151,7 +152,13 @@
                             <div class="d-flex align-items-start mb-3">
                                 <span class="step-number">4</span>
                                 <div>
-                                    <p class="mb-0 text-muted"><strong>Control de Lotes:</strong> Si el producto tiene fecha de caducidad (Ej. alimentos, medicinas), active el switch "Requiere control de Lotes y Vencimiento". Esto forzará al usuario a ingresar fechas exactas al registrar entradas.</p>
+                                    <p class="mb-0 text-muted"><strong>Control de Lotes (FEFO):</strong> Si el producto tiene caducidad, active "Requiere Gestión por Lotes y Vencimientos". Podrá registrar un lote inicial y el Kardex priorizará las salidas de los lotes más próximos a vencer.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-start mb-3">
+                                <span class="step-number">5</span>
+                                <div>
+                                    <p class="mb-0 text-muted"><strong>Vincular Proveedores:</strong> Use la pestaña de Proveedores para enlazarlos, definiendo costo referencial y tiempos de entrega.</p>
                                 </div>
                             </div>
                         </div>
@@ -159,10 +166,26 @@
                 </div>
             </div>
 
+            <div id="compras" class="docs-section">
+                <div class="docs-card border-start border-4 border-success">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="fw-bold mb-4 text-dark">5. Compras y Proveedores</h3>
+                        <p class="text-muted">El módulo de Compras formaliza el abastecimiento y genera documentos legales.</p>
+                        
+                        <h6 class="fw-bold mt-4 text-success"><i class="bi bi-file-earmark-pdf me-2"></i>Generar Órdenes de Compra</h6>
+                        <ul class="text-muted small">
+                            <li>Vaya a <strong>Compras > Nueva Orden</strong>. Seleccione al Proveedor; el sistema cargará los productos que tiene vinculados.</li>
+                            <li>Defina cantidades. El sistema calculará los totales y generará un PDF profesional listo para enviar por email.</li>
+                            <li>La orden nace en estado <strong>Borrador</strong>, avanza a <strong>Pendiente</strong> y finaliza en <strong>Recibida</strong> (lo cual inyecta el stock al Kardex automáticamente).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div id="movimientos" class="docs-section">
                 <div class="docs-card">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4 text-dark">5. Movimientos (Entradas y Salidas)</h3>
+                        <h3 class="fw-bold mb-4 text-dark">6. Movimientos (Entradas y Salidas)</h3>
                         <p class="text-muted">El Kardex del sistema se alimenta exclusivamente de este módulo. <strong>Nunca se debe editar el stock manualmente sin dejar rastro.</strong></p>
                         
                         <h5 class="fw-bold mt-4 text-success"><i class="bi bi-box-arrow-in-right me-2"></i>Registrar Entrada</h5>
@@ -184,7 +207,7 @@
             <div id="auditoria" class="docs-section">
                 <div class="docs-card border-start border-4 border-warning">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4 text-dark">6. Auditoría y Conteo Físico</h3>
+                        <h3 class="fw-bold mb-4 text-dark">7. Auditoría y Conteo Físico</h3>
                         <p>El módulo de Conteo Cíclico le permite conciliar el stock registrado virtualmente en el sistema contra lo que realmente existe físicamente en las estanterías.</p>
                         
                         <div class="mt-4 p-4 bg-light rounded">
@@ -209,7 +232,7 @@
             <div id="logistica" class="docs-section">
                 <div class="docs-card">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4 text-dark">7. Logística Interna (Requisiciones)</h3>
+                        <h3 class="fw-bold mb-4 text-dark">8. Logística Interna (Requisiciones y Devoluciones)</h3>
                         <p>Diseñado para empresas donde distintos departamentos (Producción, Mantenimiento) consumen materiales del almacén central.</p>
                         
                         <h6 class="fw-bold mt-4"><i class="bi bi-file-earmark-text text-primary me-2"></i>Crear una Requisición</h6>
@@ -219,6 +242,13 @@
                             <li>Añada productos al "carrito" de la requisición.</li>
                             <li>Al procesarla, se genera un PDF imprimible como vale de salida, y el stock es descontado inmediatamente.</li>
                         </ul>
+                        
+                        <h6 class="fw-bold mt-4"><i class="bi bi-arrow-return-left text-danger me-2"></i>Gestión de Devoluciones</h6>
+                        <ul class="text-muted small">
+                            <li>Si un departamento devuelve material no utilizado, vaya a <strong>Devoluciones > Nueva Devolución</strong>.</li>
+                            <li>Añada la cantidad devuelta y el estado del producto (<strong>Bueno / Dañado</strong>).</li>
+                            <li>Si está en buen estado, el stock retorna al Kardex como "Disponible". Si está dañado, se registra como "Merma" automáticamente.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -226,7 +256,7 @@
             <div id="reportes" class="docs-section">
                 <div class="docs-card">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4 text-dark">8. Análisis e Inteligencia (Reportes)</h3>
+                        <h3 class="fw-bold mb-4 text-dark">9. Análisis e Inteligencia (Reportes)</h3>
                         <p>Los reportes son herramientas críticas para la toma de decisiones financieras.</p>
                         
                         <div class="table-responsive mt-4">
@@ -264,7 +294,7 @@
             <div id="admin" class="docs-section">
                 <div class="docs-card border-start border-4 border-danger">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4 text-dark">9. Administración y Seguridad <span class="docs-badge bg-danger text-white">Solo Admin</span></h3>
+                        <h3 class="fw-bold mb-4 text-dark">10. Administración y Seguridad <span class="docs-badge bg-danger text-white">Solo Admin</span></h3>
                         
                         <p class="text-muted mb-4">El panel de configuración permite gestionar el núcleo del sistema operativo y sus barreras de protección.</p>
                         
@@ -283,7 +313,7 @@
             <div id="faq" class="docs-section">
                 <div class="docs-card border-start border-4 border-info">
                     <div class="card-body p-4 p-md-5">
-                        <h3 class="fw-bold mb-4 text-dark">10. Preguntas Frecuentes (FAQ)</h3>
+                        <h3 class="fw-bold mb-4 text-dark">11. Preguntas Frecuentes (FAQ)</h3>
                         <p class="text-muted mb-4">Respuestas rápidas a las dudas más comunes de nuestros usuarios.</p>
 
                         <div class="accordion accordion-flush border rounded overflow-hidden" id="accordionFAQ">

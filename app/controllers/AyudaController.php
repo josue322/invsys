@@ -233,17 +233,19 @@ class AyudaController extends Controller
 
             '3. Catálogos Base' => "Es vital configurar la estructura lógica de su almacén:\n\n- Categorías: Agrupan los productos (Ej: Electrónicos, Perecederos).\n- Ubicaciones: Espacios físicos (Ej: Pasillo 1, Estante A).\n- Proveedores: Entidades que suministran artículos.\n- Departamentos: Áreas internas que solicitarán requisiciones.",
 
-            '4. Gestión de Productos' => "Paso a paso para crear un producto:\n1. Vaya a Productos > + Nuevo Producto.\n2. Llene la Información Básica (Nombre, SKU, Categoría).\n3. Establezca Stock Mínimo y Máximo.\n4. Control de Lotes: Active si el producto tiene caducidad.",
+            '4. Gestión de Productos (FEFO)' => "Paso a paso para crear un producto:\n1. Vaya a Productos > + Nuevo Producto.\n2. Llene la Información Básica (Nombre, SKU, Categoría).\n3. Establezca Stock Mínimo y Máximo.\n4. Control de Lotes (FEFO): Active si el producto tiene caducidad. Exigirá Lote y Fecha de Vencimiento obligatorios.\n5. Vinculación a Proveedores: Establece un catálogo de costos y tiempos de entrega.",
 
-            '5. Entradas y Salidas' => "[WARNING] NUNCA se debe editar el stock manualmente sin dejar rastro.\n\n- Entrada: Úselo cuando reciba mercancía. Si maneja lotes, el sistema exigirá Fecha de Vencimiento.\n- Salida: Úselo para mermas o consumo directo con motivo obligatorio.",
+            '5. Abastecimiento y Compras' => "Módulo para reabastecimiento formal:\n- Órdenes de Compra: Seleccione un Proveedor, añada productos y genere un PDF formal.\n- Estados: Cambian automáticamente de Borrador a Recibida al completarse.\n[TIP] El costo de compra actualiza automáticamente el Valor de Inventario.",
 
-            '6. Conteo y Auditoría' => "Para conciliar el stock virtual vs físico:\n1. Iniciar Nuevo Conteo (Filtre por categoría o ubicación).\n2. Ejecución: Use el Escáner para sumar unidades rápidamente.\n3. Conciliación: El sistema resaltará faltantes/sobrantes. Al Aplicar Ajustes, el Kardex se actualiza con un 'Ajuste por Auditoría'.",
+            '6. Entradas y Salidas' => "[WARNING] NUNCA se debe editar el stock manualmente sin dejar rastro.\n\n- Entrada: Úselo cuando reciba mercancía. Si maneja lotes, el sistema exigirá Fecha de Vencimiento.\n- Salida: Úselo para mermas o consumo directo con motivo obligatorio.",
 
-            '7. Logística Interna (Requisiciones)' => "Para empresas donde departamentos consumen del almacén central:\n1. Menú Requisiciones > Nueva Requisición.\n2. Seleccione departamento y añada productos.\n3. Al procesar, el stock se descuenta inmediatamente y se genera un vale PDF.\n\n[TIP] Use el buscador global para añadir productos rápidamente al carrito de requisición.",
+            '7. Conteo y Auditoría' => "Para conciliar el stock virtual vs físico:\n1. Iniciar Nuevo Conteo (Filtre por categoría o ubicación).\n2. Ejecución: Use el Escáner para sumar unidades rápidamente.\n3. Conciliación: El sistema resaltará faltantes/sobrantes. Al Aplicar Ajustes, el Kardex se actualiza con un 'Ajuste por Auditoría'.",
 
-            '8. Análisis y Reportes' => "- Kardex General: Libro mayor de entradas y salidas de un producto.\n- Análisis ABC: Clasifica inventario por impacto financiero.\n- Rotación: Artículos de alta demanda.\n- Inventario Muerto: Detecta productos estancados.",
+            '8. Logística Interna (Requisiciones y Devoluciones)' => "Para empresas donde departamentos consumen del almacén central:\n- Requisiciones: Seleccione departamento y añada productos. Al procesar, el stock se descuenta inmediatamente y se genera un vale PDF.\n- Devoluciones: Reingreso de mercancía por un departamento. Pasa por un control de calidad (Bueno/Dañado) que determina si el stock vuelve a estar Disponible o se retira como Merma.",
 
-            '9. Administración (Seguridad)' => "Módulo exclusivo para Administradores.\n\n- Usuarios: Cree cuentas y asigne roles (RBAC).\n- Backups: Descargue copias de la base de datos SQL regularmente.\n- Logs de Auditoría: Registro inmutable de inicios de sesión y configuración."
+            '9. Análisis y Reportes' => "- Kardex General: Libro mayor de entradas y salidas de un producto.\n- Análisis ABC: Clasifica inventario por impacto financiero.\n- Rotación: Artículos de alta demanda.\n- Inventario Muerto: Detecta productos estancados.",
+
+            '10. Administración (Seguridad)' => "Módulo exclusivo para Administradores.\n\n- Usuarios: Cree cuentas y asigne roles (RBAC).\n- Backups: Descargue copias de la base de datos SQL regularmente.\n- Logs de Auditoría: Registro inmutable de inicios de sesión y configuración."
         ];
 
         $pdf->AddPage();
