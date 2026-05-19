@@ -26,21 +26,37 @@
                         <div class="form-text">Tamaño máximo: 5MB. Solo archivos .csv</div>
                     </div>
 
-                    <!-- Preview area -->
+                    <!-- Preview area (populated by JS) -->
                     <div id="csv-preview" class="mb-4" style="display:none;">
-                        <label class="form-label fw-semibold">Vista previa</label>
-                        <div class="table-wrapper" style="max-height: 300px; overflow-y: auto;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold mb-0">
+                                <i class="bi bi-eye me-1"></i>Vista Previa
+                            </label>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" id="preview-valid">
+                                    <i class="bi bi-check-circle me-1"></i><span id="valid-count">0</span> válidas
+                                </span>
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" id="preview-errors" style="display:none;">
+                                    <i class="bi bi-exclamation-circle me-1"></i><span id="error-count">0</span> con error
+                                </span>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary" id="preview-total">
+                                    <span id="total-count">0</span> filas
+                                </span>
+                            </div>
+                        </div>
+                        <div class="table-wrapper" style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
                             <table class="table table-sm mb-0" id="preview-table">
-                                <thead></thead>
+                                <thead style="position: sticky; top: 0; z-index: 1;"></thead>
                                 <tbody></tbody>
                             </table>
                         </div>
-                        <small class="text-muted" id="preview-count"></small>
+                        <small class="text-muted mt-1 d-block" id="preview-note"></small>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" id="btn-importar">
+                    <button type="submit" class="btn btn-primary" id="btn-importar" disabled>
                         <i class="bi bi-cloud-upload me-1"></i>Importar Productos
                     </button>
+                    <small class="text-muted ms-2" id="btn-hint">Selecciona un archivo CSV para continuar</small>
                 </form>
             </div>
         </div>
@@ -53,13 +69,16 @@
                 <h6 class="mb-0 fw-bold"><i class="bi bi-question-circle me-2"></i>Instrucciones</h6>
             </div>
             <div class="card-body">
-                <ol class="mb-0" style="padding-left: 1.2rem; line-height: 2;">
-                    <li>Prepara un archivo CSV con las columnas requeridas</li>
-                    <li>La primera fila debe contener los nombres de las columnas</li>
+                <ol class="mb-3" style="padding-left: 1.2rem; line-height: 2;">
+                    <li>Descarga la <strong>plantilla CSV</strong> con el formato correcto</li>
+                    <li>Completa los datos — la primera fila son los encabezados</li>
                     <li>Los SKU deben ser únicos (no existir previamente)</li>
                     <li>La columna <code>categoria</code> debe coincidir con categorías existentes</li>
-                    <li>Selecciona el archivo y haz clic en <strong>Importar</strong></li>
+                    <li>Revisa la <strong>vista previa</strong> y confirma con <strong>Importar</strong></li>
                 </ol>
+                <a href="<?= url('productos/exportar') ?>" class="btn btn-outline-primary btn-sm w-100">
+                    <i class="bi bi-download me-1"></i>Descargar Plantilla CSV
+                </a>
             </div>
         </div>
 
@@ -86,6 +105,8 @@
                             <tr><td><code>stock_minimo</code></td><td><span class="badge bg-secondary">No</span></td><td>10</td></tr>
                             <tr><td><code>categoria</code></td><td><span class="badge bg-secondary">No</span></td><td>Electrónica</td></tr>
                             <tr><td><code>descripcion</code></td><td><span class="badge bg-secondary">No</span></td><td>Teclado ergonómico</td></tr>
+                            <tr><td><code>unidad_medida</code></td><td><span class="badge bg-secondary">No</span></td><td>Unidad</td></tr>
+                            <tr><td><code>codigo_barras</code></td><td><span class="badge bg-secondary">No</span></td><td>7501234567890</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -93,3 +114,6 @@
         </div>
     </div>
 </div>
+
+<script src="<?= asset('js/import-csv.js') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/js/import-csv.js') ?>"></script>
+

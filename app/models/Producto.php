@@ -293,4 +293,40 @@ class Producto extends Model
             'term3' => "%{$term}%",
         ])->fetchAll();
     }
+
+    /**
+     * Resumen de salud del inventario (productos por estado de stock).
+     */
+    public function getStockHealthSummary(): object
+    {
+        $sql = "SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN stock > stock_minimo THEN 1 ELSE 0 END) as saludable,
+                    SUM(CASE WHEN stock <= stock_minimo AND stock > 0 THEN 1 ELSE 0 END) as bajo,
+                    SUM(CASE WHEN stock <= 0 THEN 1 ELSE 0 END) as agotado
+                FROM {$this->table} WHERE activo = 1";
+        return $this->query($sql)->fetch();
+    }
+
+    /**
+     * Resumen de rotación de inventario (últimos N días).
+     */
+    public function getRotationSummary(int $dias = 90): object
+    {
+        $fechaDesde = date('Y-m-d', strtotime("-{$dias} days"));
+        $sql = "SELECT 
+                    SUM(CASE WHEN COALESCE(mov.total_salidas, 0) >= 10 THEN 1 ELSE 0 END) as alta,
+                    SUM(CASE WHEN COALESCE(mov.total_salidas, 0) BETWEEN 3 AND 9 THEN 1 ELSE 0 END) as media,
+                    SUM(CASE WHEN COALESCE(mov.total_salidas, 0) BETWEEN 1 AND 2 THEN 1 ELSE 0 END) as baja,
+                    SUM(CASE WHEN COALESCE(mov.total_salidas, 0) = 0 THEN 1 ELSE 0 END) as sin_movimiento
+                FROM {$this->table} p
+                LEFT JOIN (
+                    SELECT producto_id, SUM(cantidad) as total_salidas
+                    FROM movimientos
+                    WHERE tipo = 'salida' AND DATE(created_at) >= :fecha
+                    GROUP BY producto_id
+                ) mov ON p.id = mov.producto_id
+                WHERE p.activo = 1";
+        return $this->query($sql, ['fecha' => $fechaDesde])->fetch();
+    }
 }

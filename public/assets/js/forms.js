@@ -128,25 +128,107 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // === Movimientos: Create ===
     if (document.getElementById('formCrearMovimiento')) {
-        const ps=document.getElementById('producto_id'), ts=document.getElementById('tipo');
+        const ps=document.getElementById('producto_id'), ts=document.getElementById('tipo'), qi=document.getElementById('cantidad');
         const sa=document.getElementById('stockActual'), pw=document.getElementById('proveedorWrapper'), dw=document.getElementById('destinoWrapper');
         const lw=document.getElementById('lotesWrapper'), le=document.getElementById('lotesEntradaUI'), ls=document.getElementById('lotesSalidaUI');
         const il=document.getElementById('numero_lote'), iv=document.getElementById('fecha_vencimiento');
+        const sw=document.getElementById('seriesWrapper'), se=document.getElementById('seriesEntradaUI'), ss=document.getElementById('seriesSalidaUI');
+        const sic=document.getElementById('seriesInputContainer'), scc=document.getElementById('seriesCheckContainer');
+        const BASE = document.querySelector('meta[name="base-url"]')?.content || '/invsys/public';
+
         function updateFormUI() {
-            const tipo=ts.value, opt=ps.options[ps.selectedIndex], isPer=opt&&opt.dataset.perecedero==='1';
-            sa.value=opt?(opt.dataset.stock??'-'):'-';
+            var tipo=ts.value, opt=ps.options[ps.selectedIndex], isPer=opt&&opt.dataset.perecedero==='1', isSerie=opt&&opt.dataset.serie==='1';
+            sa.value=opt?(opt.dataset.stock||'-'):'-';
             pw.classList.add('d-none'); dw.classList.add('d-none'); lw.classList.add('d-none'); le.classList.add('d-none'); ls.classList.add('d-none');
+            if(sw) { sw.classList.add('d-none'); se.classList.add('d-none'); ss.classList.add('d-none'); }
             il.required=false; iv.required=false;
             if(tipo==='entrada'){pw.classList.remove('d-none'); if(isPer){lw.classList.remove('d-none');le.classList.remove('d-none');il.required=true;iv.required=true;}}
             else if(tipo==='salida'){dw.classList.remove('d-none'); if(isPer){lw.classList.remove('d-none');ls.classList.remove('d-none');}}
+
+            // Serial logic
+            if(isSerie && sw) {
+                if(tipo==='entrada') {
+                    sw.classList.remove('d-none');
+                    se.classList.remove('d-none');
+                    ss.classList.add('d-none');
+                    buildSerialInputs();
+                } else if(tipo==='salida') {
+                    sw.classList.remove('d-none');
+                    ss.classList.remove('d-none');
+                    se.classList.add('d-none');
+                    loadAvailableSerials();
+                }
+            }
         }
-        ps.addEventListener('change', updateFormUI); ts.addEventListener('change', updateFormUI); updateFormUI();
+
+        function buildSerialInputs() {
+            var qty = parseInt(qi.value) || 0;
+            sic.innerHTML = '';
+            const pageDataScript = document.getElementById('page-data');
+            const pageData = pageDataScript ? JSON.parse(pageDataScript.textContent || '{}') : {};
+            
+            for (var i = 0; i < qty; i++) {
+                const oldVal = (pageData.old_seriales && pageData.old_seriales[i]) ? pageData.old_seriales[i] : '';
+                var div = document.createElement('div');
+                div.className = 'col-md-4';
+                div.innerHTML = '<input type="text" class="form-control form-control-sm" name="numeros_serie[]" placeholder="Serie #' + (i+1) + '" value="' + oldVal.replace(/"/g, '&quot;') + '" required>';
+                sic.appendChild(div);
+            }
+            if (qty === 0) {
+                sic.innerHTML = '<div class="text-muted text-center py-2"><small>Ingrese una cantidad mayor a 0</small></div>';
+            }
+        }
+
+        function loadAvailableSerials() {
+            var prodId = ps.value;
+            if (!prodId) return;
+            scc.innerHTML = '<div class="text-muted text-center py-2"><small><span class="spinner-border spinner-border-sm me-1"></span>Cargando seriales...</small></div>';
+            fetch(BASE + '/productos/seriales/' + prodId, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.seriales || data.seriales.length === 0) {
+                        scc.innerHTML = '<div class="alert alert-warning py-2 mb-0"><i class="bi bi-exclamation-triangle me-1"></i>No hay seriales disponibles para este producto.</div>';
+                        return;
+                    }
+                    scc.innerHTML = '';
+                    const pageDataScript = document.getElementById('page-data');
+                    const pageData = pageDataScript ? JSON.parse(pageDataScript.textContent || '{}') : {};
+                    const oldSerieIds = pageData.old_serie_ids || [];
+
+                    data.seriales.forEach(function(s) {
+                        var isChecked = oldSerieIds.includes(s.id.toString()) ? 'checked' : '';
+                        var div = document.createElement('div');
+                        div.className = 'col-md-4';
+                        div.innerHTML = '<div class="form-check border rounded px-3 py-2 bg-white">' +
+                            '<input class="form-check-input serial-check" type="checkbox" name="serie_ids[]" value="' + s.id + '" id="serie_' + s.id + '" ' + isChecked + '>' +
+                            '<label class="form-check-label ms-2 w-100" for="serie_' + s.id + '" style="font-size:0.82rem;">' +
+                            '<code class="fw-bold">' + s.numero_serie + '</code>' +
+                            '<br><small class="text-muted">' + s.created_at + '</small>' +
+                            '</label></div>';
+                        scc.appendChild(div);
+                    });
+                })
+                .catch(function() {
+                    scc.innerHTML = '<div class="alert alert-danger py-2 mb-0">Error al cargar seriales</div>';
+                });
+        }
+
+        ps.addEventListener('change', updateFormUI);
+        ts.addEventListener('change', updateFormUI);
+        qi.addEventListener('input', function() {
+            var opt = ps.options[ps.selectedIndex];
+            if (opt && opt.dataset.serie === '1' && ts.value === 'entrada') {
+                buildSerialInputs();
+            }
+        });
+        updateFormUI();
+
         FormValidator.init('#formCrearMovimiento', {
             producto_id: { required: true, messages: { required: 'Seleccione un producto' } },
             tipo: { required: true, messages: { required: 'Seleccione el tipo de movimiento' } },
             cantidad: { required: true, min: 1, messages: { required: 'La cantidad es obligatoria' },
-                custom(value) { const t=document.getElementById('tipo').value, o=ps.options[ps.selectedIndex], s=parseInt(o?.dataset?.stock??0);
-                    if(t==='salida'&&parseInt(value)>s) return `La cantidad (${value}) supera el stock actual (${s})`; return true; } }
+                custom(value) { var t=document.getElementById('tipo').value, o=ps.options[ps.selectedIndex], s=parseInt(o?.dataset?.stock??0);
+                    if(t==='salida'&&parseInt(value)>s) return 'La cantidad ('+value+') supera el stock actual ('+s+')'; return true; } }
         });
     }
     // === Import: CSV Preview ===

@@ -4,7 +4,7 @@
         <h4 class="fw-bold mb-1">Requisiciones Internas</h4>
         <span class="text-muted">Gestión de despachos y solicitudes de almacén</span>
     </div>
-    
+
     <?php if (hasPermission('requisiciones.crear')): ?>
         <div class="d-flex gap-2">
             <a href="<?= url('requisiciones/crear') ?>" class="btn btn-primary shadow-sm">
@@ -25,17 +25,20 @@
                     <option value="borrador" <?= $filtros['estado'] == 'borrador' ? 'selected' : '' ?>>Borrador</option>
                     <option value="pendiente" <?= $filtros['estado'] == 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
                     <option value="aprobada" <?= $filtros['estado'] == 'aprobada' ? 'selected' : '' ?>>Aprobada</option>
-                    <option value="despachada" <?= $filtros['estado'] == 'despachada' ? 'selected' : '' ?>>Despachada</option>
+                    <option value="despachada" <?= $filtros['estado'] == 'despachada' ? 'selected' : '' ?>>Despachada
+                    </option>
                     <option value="cancelada" <?= $filtros['estado'] == 'cancelada' ? 'selected' : '' ?>>Cancelada</option>
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label mb-1 text-muted small fw-semibold">Desde</label>
-                <input type="date" name="fecha_desde" class="form-control form-control-sm" value="<?= htmlspecialchars($filtros['fecha_desde']) ?>">
+                <input type="date" name="fecha_desde" class="form-control form-control-sm"
+                    value="<?= htmlspecialchars($filtros['fecha_desde']) ?>">
             </div>
             <div class="col-md-3">
                 <label class="form-label mb-1 text-muted small fw-semibold">Hasta</label>
-                <input type="date" name="fecha_hasta" class="form-control form-control-sm" value="<?= htmlspecialchars($filtros['fecha_hasta']) ?>">
+                <input type="date" name="fecha_hasta" class="form-control form-control-sm"
+                    value="<?= htmlspecialchars($filtros['fecha_hasta']) ?>">
             </div>
             <div class="col-md-3">
                 <button type="submit" class="btn btn-primary btn-sm w-100">
@@ -75,7 +78,8 @@
                         <?php foreach ($requisiciones as $r): ?>
                             <tr>
                                 <td class="ps-4 fw-medium text-primary">
-                                    <a href="<?= url('requisiciones/show/' . $r->id) ?>" class="text-decoration-none text-primary">
+                                    <a href="<?= url('requisiciones/show/' . $r->id) ?>"
+                                        class="text-decoration-none text-primary">
                                         <?= htmlspecialchars($r->numero_requisicion) ?>
                                     </a>
                                 </td>
@@ -84,33 +88,36 @@
                                 <td><small class="text-muted"><?= htmlspecialchars($r->usuario_nombre) ?></small></td>
                                 <td>
                                     <?php
-                                        $badge = match($r->estado) {
-                                            'borrador' => 'bg-secondary',
-                                            'pendiente' => 'bg-warning text-dark',
-                                            'aprobada' => 'bg-info text-dark',
-                                            'despachada' => 'bg-success',
-                                            'cancelada' => 'bg-danger',
-                                            default => 'bg-secondary',
-                                        };
+                                    $badge = match ($r->estado) {
+                                        'borrador' => 'bg-secondary',
+                                        'pendiente' => 'bg-warning text-dark',
+                                        'aprobada' => 'bg-info text-dark',
+                                        'despachada' => 'bg-success',
+                                        'cancelada' => 'bg-danger',
+                                        default => 'bg-secondary',
+                                    };
                                     ?>
-                                    <span class="badge <?= $badge ?> text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                                    <span class="badge <?= $badge ?> text-uppercase"
+                                        style="font-size: 0.7rem; letter-spacing: 0.5px;">
                                         <?= $r->estado ?>
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
-                                        <a href="<?= url('requisiciones/show/' . $r->id) ?>" class="btn btn-sm btn-light btn-icon" title="Ver Detalle">
+                                        <a href="<?= url('requisiciones/show/' . $r->id) ?>"
+                                            class="btn btn-sm btn-light btn-icon" title="Ver Detalle">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <?php if (hasPermission('requisiciones.eliminar')): ?>
-                                        <form method="POST" action="<?= url('requisiciones/destroy/' . $r->id) ?>" 
-                                              data-confirm='{"title":"¿Eliminar requisición permanentemente?","message":"Esta acción eliminará la requisición y todos sus detalles. Esta acción no se puede deshacer.","type":"danger","confirmText":"Sí, eliminar","icon":"bi-trash"}'
-                                              style="display:inline">
-                                            <?= csrfField() ?>
-                                            <button type="submit" class="btn btn-sm btn-light btn-icon text-danger" title="Eliminar Requisición">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                            <form method="POST" action="<?= url('requisiciones/destroy/' . $r->id) ?>"
+                                                data-confirm='{"title":"¿Eliminar requisición permanentemente?","message":"Esta acción eliminará la requisición y todos sus detalles. Esta acción no se puede deshacer.","type":"danger","confirmText":"Sí, eliminar","icon":"bi-trash"}'
+                                                style="display:inline">
+                                                <?= csrfField() ?>
+                                                <button type="submit" class="btn btn-sm btn-light btn-icon text-danger"
+                                                    title="Eliminar Requisición">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -129,15 +136,18 @@
         <nav aria-label="Page navigation">
             <ul class="pagination pagination-sm">
                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= url('requisiciones?page='.($page-1).'&estado='.$filtros['estado'].'&fecha_desde='.$filtros['fecha_desde'].'&fecha_hasta='.$filtros['fecha_hasta']) ?>">Anterior</a>
+                    <a class="page-link"
+                        href="<?= url('requisiciones?page=' . ($page - 1) . '&estado=' . $filtros['estado'] . '&fecha_desde=' . $filtros['fecha_desde'] . '&fecha_hasta=' . $filtros['fecha_hasta']) ?>">Anterior</a>
                 </li>
-                <?php for($i = 1; $i <= $last_page; $i++): ?>
+                <?php for ($i = 1; $i <= $last_page; $i++): ?>
                     <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= url('requisiciones?page='.$i.'&estado='.$filtros['estado'].'&fecha_desde='.$filtros['fecha_desde'].'&fecha_hasta='.$filtros['fecha_hasta']) ?>"><?= $i ?></a>
+                        <a class="page-link"
+                            href="<?= url('requisiciones?page=' . $i . '&estado=' . $filtros['estado'] . '&fecha_desde=' . $filtros['fecha_desde'] . '&fecha_hasta=' . $filtros['fecha_hasta']) ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $page >= $last_page ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= url('requisiciones?page='.($page+1).'&estado='.$filtros['estado'].'&fecha_desde='.$filtros['fecha_desde'].'&fecha_hasta='.$filtros['fecha_hasta']) ?>">Siguiente</a>
+                    <a class="page-link"
+                        href="<?= url('requisiciones?page=' . ($page + 1) . '&estado=' . $filtros['estado'] . '&fecha_desde=' . $filtros['fecha_desde'] . '&fecha_hasta=' . $filtros['fecha_hasta']) ?>">Siguiente</a>
                 </li>
             </ul>
         </nav>

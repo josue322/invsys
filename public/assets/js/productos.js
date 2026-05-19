@@ -47,6 +47,45 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // === Serial Toggle (Create page) ===
+    const serieSwitch = document.getElementById('requiere_serie');
+    const serieContainer = document.getElementById('serieFieldsContainer');
+    const serieInputsWrapper = document.getElementById('serieInputsWrapper');
+
+    if (serieSwitch && serieContainer && serieInputsWrapper) {
+        function toggleSerieFields() {
+            const isSerie = serieSwitch.checked;
+            const stock = stockInput ? (parseInt(stockInput.value) || 0) : 0;
+
+            if (isSerie) {
+                serieContainer.classList.remove('d-none');
+                serieInputsWrapper.innerHTML = '';
+                
+                const pageDataScript = document.getElementById('page-data');
+                const pageData = pageDataScript ? JSON.parse(pageDataScript.textContent || '{}') : {};
+                
+                if (stock > 0) {
+                    for (let i = 0; i < stock; i++) {
+                        const oldVal = (pageData.old_seriales && pageData.old_seriales[i]) ? pageData.old_seriales[i] : '';
+                        const div = document.createElement('div');
+                        div.className = 'col-md-4';
+                        div.innerHTML = `<input type="text" class="form-control form-control-sm" name="numeros_serie_inicial[]" placeholder="Serie #${i+1}" value="${oldVal.replace(/"/g, '&quot;')}" required>`;
+                        serieInputsWrapper.appendChild(div);
+                    }
+                } else {
+                    serieInputsWrapper.innerHTML = '<div class="col-12"><div class="text-muted text-center py-3"><i class="bi bi-info-circle mb-2 d-block fs-4"></i>Configure un Stock Inicial mayor a 0 para poder registrar los números de serie iniciales.</div></div>';
+                }
+            } else {
+                serieContainer.classList.add('d-none');
+                serieInputsWrapper.innerHTML = '';
+            }
+        }
+
+        serieSwitch.addEventListener('change', toggleSerieFields);
+        if (stockInput) stockInput.addEventListener('input', toggleSerieFields);
+        toggleSerieFields(); // Ejecutar al inicio
+    }
+
     // === Editar Lote (Show page) ===
     document.querySelectorAll('.btn-editar-lote').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -347,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // === Products Index Filters ===
     const filterForm = document.getElementById('filter-productos');
     if (filterForm) {
-        filterForm.addEventListener('submit', function() {
+        filterForm.addEventListener('submit', function () {
             const filters = {
                 search: filterForm.querySelector('[name="search"]').value,
                 categoria: filterForm.querySelector('[name="categoria"]').value,
@@ -367,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (saved.search) { urlParams.set('search', saved.search); hasFilters = true; }
             if (saved.categoria) { urlParams.set('categoria', saved.categoria); hasFilters = true; }
             if (saved.stock) { urlParams.set('stock', saved.stock); hasFilters = true; }
-            
+
             if (hasFilters) {
                 // Redirect to apply saved filters
                 window.location.search = urlParams.toString();
@@ -393,26 +432,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (selectAll) {
-        selectAll.addEventListener('change', function() {
+        selectAll.addEventListener('change', function () {
             checkboxes.forEach(cb => cb.checked = this.checked);
             updatePrintButton();
         });
 
         checkboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
+            cb.addEventListener('change', function () {
                 if (!this.checked) selectAll.checked = false;
                 else if (document.querySelectorAll('.product-checkbox:checked').length === checkboxes.length) selectAll.checked = true;
                 updatePrintButton();
             });
         });
 
-        btnPrintSelected?.addEventListener('click', function() {
+        btnPrintSelected?.addEventListener('click', function () {
             const selectedIds = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
             if (selectedIds.length === 0) return;
-            
+
             const baseUrl = PAGE_DATA.baseUrl || '';
             const w = window.open(baseUrl + '/productos/imprimir_masivo?ids=' + selectedIds.join(','), '_blank');
-            if(w) w.focus();
+            if (w) w.focus();
         });
     }
 });

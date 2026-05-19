@@ -19,7 +19,7 @@
             <div class="col">
                 <strong>¿Cómo funciona?</strong><br>
                 <small class="text-muted">
-                    Cree una sesión → Registre el conteo físico de cada producto → 
+                    Cree una sesión → Registre el conteo físico de cada producto →
                     Cierre la sesión → Aplique los ajustes automáticos para corregir diferencias.
                 </small>
             </div>
@@ -59,86 +59,90 @@
                     </thead>
                     <tbody>
                         <?php foreach ($conteos as $c): ?>
-                        <?php
-                            $pct = $c->total_productos > 0 
-                                ? round(($c->productos_contados / $c->total_productos) * 100) 
+                            <?php
+                            $pct = $c->total_productos > 0
+                                ? round(($c->productos_contados / $c->total_productos) * 100)
                                 : 0;
-                            $estadoBadge = match($c->estado) {
-                                'abierto'  => 'bg-success',
-                                'cerrado'  => 'bg-warning text-dark',
+                            $estadoBadge = match ($c->estado) {
+                                'abierto' => 'bg-success',
+                                'cerrado' => 'bg-warning text-dark',
                                 'ajustado' => 'bg-secondary',
-                                default    => 'bg-light text-dark',
+                                default => 'bg-light text-dark',
                             };
-                            $estadoLabel = match($c->estado) {
-                                'abierto'  => 'Abierto',
-                                'cerrado'  => 'Cerrado',
+                            $estadoLabel = match ($c->estado) {
+                                'abierto' => 'Abierto',
+                                'cerrado' => 'Cerrado',
                                 'ajustado' => 'Ajustado',
                                 default => $c->estado,
                             };
-                        ?>
-                        <tr>
-                            <td class="text-muted"><?= $c->id ?></td>
-                            <td>
-                                <a href="<?= url("conteos/{$c->id}") ?>" class="fw-bold text-decoration-none">
-                                    <?= htmlspecialchars($c->nombre) ?>
-                                </a>
-                                <?php if ($c->descripcion): ?>
-                                    <br><small class="text-muted"><?= htmlspecialchars(mb_substr($c->descripcion, 0, 60)) ?></small>
-                                <?php endif; ?>
-                            </td>
-                            <td><span class="badge <?= $estadoBadge ?>"><?= $estadoLabel ?></span></td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="progress" style="width:80px;height:6px;">
-                                        <div class="progress-bar <?= $pct === 100 ? 'bg-success' : 'bg-primary' ?>" 
-                                             style="width:<?= $pct ?>%"></div>
-                                    </div>
-                                    <small class="text-muted"><?= $c->productos_contados ?>/<?= $c->total_productos ?></small>
-                                </div>
-                            </td>
-                            <td>
-                                <?php if ($c->productos_con_diferencia > 0): ?>
-                                    <span class="badge bg-danger"><?= $c->productos_con_diferencia ?></span>
-                                <?php else: ?>
-                                    <span class="text-muted">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><small><?= htmlspecialchars($c->usuario_nombre ?? '') ?></small></td>
-                            <td><small class="text-muted"><?= formatDate($c->created_at) ?></small></td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <a href="<?= url("conteos/{$c->id}") ?>" class="btn-action btn-edit" title="Ver / Editar">
-                                        <i class="bi bi-eye-fill"></i>
+                            ?>
+                            <tr>
+                                <td class="text-muted"><?= $c->id ?></td>
+                                <td>
+                                    <a href="<?= url("conteos/{$c->id}") ?>" class="fw-bold text-decoration-none">
+                                        <?= htmlspecialchars($c->nombre) ?>
                                     </a>
-                                    <?php if (hasPermission('movimientos.crear') || hasPermission('admin')): ?>
-                                    <form method="POST" action="<?= url("conteos/eliminar/{$c->id}") ?>" style="display:inline"
-                                          data-confirm='<?= json_encode([
-                                              "title" => "¿Eliminar sesión permanentemente?",
-                                              "message" => "Se eliminará permanentemente la sesión <strong>" . htmlspecialchars($c->nombre) . "</strong> y todos sus registros físicos. Esta acción no se puede deshacer.",
-                                              "type" => "danger",
-                                              "confirmText" => "Sí, eliminar permanentemente",
-                                              "icon" => "bi-trash-fill"
-                                          ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
-                                        <?= csrfField() ?>
-                                        <button type="submit" class="btn-action btn-delete text-danger" title="Eliminar permanentemente">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </button>
-                                    </form>
+                                    <?php if ($c->descripcion): ?>
+                                        <br><small
+                                            class="text-muted"><?= htmlspecialchars(mb_substr($c->descripcion, 0, 60)) ?></small>
                                     <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                                <td><span class="badge <?= $estadoBadge ?>"><?= $estadoLabel ?></span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress" style="width:80px;height:6px;">
+                                            <div class="progress-bar <?= $pct === 100 ? 'bg-success' : 'bg-primary' ?>"
+                                                style="width:<?= $pct ?>%"></div>
+                                        </div>
+                                        <small
+                                            class="text-muted"><?= $c->productos_contados ?>/<?= $c->total_productos ?></small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <?php if ($c->productos_con_diferencia > 0): ?>
+                                        <span class="badge bg-danger"><?= $c->productos_con_diferencia ?></span>
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><small><?= htmlspecialchars($c->usuario_nombre ?? '') ?></small></td>
+                                <td><small class="text-muted"><?= formatDate($c->created_at) ?></small></td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="<?= url("conteos/{$c->id}") ?>" class="btn-action btn-edit"
+                                            title="Ver / Editar">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                        <?php if (hasPermission('movimientos.crear') || hasPermission('admin')): ?>
+                                            <form method="POST" action="<?= url("conteos/eliminar/{$c->id}") ?>"
+                                                style="display:inline" data-confirm='<?= json_encode([
+                                                    "title" => "¿Eliminar sesión permanentemente?",
+                                                    "message" => "Se eliminará permanentemente la sesión <strong>" . htmlspecialchars($c->nombre) . "</strong> y todos sus registros físicos. Esta acción no se puede deshacer.",
+                                                    "type" => "danger",
+                                                    "confirmText" => "Sí, eliminar permanentemente",
+                                                    "icon" => "bi-trash-fill"
+                                                ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
+                                                <?= csrfField() ?>
+                                                <button type="submit" class="btn-action btn-delete text-danger"
+                                                    title="Eliminar permanentemente">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
 
-        <!-- Pagination -->
-        <?php
+            <!-- Pagination -->
+            <?php
             $pg = $pagination;
             $baseUrl = 'conteos';
             include APP_PATH . '/views/layouts/_pagination.php';
-        ?>
+            ?>
         <?php endif; ?>
     </div>
 </div>

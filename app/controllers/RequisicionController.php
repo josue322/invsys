@@ -466,10 +466,10 @@ class RequisicionController extends Controller
 
         try {
             $this->requisicionModel->beginTransaction();
-            
+
             // Eliminar detalles explícitamente
             $this->requisicionModel->rawQuery("DELETE FROM requisicion_detalles WHERE requisicion_id = ?", [$id]);
-            
+
             // Eliminar la requisición
             $this->requisicionModel->rawQuery("DELETE FROM requisiciones WHERE id = ?", [$id]);
 

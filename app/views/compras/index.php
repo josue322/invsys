@@ -4,7 +4,7 @@
         <h4 class="fw-bold mb-1">Órdenes de Compra</h4>
         <span class="text-muted">Gestión de abastecimiento y recepción de inventario</span>
     </div>
-    
+
     <?php if (hasPermission('compras.crear')): ?>
         <div class="d-flex gap-2">
             <a href="<?= url('compras/crear') ?>" class="btn btn-primary shadow-sm">
@@ -31,11 +31,13 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label mb-1 text-muted small fw-semibold">Desde</label>
-                <input type="date" name="fecha_desde" class="form-control form-control-sm" value="<?= htmlspecialchars($filtros['fecha_desde']) ?>">
+                <input type="date" name="fecha_desde" class="form-control form-control-sm"
+                    value="<?= htmlspecialchars($filtros['fecha_desde']) ?>">
             </div>
             <div class="col-md-3">
                 <label class="form-label mb-1 text-muted small fw-semibold">Hasta</label>
-                <input type="date" name="fecha_hasta" class="form-control form-control-sm" value="<?= htmlspecialchars($filtros['fecha_hasta']) ?>">
+                <input type="date" name="fecha_hasta" class="form-control form-control-sm"
+                    value="<?= htmlspecialchars($filtros['fecha_hasta']) ?>">
             </div>
             <div class="col-md-3">
                 <button type="submit" class="btn btn-primary btn-sm w-100">
@@ -89,33 +91,35 @@
                                 <td class="fw-bold"><?= formatMoney($o->total) ?></td>
                                 <td>
                                     <?php
-                                        $badge = match($o->estado) {
-                                            'borrador' => 'bg-secondary',
-                                            'pendiente' => 'bg-warning text-dark',
-                                            'aprobada' => 'bg-info text-dark',
-                                            'recibida' => 'bg-success',
-                                            'cancelada' => 'bg-danger',
-                                            default => 'bg-secondary',
-                                        };
+                                    $badge = match ($o->estado) {
+                                        'borrador' => 'bg-secondary',
+                                        'pendiente' => 'bg-warning text-dark',
+                                        'aprobada' => 'bg-info text-dark',
+                                        'recibida' => 'bg-success',
+                                        'cancelada' => 'bg-danger',
+                                        default => 'bg-secondary',
+                                    };
                                     ?>
-                                    <span class="badge <?= $badge ?> text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                                    <span class="badge <?= $badge ?> text-uppercase"
+                                        style="font-size: 0.7rem; letter-spacing: 0.5px;">
                                         <?= $o->estado ?>
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
-                                        <a href="<?= url('compras/show/' . $o->id) ?>" class="btn-action btn-edit" title="Ver Detalle">
+                                        <a href="<?= url('compras/show/' . $o->id) ?>" class="btn-action btn-edit"
+                                            title="Ver Detalle">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                         <?php if (hasPermission('compras.eliminar')): ?>
-                                        <form method="POST" action="<?= url('compras/destroy/' . $o->id) ?>" 
-                                              data-confirm='{"title":"¿Eliminar orden permanentemente?","message":"Esta acción eliminará la orden de compra y todos sus detalles. Esta acción no se puede deshacer.","type":"danger","confirmText":"Sí, eliminar","icon":"bi-trash"}'
-                                              style="display:inline">
-                                            <?= csrfField() ?>
-                                            <button type="submit" class="btn-action btn-delete" title="Eliminar Orden">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </button>
-                                        </form>
+                                            <form method="POST" action="<?= url('compras/destroy/' . $o->id) ?>"
+                                                data-confirm='{"title":"¿Eliminar orden permanentemente?","message":"Esta acción eliminará la orden de compra y todos sus detalles. Esta acción no se puede deshacer.","type":"danger","confirmText":"Sí, eliminar","icon":"bi-trash"}'
+                                                style="display:inline">
+                                                <?= csrfField() ?>
+                                                <button type="submit" class="btn-action btn-delete" title="Eliminar Orden">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -134,15 +138,18 @@
         <nav aria-label="Page navigation">
             <ul class="pagination pagination-sm">
                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= url('compras?page='.($page-1).'&estado='.$filtros['estado'].'&fecha_desde='.$filtros['fecha_desde'].'&fecha_hasta='.$filtros['fecha_hasta']) ?>">Anterior</a>
+                    <a class="page-link"
+                        href="<?= url('compras?page=' . ($page - 1) . '&estado=' . $filtros['estado'] . '&fecha_desde=' . $filtros['fecha_desde'] . '&fecha_hasta=' . $filtros['fecha_hasta']) ?>">Anterior</a>
                 </li>
-                <?php for($i = 1; $i <= $last_page; $i++): ?>
+                <?php for ($i = 1; $i <= $last_page; $i++): ?>
                     <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= url('compras?page='.$i.'&estado='.$filtros['estado'].'&fecha_desde='.$filtros['fecha_desde'].'&fecha_hasta='.$filtros['fecha_hasta']) ?>"><?= $i ?></a>
+                        <a class="page-link"
+                            href="<?= url('compras?page=' . $i . '&estado=' . $filtros['estado'] . '&fecha_desde=' . $filtros['fecha_desde'] . '&fecha_hasta=' . $filtros['fecha_hasta']) ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
                 <li class="page-item <?= $page >= $last_page ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= url('compras?page='.($page+1).'&estado='.$filtros['estado'].'&fecha_desde='.$filtros['fecha_desde'].'&fecha_hasta='.$filtros['fecha_hasta']) ?>">Siguiente</a>
+                    <a class="page-link"
+                        href="<?= url('compras?page=' . ($page + 1) . '&estado=' . $filtros['estado'] . '&fecha_desde=' . $filtros['fecha_desde'] . '&fecha_hasta=' . $filtros['fecha_hasta']) ?>">Siguiente</a>
                 </li>
             </ul>
         </nav>

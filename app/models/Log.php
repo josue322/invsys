@@ -81,4 +81,18 @@ class Log extends Model
             'perPage' => $perPage,
         ];
     }
+
+    /**
+     * Obtener los N logs más recientes con nombre de usuario (para dashboard).
+     */
+    public function getRecent(int $limit = 10): array
+    {
+        $sql = "SELECT l.accion, l.modulo, l.detalles, l.created_at,
+                       COALESCE(u.nombre, 'Sistema') as usuario_nombre
+                FROM {$this->table} l
+                LEFT JOIN usuarios u ON l.usuario_id = u.id
+                ORDER BY l.created_at DESC
+                LIMIT {$limit}";
+        return $this->query($sql)->fetchAll();
+    }
 }

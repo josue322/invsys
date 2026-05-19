@@ -23,7 +23,7 @@ class DepartamentoController extends Controller
     {
         $page = (int) $this->query('page', 1);
         $search = $this->query('search', '');
-        
+
         $perPage = $this->getPerPage();
         $offset = ($page - 1) * $perPage;
 
@@ -81,7 +81,7 @@ class DepartamentoController extends Controller
         $responsable = trim($this->input('responsable', ''));
         $centro_costo = trim($this->input('centro_costo', ''));
         $telefono = trim($this->input('telefono', ''));
-        
+
         if (empty($nombre)) {
             $this->setFlash('error', 'El nombre del departamento es obligatorio.');
             $this->redirect('departamentos/create');
@@ -207,10 +207,10 @@ class DepartamentoController extends Controller
 
         $nuevoEstado = $departamento->activo ? 0 : 1;
         $this->departamentoModel->update($id, ['activo' => $nuevoEstado]);
-        
+
         $accion = $nuevoEstado ? "Activó" : "Desactivó";
         $this->securityService->logAction(currentUserId(), 'update', 'departamentos', "$accion el departamento: {$departamento->nombre}");
-        
+
         $this->setFlash('success', "Departamento " . strtolower($accion) . " exitosamente.");
         $this->redirect('departamentos');
     }

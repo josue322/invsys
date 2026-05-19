@@ -20,14 +20,14 @@ class ConteoController extends Controller
 
     public function __construct()
     {
-        $this->conteoModel      = new Conteo();
-        $this->detalleModel     = new ConteoDetalle();
-        $this->productoModel    = new Producto();
-        $this->movimientoModel  = new Movimiento();
-        $this->categoriaModel   = new Categoria();
-        $this->ubicacionModel   = new Ubicacion();
-        $this->securityService  = SecurityService::getInstance();
-        $this->alertService     = new AlertService();
+        $this->conteoModel = new Conteo();
+        $this->detalleModel = new ConteoDetalle();
+        $this->productoModel = new Producto();
+        $this->movimientoModel = new Movimiento();
+        $this->categoriaModel = new Categoria();
+        $this->ubicacionModel = new Ubicacion();
+        $this->securityService = SecurityService::getInstance();
+        $this->alertService = new AlertService();
     }
 
     /**
@@ -39,10 +39,10 @@ class ConteoController extends Controller
         $result = $this->conteoModel->getAllPaginated($page, $this->getPerPage());
 
         $this->view('conteos/index', [
-            'titulo'     => 'Conteo Físico',
-            'conteos'    => $result['data'],
+            'titulo' => 'Conteo Físico',
+            'conteos' => $result['data'],
             'pagination' => $result,
-            'flash'      => $this->getFlash(),
+            'flash' => $this->getFlash(),
         ]);
     }
 
@@ -52,11 +52,11 @@ class ConteoController extends Controller
     public function create(): void
     {
         $this->view('conteos/create', [
-            'titulo'      => 'Nuevo Conteo Físico',
-            'categorias'  => $this->categoriaModel->findAllActive(),
+            'titulo' => 'Nuevo Conteo Físico',
+            'categorias' => $this->categoriaModel->findAllActive(),
             'ubicaciones' => $this->ubicacionModel->findAllActive(),
-            'csrfToken'   => $this->generateCSRF(),
-            'flash'       => $this->getFlash(),
+            'csrfToken' => $this->generateCSRF(),
+            'flash' => $this->getFlash(),
         ]);
     }
 
@@ -70,10 +70,10 @@ class ConteoController extends Controller
             return;
         }
 
-        $nombre      = trim($this->input('nombre', ''));
+        $nombre = trim($this->input('nombre', ''));
         $descripcion = trim($this->input('descripcion', ''));
-        $filtroTipo  = $this->input('filtro_tipo', 'todos');
-        $filtroId    = (int) $this->input('filtro_id', 0) ?: null;
+        $filtroTipo = $this->input('filtro_tipo', 'todos');
+        $filtroId = (int) $this->input('filtro_id', 0) ?: null;
 
         // Validaciones
         if (empty($nombre)) {
@@ -97,19 +97,21 @@ class ConteoController extends Controller
 
         // Crear sesión
         $conteoId = $this->conteoModel->create([
-            'nombre'      => $nombre,
+            'nombre' => $nombre,
             'descripcion' => $descripcion,
-            'estado'      => 'abierto',
+            'estado' => 'abierto',
             'filtro_tipo' => $filtroTipo,
-            'filtro_id'   => $filtroId,
-            'usuario_id'  => currentUserId(),
+            'filtro_id' => $filtroId,
+            'usuario_id' => currentUserId(),
         ]);
 
         // Cargar productos en la sesión
         $count = $this->detalleModel->loadProducts($conteoId, $productos);
 
         $this->securityService->logAction(
-            currentUserId(), 'crear_conteo', 'conteos',
+            currentUserId(),
+            'crear_conteo',
+            'conteos',
             "Sesión '{$nombre}' creada con {$count} productos"
         );
 
@@ -146,14 +148,14 @@ class ConteoController extends Controller
         }
 
         $this->view('conteos/show', [
-            'titulo'       => $conteo->nombre,
-            'conteo'       => $conteo,
-            'items'        => $items,
-            'summary'      => $summary,
+            'titulo' => $conteo->nombre,
+            'conteo' => $conteo,
+            'items' => $items,
+            'summary' => $summary,
             'currentFilter' => $filter,
             'filtroNombre' => $filtroNombre,
-            'csrfToken'    => $this->generateCSRF(),
-            'flash'        => $this->getFlash(),
+            'csrfToken' => $this->generateCSRF(),
+            'flash' => $this->getFlash(),
         ]);
     }
 
@@ -206,9 +208,9 @@ class ConteoController extends Controller
         $summary = $this->conteoModel->getSummary($item->conteo_id);
 
         echo json_encode([
-            'success'    => true,
+            'success' => true,
             'diferencia' => $diferencia,
-            'summary'    => $summary,
+            'summary' => $summary,
         ]);
     }
 
@@ -234,7 +236,9 @@ class ConteoController extends Controller
         $this->conteoModel->close($conteoId, currentUserId());
 
         $this->securityService->logAction(
-            currentUserId(), 'cerrar_conteo', 'conteos',
+            currentUserId(),
+            'cerrar_conteo',
+            'conteos',
             "Sesión #{$conteoId} cerrada"
         );
 
@@ -277,22 +281,23 @@ class ConteoController extends Controller
             foreach ($diferencias as $item) {
                 // Bloquear producto para evitar race condition
                 $producto = $this->productoModel->findByIdForUpdate($item->producto_id);
-                if (!$producto) continue;
+                if (!$producto)
+                    continue;
 
                 $stockNuevo = $item->stock_fisico;
 
                 $this->movimientoModel->create([
-                    'producto_id'    => $item->producto_id,
-                    'usuario_id'     => currentUserId(),
-                    'lote_id'        => null,
-                    'proveedor_id'   => null,
-                    'destino'        => null,
-                    'tipo'           => 'ajuste',
-                    'cantidad'       => abs($item->diferencia),
+                    'producto_id' => $item->producto_id,
+                    'usuario_id' => currentUserId(),
+                    'lote_id' => null,
+                    'proveedor_id' => null,
+                    'destino' => null,
+                    'tipo' => 'ajuste',
+                    'cantidad' => abs($item->diferencia),
                     'stock_anterior' => $producto->stock,
-                    'stock_nuevo'    => $stockNuevo,
-                    'referencia'     => "CONTEO-{$conteoId}",
-                    'observaciones'  => "Ajuste automático por conteo físico: {$conteo->nombre}",
+                    'stock_nuevo' => $stockNuevo,
+                    'referencia' => "CONTEO-{$conteoId}",
+                    'observaciones' => "Ajuste automático por conteo físico: {$conteo->nombre}",
                 ]);
 
                 $this->productoModel->updateStock($item->producto_id, $stockNuevo);
@@ -308,7 +313,9 @@ class ConteoController extends Controller
             }
 
             $this->securityService->logAction(
-                currentUserId(), 'aplicar_ajustes', 'conteos',
+                currentUserId(),
+                'aplicar_ajustes',
+                'conteos',
                 "Aplicados {$ajustes} ajustes del conteo #{$conteoId}"
             );
 
@@ -348,17 +355,19 @@ class ConteoController extends Controller
 
         try {
             $this->conteoModel->beginTransaction();
-            
+
             // Eliminar detalles primero
             $this->detalleModel->rawQuery("DELETE FROM conteo_detalle WHERE conteo_id = ?", [$conteoId]);
-            
+
             // Eliminar conteo
             $this->conteoModel->rawQuery("DELETE FROM conteos WHERE id = ?", [$conteoId]);
 
             $this->conteoModel->commit();
-            
+
             $this->securityService->logAction(
-                currentUserId(), 'delete', 'conteos',
+                currentUserId(),
+                'delete',
+                'conteos',
                 "Eliminó permanentemente la sesión de conteo '{$conteo->nombre}' (ID: {$conteoId})"
             );
             $this->setFlash('success', "Sesión de conteo '{$conteo->nombre}' eliminada permanentemente.");
@@ -404,11 +413,11 @@ class ConteoController extends Controller
             $filtroNombre = 'Ubicación: ' . ($ub->nombre ?? 'N/A');
         }
 
-        $estadoLabel = match($conteo->estado) {
-            'abierto'  => 'Abierto',
-            'cerrado'  => 'Cerrado',
+        $estadoLabel = match ($conteo->estado) {
+            'abierto' => 'Abierto',
+            'cerrado' => 'Cerrado',
             'ajustado' => 'Ajustado',
-            default    => ucfirst($conteo->estado),
+            default => ucfirst($conteo->estado),
         };
 
         // Formatear filas
@@ -417,19 +426,21 @@ class ConteoController extends Controller
             $diff = $hasCount ? ($item->stock_fisico - $item->stock_sistema) : null;
 
             return [
-                'sku'             => $item->sku,
-                'nombre'          => $item->producto_nombre,
-                'categoria'       => $item->categoria_nombre ?? '—',
-                'unidad'          => $item->unidad_medida ?? 'Und',
-                'stock_sistema'   => $item->stock_sistema,
-                'stock_fisico'    => $hasCount ? $item->stock_fisico : '—',
-                'diferencia'      => $hasCount ? ($diff >= 0 ? ($diff > 0 ? "+{$diff}" : '0') : (string) $diff) : '—',
-                'observaciones'   => $item->observaciones ?? '',
+                'sku' => $item->sku,
+                'nombre' => $item->producto_nombre,
+                'categoria' => $item->categoria_nombre ?? '—',
+                'unidad' => $item->unidad_medida ?? 'Und',
+                'stock_sistema' => $item->stock_sistema,
+                'stock_fisico' => $hasCount ? $item->stock_fisico : '—',
+                'diferencia' => $hasCount ? ($diff >= 0 ? ($diff > 0 ? "+{$diff}" : '0') : (string) $diff) : '—',
+                'observaciones' => $item->observaciones ?? '',
             ];
         }, $items);
 
         $this->securityService->logAction(
-            currentUserId(), 'exportar_conteo_pdf', 'conteos',
+            currentUserId(),
+            'exportar_conteo_pdf',
+            'conteos',
             "Exportación PDF del conteo #{$conteoId} ({$conteo->nombre})"
         );
 
@@ -440,21 +451,25 @@ class ConteoController extends Controller
             "conteo_fisico_{$conteoId}",
             [
                 [
-                    'title'   => "Detalle del Conteo — {$filtroNombre} ({$summary->total} productos)",
+                    'title' => "Detalle del Conteo — {$filtroNombre} ({$summary->total} productos)",
                     'headers' => ['SKU', 'Producto', 'Categoría', 'Unidad', 'Stock Sistema', 'Stock Físico', 'Diferencia', 'Observaciones'],
-                    'rows'    => $rows,
-                    'keys'    => ['sku', 'nombre', 'categoria', 'unidad', 'stock_sistema', 'stock_fisico', 'diferencia', 'observaciones'],
+                    'rows' => $rows,
+                    'keys' => ['sku', 'nombre', 'categoria', 'unidad', 'stock_sistema', 'stock_fisico', 'diferencia', 'observaciones'],
                     'formatters' => [
                         'sku' => fn($v) => '<span class="text-mono">' . htmlspecialchars($v) . '</span>',
                         'nombre' => fn($v) => '<span class="text-bold">' . htmlspecialchars($v) . '</span>',
                         'diferencia' => function ($v) {
-                            if ($v === '—') return '<span style="color:#94a3b8;">—</span>';
-                            if ($v === '0') return '<span class="badge-ok">✓ 0</span>';
-                            if (str_starts_with($v, '+')) return '<span class="badge-warn">' . $v . '</span>';
+                            if ($v === '—')
+                                return '<span style="color:#94a3b8;">—</span>';
+                            if ($v === '0')
+                                return '<span class="badge-ok">✓ 0</span>';
+                            if (str_starts_with($v, '+'))
+                                return '<span class="badge-warn">' . $v . '</span>';
                             return '<span class="badge-danger">' . $v . '</span>';
                         },
                         'stock_fisico' => function ($v) {
-                            if ($v === '—') return '<span style="color:#94a3b8;">Pendiente</span>';
+                            if ($v === '—')
+                                return '<span style="color:#94a3b8;">Pendiente</span>';
                             return '<span class="text-bold">' . $v . '</span>';
                         },
                     ],
@@ -494,21 +509,23 @@ class ConteoController extends Controller
             $diff = $hasCount ? ($item->stock_fisico - $item->stock_sistema) : null;
 
             return [
-                'sku'             => $item->sku,
-                'nombre'          => $item->producto_nombre,
-                'categoria'       => $item->categoria_nombre ?? 'Sin categoría',
-                'ubicacion'       => $item->ubicacion_nombre ?? 'Sin ubicación',
-                'unidad'          => $item->unidad_medida ?? 'Und',
-                'stock_sistema'   => $item->stock_sistema,
-                'stock_fisico'    => $hasCount ? $item->stock_fisico : '',
-                'diferencia'      => $hasCount ? $diff : '',
-                'estado'          => $hasCount ? ($diff === 0 ? 'Coincide' : ($diff > 0 ? 'Sobrante' : 'Faltante')) : 'Pendiente',
-                'observaciones'   => $item->observaciones ?? '',
+                'sku' => $item->sku,
+                'nombre' => $item->producto_nombre,
+                'categoria' => $item->categoria_nombre ?? 'Sin categoría',
+                'ubicacion' => $item->ubicacion_nombre ?? 'Sin ubicación',
+                'unidad' => $item->unidad_medida ?? 'Und',
+                'stock_sistema' => $item->stock_sistema,
+                'stock_fisico' => $hasCount ? $item->stock_fisico : '',
+                'diferencia' => $hasCount ? $diff : '',
+                'estado' => $hasCount ? ($diff === 0 ? 'Coincide' : ($diff > 0 ? 'Sobrante' : 'Faltante')) : 'Pendiente',
+                'observaciones' => $item->observaciones ?? '',
             ];
         }, $items);
 
         $this->securityService->logAction(
-            currentUserId(), 'exportar_conteo_csv', 'conteos',
+            currentUserId(),
+            'exportar_conteo_csv',
+            'conteos',
             "Exportación CSV del conteo #{$conteoId} ({$conteo->nombre})"
         );
 

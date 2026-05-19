@@ -100,6 +100,29 @@ class Controller
     }
 
     /**
+     * Guardar datos del POST actual en sesión para repoblar el formulario.
+     */
+    protected function setOldInput(): void
+    {
+        $_SESSION['old_input'] = $_POST;
+    }
+
+    /**
+     * Obtener y limpiar los datos antiguos del formulario de la sesión.
+     *
+     * @return array Datos antiguos o array vacío
+     */
+    protected function getOldInput(): array
+    {
+        if (isset($_SESSION['old_input'])) {
+            $old = $_SESSION['old_input'];
+            unset($_SESSION['old_input']);
+            return $old;
+        }
+        return [];
+    }
+
+    /**
      * Obtener datos del POST de forma segura.
      *
      * Los datos se devuelven sin escapar HTML para evitar doble-encoding.

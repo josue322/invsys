@@ -110,7 +110,7 @@ class DevolucionController extends Controller
                 $cantidadesInput = $this->input('cantidades', []);
                 $motivosInput = $this->input('motivos', []);
                 $estadosInput = $this->input('estados', []);
-                
+
                 $cantidad = (int) ($cantidadesInput[$pid] ?? 0);
                 $motivo = trim($motivosInput[$pid] ?? '');
                 $estadoProd = $estadosInput[$pid] ?? 'bueno';
@@ -295,10 +295,10 @@ class DevolucionController extends Controller
 
         try {
             $this->devolucionModel->beginTransaction();
-            
+
             // Eliminar detalles explícitamente
             $this->devolucionModel->rawQuery("DELETE FROM devolucion_detalles WHERE devolucion_id = ?", [$id]);
-            
+
             // Eliminar la devolución
             $this->devolucionModel->rawQuery("DELETE FROM devoluciones WHERE id = ?", [$id]);
 

@@ -14,6 +14,7 @@ class DashboardController extends Controller
         $movimientoModel = new Movimiento();
         $alertaModel = new Alerta();
         $alertService = new AlertService();
+        $logModel = new Log();
 
         // Verificar vencimientos (máximo 1 vez por hora para evitar N+1 queries)
         $lastCheck = $_SESSION['last_expiry_check'] ?? 0;
@@ -33,23 +34,35 @@ class DashboardController extends Controller
         $movimientosSemana = $movimientoModel->getByTypeLastDays(7);
         $productosProximosVencer = $productoModel->getExpiringProducts(30);
 
+        // Nuevos widgets del dashboard
+        $stockHealth = $productoModel->getStockHealthSummary();
+        $rotacionResumen = $productoModel->getRotationSummary(90);
+        $valorTendencia = $movimientoModel->getValueTrendLastDays(30);
+
+        // Activity feed
+        $actividadReciente = $logModel->getRecent(8);
+
         $csrfToken = $this->generateCSRF();
         $flash = $this->getFlash();
 
         $this->view('dashboard/index', [
-            'titulo'              => 'Dashboard',
-            'totalProductos'      => $totalProductos,
-            'valorInventario'     => $valorInventario,
-            'alertasActivas'      => $alertasActivas,
-            'movimientosHoy'      => $movimientosHoy,
-            'productosStockBajo'  => $productosStockBajo,
-            'topProductos'        => $topProductos,
+            'titulo' => 'Dashboard',
+            'totalProductos' => $totalProductos,
+            'valorInventario' => $valorInventario,
+            'alertasActivas' => $alertasActivas,
+            'movimientosHoy' => $movimientosHoy,
+            'productosStockBajo' => $productosStockBajo,
+            'topProductos' => $topProductos,
             'productosPorCategoria' => $productosPorCategoria,
-            'movimientosSemana'   => $movimientosSemana,
+            'movimientosSemana' => $movimientosSemana,
             'productosProximosVencer' => $productosProximosVencer,
-            'csrfToken'           => $csrfToken,
-            'flash'               => $flash,
-            'loadChartJS'         => true,
+            'stockHealth' => $stockHealth,
+            'rotacionResumen' => $rotacionResumen,
+            'valorTendencia' => $valorTendencia,
+            'actividadReciente' => $actividadReciente,
+            'csrfToken' => $csrfToken,
+            'flash' => $flash,
+            'loadChartJS' => true,
         ]);
     }
 
@@ -63,13 +76,13 @@ class DashboardController extends Controller
         $alertaModel = new Alerta();
 
         $this->json([
-            'totalProductos'      => $productoModel->countActive(),
-            'valorInventario'     => $productoModel->getTotalInventoryValue(),
-            'alertasActivas'      => $alertaModel->countUnread(),
-            'movimientosHoy'      => $movimientoModel->countToday(),
+            'totalProductos' => $productoModel->countActive(),
+            'valorInventario' => $productoModel->getTotalInventoryValue(),
+            'alertasActivas' => $alertaModel->countUnread(),
+            'movimientosHoy' => $movimientoModel->countToday(),
             'productosPorCategoria' => $productoModel->getCountByCategory(),
-            'movimientosSemana'   => $movimientoModel->getByTypeLastDays(7),
-            'topProductos'        => $movimientoModel->getTopProducts(5),
+            'movimientosSemana' => $movimientoModel->getByTypeLastDays(7),
+            'topProductos' => $movimientoModel->getTopProducts(5),
         ]);
     }
 }

@@ -1,17 +1,17 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const btnAddRow = document.getElementById('btn-add-row');
     const tbody = document.getElementById('detalles-body');
     const emptyState = document.getElementById('empty-details-state');
     const form = document.getElementById('formOrdenCompra');
     const displayTotal = document.getElementById('total_orden_display');
-    
+
     let productos = [];
     try {
         const prodData = document.getElementById('productos-data');
         if (prodData) {
             productos = JSON.parse(prodData.textContent);
         }
-    } catch(e) {
+    } catch (e) {
         console.error('Error loading product data', e);
     }
 
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTotal();
         };
 
-        select.addEventListener('change', function() {
+        select.addEventListener('change', function () {
             const selectedOption = this.options[this.selectedIndex];
             if (selectedOption && selectedOption.value) {
                 const precioCompra = selectedOption.getAttribute('data-precio');
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
         inputCant.addEventListener('input', calculateSubtotal);
         inputPrecio.addEventListener('input', calculateSubtotal);
 
-        btnRemove.addEventListener('click', function() {
+        btnRemove.addEventListener('click', function () {
             tr.remove();
             if (tbody.children.length === 0) {
                 emptyState.style.display = 'block';
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             if (tbody.children.length === 0) {
                 e.preventDefault();
                 alert('Debe agregar al menos un producto a la orden de compra.');

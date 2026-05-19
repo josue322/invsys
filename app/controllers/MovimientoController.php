@@ -10,6 +10,7 @@ class MovimientoController extends Controller
     private Producto $productoModel;
     private Proveedor $proveedorModel;
     private Lote $loteModel;
+    private NumeroSerie $serieModel;
     private SecurityService $securityService;
     private AlertService $alertService;
 
@@ -19,6 +20,7 @@ class MovimientoController extends Controller
         $this->productoModel = new Producto();
         $this->proveedorModel = new Proveedor();
         $this->loteModel = new Lote();
+        $this->serieModel = new NumeroSerie();
         $this->securityService = SecurityService::getInstance();
         $this->alertService = new AlertService();
     }
@@ -72,6 +74,7 @@ class MovimientoController extends Controller
             'productos' => $productos,
             'proveedores' => $proveedores,
             'csrfToken' => $csrfToken,
+            'flash' => $this->getFlash(),
         ]);
     }
 
@@ -107,6 +110,7 @@ class MovimientoController extends Controller
             $errors[] = 'La cantidad debe ser mayor a 0.';
 
         // Verificar que el producto existe (lectura rápida sin lock)
+        /** @var \stdClass|null $productoCheck */
         $productoCheck = $productoId > 0 ? $this->productoModel->findById($productoId) : null;
         if (!$productoCheck && $productoId > 0)
             $errors[] = 'Producto no encontrado.';
@@ -119,7 +123,35 @@ class MovimientoController extends Controller
                 $errors[] = 'El producto es perecedero. Requiere una Fecha de Vencimiento.';
         }
 
+        // Validaciones Números de Serie
+        $numSeries = $_POST['numeros_serie'] ?? [];
+        $serieIds = array_map('intval', $_POST['serie_ids'] ?? []);
+
+        if ($productoCheck && !empty($productoCheck->requiere_serie)) {
+            if ($tipo === 'entrada') {
+                $numSeries = array_filter(array_map('trim', $numSeries));
+                if (count($numSeries) !== $cantidad) {
+                    $errors[] = "Debe ingresar exactamente {$cantidad} número(s) de serie.";
+                }
+                // Check for duplicates within the submitted list
+                if (count($numSeries) !== count(array_unique($numSeries))) {
+                    $errors[] = 'Hay números de serie duplicados en la lista.';
+                }
+                // Check for duplicates against existing serials in DB
+                foreach ($numSeries as $ns) {
+                    if ($this->serieModel->serialExists($productoCheck->id, $ns)) {
+                        $errors[] = "El número de serie \"{$ns}\" ya está registrado en el sistema. Debe ser único.";
+                    }
+                }
+            } elseif ($tipo === 'salida') {
+                if (count($serieIds) !== $cantidad) {
+                    $errors[] = "Debe seleccionar exactamente {$cantidad} número(s) de serie.";
+                }
+            }
+        }
+
         if (!empty($errors)) {
+            $this->setOldInput();
             $this->setFlash('error', implode('<br>', $errors));
             $this->redirect('movimientos/crear');
             return;
@@ -132,6 +164,7 @@ class MovimientoController extends Controller
             // Obtener producto con bloqueo de fila (FOR UPDATE).
             // Esto impide que otro usuario modifique el stock de este
             // producto hasta que esta transacción termine (commit/rollback).
+            /** @var \stdClass|false $producto */
             $producto = $this->productoModel->findByIdForUpdate($productoId);
 
             if (!$producto) {
@@ -171,7 +204,7 @@ class MovimientoController extends Controller
                     ]);
                 }
 
-                $this->movimientoModel->create([
+                $lastMovId = $this->movimientoModel->create([
                     'producto_id' => $productoId,
                     'usuario_id' => currentUserId(),
                     'lote_id' => $loteId,
@@ -187,9 +220,14 @@ class MovimientoController extends Controller
 
                 $this->productoModel->updateStock($productoId, $stockNuevo);
 
+                // Registrar números de serie si aplica
+                if (!empty($productoCheck->requiere_serie) && !empty($numSeries)) {
+                    $this->serieModel->registrarEntrada($productoId, $numSeries, $lastMovId);
+                }
+
             } elseif ($tipo === 'salida') {
                 // SALIDA
-                if ($producto->es_perecedero) {
+                if (!empty($productoCheck->es_perecedero)) {
                     // Lógica FEFO (First Expire, First Out)
                     $lotesDisponibles = $this->loteModel->getAvailableByProduct($productoId);
 
@@ -208,7 +246,7 @@ class MovimientoController extends Controller
 
                         // Registrar el movimiento fraccionado para Trazabilidad
                         $stockAcumNuevo = $stockAcumulativo - $cantidadADescontar;
-                        $this->movimientoModel->create([
+                        $lastMovId = $this->movimientoModel->create([
                             'producto_id' => $productoId,
                             'usuario_id' => currentUserId(),
                             'lote_id' => $lote->id,
@@ -229,7 +267,7 @@ class MovimientoController extends Controller
                     if ($cantidadRestante > 0) {
                         // Stock negativo forzado, creamos un movimiento genérico sin lote
                         $stockAcumNuevo = $stockAcumulativo - $cantidadRestante;
-                        $this->movimientoModel->create([
+                        $lastMovId = $this->movimientoModel->create([
                             'producto_id' => $productoId,
                             'usuario_id' => currentUserId(),
                             'lote_id' => null,
@@ -250,7 +288,7 @@ class MovimientoController extends Controller
                 } else {
                     // Salida normal sin lote
                     $stockNuevo = $stockAnterior - $cantidad;
-                    $this->movimientoModel->create([
+                    $lastMovId = $this->movimientoModel->create([
                         'producto_id' => $productoId,
                         'usuario_id' => currentUserId(),
                         'lote_id' => null,
@@ -264,6 +302,14 @@ class MovimientoController extends Controller
                         'observaciones' => $observaciones,
                     ]);
                     $this->productoModel->updateStock($productoId, $stockNuevo);
+                }
+
+                // Registrar salida de seriales si aplica (para ambos casos de salida: con y sin lote)
+                if (!empty($productoCheck->requiere_serie) && !empty($serieIds)) {
+                    // Usar el último $lastMovId generado
+                    if (isset($lastMovId)) {
+                        $this->serieModel->registrarSalida($serieIds, $lastMovId);
+                    }
                 }
             } elseif ($tipo === 'ajuste') {
                 // AJUSTE DIRECTO (Inventory Check)

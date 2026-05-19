@@ -146,6 +146,13 @@ return [
     ],
     [
         'method' => 'GET',
+        'path' => 'productos/exportar',
+        'controller' => 'ProductoController',
+        'action' => 'export',
+        'middleware' => ['auth', 'permiso:productos.ver'],
+    ],
+    [
+        'method' => 'GET',
         'path' => 'productos/buscar',
         'controller' => 'ProductoController',
         'action' => 'search',
@@ -179,6 +186,14 @@ return [
         'controller' => 'ProductoController',
         'action' => 'updateLote',
         'middleware' => ['auth', 'permiso:productos.editar'],
+    ],
+    // Números de Serie (AJAX)
+    [
+        'method' => 'GET',
+        'path' => 'productos/seriales/{id}',
+        'controller' => 'ProductoController',
+        'action' => 'getSeriales',
+        'middleware' => ['auth', 'permiso:productos.ver'],
     ],
 
     // =====================================================

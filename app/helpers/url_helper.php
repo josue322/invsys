@@ -238,3 +238,21 @@ function productImage(?string $filename): string
     return 'data:image/svg+xml,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="12" fill="#f0f0f5"/><path d="M32 16L44 22V42L32 48L20 42V22L32 16Z" stroke="#b0b0c0" stroke-width="2" fill="none"/><path d="M32 28L44 22" stroke="#b0b0c0" stroke-width="2"/><path d="M32 28L20 22" stroke="#b0b0c0" stroke-width="2"/><path d="M32 28V48" stroke="#b0b0c0" stroke-width="2"/></svg>');
 }
 
+/**
+ * Recuperar valor antiguo de un campo de formulario (Old Input).
+ *
+ * @param string $key Nombre del campo
+ * @param mixed $default Valor por defecto
+ * @return mixed
+ */
+function old(string $key, mixed $default = '')
+{
+    static $oldInput = null;
+    if ($oldInput === null) {
+        $oldInput = $_SESSION['old_input'] ?? [];
+        // Limpiar la sesión para que no afecte peticiones futuras
+        unset($_SESSION['old_input']);
+    }
+    return $oldInput[$key] ?? $default;
+}
+

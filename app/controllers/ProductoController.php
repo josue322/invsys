@@ -79,20 +79,21 @@ class ProductoController extends Controller
 
         // Datos pre-llenados (desde el escáner o enlace directo)
         $prefill = [
-            'sku'         => $this->query('sku', ''),
-            'nombre'      => $this->query('nombre', ''),
+            'sku' => $this->query('sku', ''),
+            'nombre' => $this->query('nombre', ''),
             'descripcion' => $this->query('descripcion', ''),
-            'imagen_url'  => $this->query('imagen_url', ''),
+            'imagen_url' => $this->query('imagen_url', ''),
         ];
         $fromScanner = (bool) $this->query('from_scanner', '');
 
         $this->view('productos/create', [
-            'titulo'      => 'Nuevo Producto',
-            'categorias'  => $categorias,
+            'titulo' => 'Nuevo Producto',
+            'categorias' => $categorias,
             'ubicaciones' => $ubicaciones,
-            'csrfToken'   => $csrfToken,
-            'prefill'     => $prefill,
+            'csrfToken' => $csrfToken,
+            'prefill' => $prefill,
             'fromScanner' => $fromScanner,
+            'flash' => $this->getFlash(),
         ]);
     }
 
@@ -107,6 +108,7 @@ class ProductoController extends Controller
         }
 
         $esPerecedero = $this->input('es_perecedero') ? 1 : 0;
+        $requiereSerie = $this->input('requiere_serie') ? 1 : 0;
 
         $data = [
             'nombre' => $this->input('nombre'),
@@ -120,12 +122,14 @@ class ProductoController extends Controller
             'stock' => (int) $this->input('stock', 0),
             'stock_minimo' => (int) $this->input('stock_minimo', 5),
             'es_perecedero' => $esPerecedero,
+            'requiere_serie' => $requiereSerie,
             'activo' => 1,
         ];
 
         // Validaciones
         $errors = $this->validateProducto($data);
         if (!empty($errors)) {
+            $this->setOldInput();
             $this->setFlash('error', implode('<br>', $errors));
             $this->redirect('productos/crear');
             return;
@@ -133,6 +137,7 @@ class ProductoController extends Controller
 
         // Verificar SKU único
         if ($this->productoModel->skuExists($data['sku'])) {
+            $this->setOldInput();
             $this->setFlash('error', 'El SKU ya existe. Use uno diferente.');
             $this->redirect('productos/crear');
             return;
@@ -140,9 +145,39 @@ class ProductoController extends Controller
 
         // Verificar código de barras único
         if (!empty($data['codigo_barras']) && $this->productoModel->barcodeExists($data['codigo_barras'])) {
+            $this->setOldInput();
             $this->setFlash('error', 'El código de barras ya existe. Use uno diferente.');
             $this->redirect('productos/crear');
             return;
+        }
+
+        // Validar seriales duplicados en el formulario (si aplica)
+        if ($requiereSerie && $data['stock'] > 0) {
+            $numSeriesInicial = array_filter(array_map('trim', $_POST['numeros_serie_inicial'] ?? []));
+            if (count($numSeriesInicial) !== $data['stock']) {
+                $this->setOldInput();
+                $this->setFlash('error', "Debe ingresar exactamente {$data['stock']} número(s) de serie iniciales.");
+                $this->redirect('productos/crear');
+                return;
+            }
+            if (count($numSeriesInicial) !== count(array_unique($numSeriesInicial))) {
+                $this->setOldInput();
+                $this->setFlash('error', 'Hay números de serie duplicados en el formulario de stock inicial.');
+                $this->redirect('productos/crear');
+                return;
+            }
+
+            // Verificar contra la base de datos
+            require_once APP_PATH . '/models/NumeroSerie.php';
+            $serieModel = new NumeroSerie();
+            foreach ($numSeriesInicial as $ns) {
+                if ($serieModel->serialExists(0, $ns)) {
+                    $this->setOldInput();
+                    $this->setFlash('error', "El número de serie \"{$ns}\" ya está registrado en el sistema. Debe ser único.");
+                    $this->redirect('productos/crear');
+                    return;
+                }
+            }
         }
 
         // Procesar imagen
@@ -170,14 +205,14 @@ class ProductoController extends Controller
         if ($data['stock'] > 0) {
             require_once APP_PATH . '/models/Movimiento.php';
             $movimientoModel = new Movimiento();
-            
+
             $loteId = null;
-            
+
             // Si es perecedero, crear el lote inicial
             if ($esPerecedero) {
                 $loteInicial = $this->input('lote_inicial');
                 $fechaVencimiento = $this->input('fecha_vencimiento_inicial');
-                
+
                 if (!empty($loteInicial) && !empty($fechaVencimiento)) {
                     require_once APP_PATH . '/models/Lote.php';
                     $loteModel = new Lote();
@@ -193,7 +228,7 @@ class ProductoController extends Controller
             }
 
             // Registrar el movimiento de entrada por stock inicial
-            $movimientoModel->create([
+            $lastMovId = $movimientoModel->create([
                 'producto_id' => $id,
                 'usuario_id' => currentUserId(),
                 'lote_id' => $loteId,
@@ -204,6 +239,16 @@ class ProductoController extends Controller
                 'referencia' => 'Stock Inicial',
                 'observaciones' => 'Ajuste automático por stock inicial al crear producto.'
             ]);
+
+            // Si requiere serie, guardar los seriales
+            if ($requiereSerie) {
+                $numSeriesInicial = array_filter(array_map('trim', $_POST['numeros_serie_inicial'] ?? []));
+                if (!empty($numSeriesInicial)) {
+                    require_once APP_PATH . '/models/NumeroSerie.php';
+                    $serieModel = new NumeroSerie();
+                    $serieModel->registrarEntrada($id, $numSeriesInicial, $lastMovId);
+                }
+            }
         }
 
         // Log de auditoría
@@ -244,6 +289,7 @@ class ProductoController extends Controller
             'categorias' => $categorias,
             'ubicaciones' => $ubicaciones,
             'csrfToken' => $csrfToken,
+            'flash' => $this->getFlash(),
         ]);
     }
 
@@ -267,6 +313,7 @@ class ProductoController extends Controller
         }
 
         $esPerecedero = $this->input('es_perecedero') ? 1 : 0;
+        $requiereSerie = $this->input('requiere_serie') ? 1 : 0;
 
         $data = [
             'nombre' => $this->input('nombre'),
@@ -280,6 +327,7 @@ class ProductoController extends Controller
             'stock_minimo' => (int) $this->input('stock_minimo', 5),
             'activo' => $this->input('activo', 1) ? 1 : 0,
             'es_perecedero' => $esPerecedero,
+            'requiere_serie' => $requiereSerie,
         ];
 
         // Validaciones
@@ -623,7 +671,14 @@ class ProductoController extends Controller
         if ($producto->es_perecedero) {
             require_once APP_PATH . '/models/Lote.php';
             $loteModel = new Lote();
-            $lotes = $loteModel->rawQuery("SELECT * FROM lotes WHERE producto_id = ? ORDER BY fecha_vencimiento ASC", [(int)$id]);
+            $lotes = $loteModel->rawQuery("SELECT * FROM lotes WHERE producto_id = ? ORDER BY fecha_vencimiento ASC", [(int) $id]);
+        }
+
+        // Números de serie si aplica
+        $seriales = [];
+        if (!empty($producto->requiere_serie)) {
+            $serieModel = new NumeroSerie();
+            $seriales = $serieModel->findByProducto((int) $id);
         }
 
         $flash = $this->getFlash();
@@ -638,6 +693,7 @@ class ProductoController extends Controller
             'proveedores' => $proveedores,
             'todosProveedores' => $todosProveedores,
             'lotes' => $lotes,
+            'seriales' => $seriales,
             'csrfToken' => $csrfToken,
             'flash' => $flash,
             'loadChartJS' => true,
@@ -666,7 +722,7 @@ class ProductoController extends Controller
 
         require_once APP_PATH . '/models/Lote.php';
         $loteModel = new Lote();
-        
+
         $lote = $loteModel->findById($loteId);
         if (!$lote) {
             $this->setFlash('error', 'Lote no encontrado.');
@@ -675,7 +731,7 @@ class ProductoController extends Controller
         }
 
         $loteModel->update($loteId, ['fecha_vencimiento' => $fechaVencimiento]);
-        
+
         $this->securityService->logAction(
             currentUserId(),
             'update_lote',
@@ -742,13 +798,52 @@ class ProductoController extends Controller
             return;
         }
 
-        // Leer header
-        $header = fgetcsv($handle);
+        // Auto-detectar delimitador leyendo la primera línea en crudo
+        $firstLine = fgets($handle);
+        rewind($handle);
+
+        if (!$firstLine) {
+            fclose($handle);
+            $this->setFlash('error', 'El archivo CSV está vacío.');
+            $this->redirect('productos/importar');
+            return;
+        }
+
+        // Limpiar BOM y directiva sep=
+        $firstLine = preg_replace('/^\xEF\xBB\xBF/', '', $firstLine);
+        $firstLine = trim($firstLine);
+        if (preg_match('/^sep=.$/i', $firstLine)) {
+            // Saltar la directiva sep= y leer la siguiente línea para detectar
+            fgets($handle); // consume la línea sep=
+            $firstLine = trim(fgets($handle) ?: '');
+            rewind($handle);
+            fgets($handle); // skip sep= again after rewind
+        }
+
+        // Detectar delimitador: el que produzca más columnas gana
+        $commaCount = count(str_getcsv($firstLine, ','));
+        $semicolonCount = count(str_getcsv($firstLine, ';'));
+        $delimiter = ($semicolonCount > $commaCount) ? ';' : ',';
+
+        // Leer header con el delimitador detectado
+        $header = fgetcsv($handle, 0, $delimiter);
         if (!$header) {
             fclose($handle);
             $this->setFlash('error', 'El archivo CSV está vacío.');
             $this->redirect('productos/importar');
             return;
+        }
+
+        // Si la primera línea es la directiva sep=, leer la siguiente como header real
+        $firstVal = trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header[0] ?? ''));
+        if (preg_match('/^sep=.$/i', $firstVal)) {
+            $header = fgetcsv($handle, 0, $delimiter);
+            if (!$header) {
+                fclose($handle);
+                $this->setFlash('error', 'El archivo CSV no contiene encabezados.');
+                $this->redirect('productos/importar');
+                return;
+            }
         }
 
         // Normalizar headers (quitar BOM, trim, lowercase)
@@ -771,7 +866,7 @@ class ProductoController extends Controller
         $errors = [];
         $row = 1;
 
-        while (($data = fgetcsv($handle)) !== false) {
+        while (($data = fgetcsv($handle, 0, $delimiter)) !== false) {
             $row++;
 
             if (count($data) < count($header)) {
@@ -780,7 +875,7 @@ class ProductoController extends Controller
                 continue;
             }
 
-            $rowData = array_combine($header, $data);
+            $rowData = array_combine($header, array_slice($data, 0, count($header)));
 
             $nombre = trim($rowData['nombre'] ?? '');
             $sku = trim($rowData['sku'] ?? '');
@@ -848,6 +943,51 @@ class ProductoController extends Controller
 
         $this->setFlash($imported > 0 ? 'success' : 'warning', $message);
         $this->redirect('productos');
+    }
+
+    /**
+     * Descargar plantilla CSV para importación.
+     */
+    public function export(): void
+    {
+        $filename = 'plantilla_importacion_productos.csv';
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $output = fopen('php://output', 'w');
+
+        // BOM UTF-8 para que Excel reconozca acentos
+        fwrite($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        // Usar punto y coma como separador (estándar de Excel en locales Latinoamérica/Europa)
+        fputcsv($output, [
+            'nombre',
+            'sku',
+            'costo',
+            'stock',
+            'stock_minimo',
+            'categoria',
+            'descripcion',
+            'unidad_medida',
+            'codigo_barras'
+        ], ';');
+
+        fclose($output);
+        exit;
+    }
+
+    /**
+     * AJAX: Obtener seriales disponibles de un producto.
+     */
+    public function getSeriales(string $id): void
+    {
+        $productoId = (int) $id;
+        $serieModel = new NumeroSerie();
+        $seriales = $serieModel->getDisponiblesByProducto($productoId);
+
+        $this->json(['seriales' => $seriales]);
     }
 
     /**

@@ -55,24 +55,25 @@
                                 <div class="col-md-8">
                                     <label for="nombre" class="form-label">Nombre del Producto *</label>
                                     <input type="text" class="form-control" id="nombre" name="nombre" required
-                                        maxlength="200" value="<?= htmlspecialchars($prefill['nombre'] ?? '') ?>">
+                                        maxlength="200" value="<?= htmlspecialchars(old('nombre', $prefill['nombre'] ?? '')) ?>">
                                 </div>
                                 <div class="col-md-4">
                                     <label for="sku" class="form-label">SKU *</label>
                                     <input type="text" class="form-control" id="sku" name="sku" required maxlength="16"
                                         style="text-transform:uppercase" placeholder="ELEC-001"
-                                        value="<?= htmlspecialchars($prefill['sku'] ?? '') ?>">
+                                        value="<?= htmlspecialchars(old('sku', $prefill['sku'] ?? '')) ?>">
                                 </div>
                                 <div class="col-md-4">
                                     <label for="codigo_barras" class="form-label"><i
                                             class="bi bi-upc-scan me-1"></i>Código de Barras</label>
                                     <input type="text" class="form-control" id="codigo_barras" name="codigo_barras"
-                                        maxlength="50" placeholder="EAN-13, UPC, etc.">
+                                        maxlength="50" placeholder="EAN-13, UPC, etc."
+                                        value="<?= htmlspecialchars(old('codigo_barras')) ?>">
                                 </div>
                                 <div class="col-12">
                                     <label for="descripcion" class="form-label">Descripción</label>
                                     <textarea class="form-control" id="descripcion" name="descripcion"
-                                        rows="3"><?= htmlspecialchars($prefill['descripcion'] ?? '') ?></textarea>
+                                        rows="3"><?= htmlspecialchars(old('descripcion', $prefill['descripcion'] ?? '')) ?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -114,17 +115,17 @@
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" id="costo" name="costo" step="0.01" min="0"
-                                    value="0.00" required>
+                                    value="<?= htmlspecialchars(old('costo', '0.00')) ?>" required>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <label for="stock" class="form-label">Stock Inicial Global</label>
-                            <input type="number" class="form-control" id="stock" name="stock" min="0" value="0">
+                            <input type="number" class="form-control" id="stock" name="stock" min="0" value="<?= htmlspecialchars(old('stock', '0')) ?>">
                         </div>
                         <div class="col-md-3">
                             <label for="stock_minimo" class="form-label">Alerta Stock Mínimo</label>
                             <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" min="0"
-                                value="5">
+                                value="<?= htmlspecialchars(old('stock_minimo', '5')) ?>">
                         </div>
 
                         <!-- Sección: Producto Perecedero / Lotes -->
@@ -137,7 +138,7 @@
                                     </h6>
                                     <div class="form-check form-switch fs-5 mb-2">
                                         <input class="form-check-input mt-1" type="checkbox" role="switch"
-                                            id="es_perecedero" name="es_perecedero" value="1">
+                                            id="es_perecedero" name="es_perecedero" value="1" <?= old('es_perecedero') ? 'checked' : '' ?>>
                                         <label class="form-check-label fw-bold d-flex align-items-center"
                                             for="es_perecedero">
                                             Requiere Gestión por Lotes y Vencimientos
@@ -157,14 +158,39 @@
                                             <div class="col-md-6">
                                                 <label for="lote_inicial" class="form-label">Lote Inicial</label>
                                                 <input type="text" class="form-control" id="lote_inicial"
-                                                    name="lote_inicial" placeholder="Ej: LOTE-001">
+                                                    name="lote_inicial" placeholder="Ej: LOTE-001" value="<?= htmlspecialchars(old('lote_inicial')) ?>">
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="fecha_vencimiento_inicial" class="form-label">Fecha de
                                                     Vencimiento</label>
                                                 <input type="date" class="form-control" id="fecha_vencimiento_inicial"
-                                                    name="fecha_vencimiento_inicial">
+                                                    name="fecha_vencimiento_inicial" value="<?= htmlspecialchars(old('fecha_vencimiento_inicial')) ?>">
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-3">
+
+                                    <!-- Sección: Números de Serie -->
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-upc me-2 text-info"></i>Trazabilidad Unitaria</h6>
+                                    <div class="form-check form-switch fs-5 mb-2">
+                                        <input class="form-check-input mt-1" type="checkbox" role="switch"
+                                            id="requiere_serie" name="requiere_serie" value="1" <?= old('requiere_serie') ? 'checked' : '' ?>>
+                                        <label class="form-check-label fw-bold d-flex align-items-center"
+                                            for="requiere_serie">
+                                            Requiere Número de Serie
+                                            <i class="bi bi-info-circle text-muted ms-2" data-bs-toggle="tooltip"
+                                                title="Activa esta opción para obligar el registro de un número de serie por cada unidad al registrar entradas y salidas. Útil para electrónica, equipos y herramientas de alto valor."></i>
+                                        </label>
+                                    </div>
+
+                                    <div id="serieFieldsContainer" class="mt-3 p-3 bg-white border rounded border-info d-none fade show">
+                                        <div class="alert alert-info py-2 d-flex align-items-center mb-3">
+                                            <i class="bi bi-upc-scan me-2 fs-5"></i>
+                                            <div><small>Al tener stock inicial, por favor ingrese los números de serie correspondientes a las unidades registradas.</small></div>
+                                        </div>
+                                        <div id="serieInputsWrapper" class="row g-2">
+                                            <!-- Aquí se generarán dinámicamente los inputs según el stock inicial -->
                                         </div>
                                     </div>
                                 </div>
@@ -189,5 +215,10 @@
     </div>
 </div>
 
-<script id="page-data" type="application/json">{}</script>
+<?php
+$pageData = [
+    'old_seriales' => old('numeros_serie_inicial', [])
+];
+?>
+<script id="page-data" type="application/json"><?= json_encode($pageData) ?></script>
 <script src="<?= asset('js/productos.js') ?>?v=<?= ASSET_VERSION ?>"></script>

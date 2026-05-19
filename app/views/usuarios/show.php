@@ -180,8 +180,11 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                             <tbody>
                                 <?php foreach ($sesiones['data'] as $s): ?>
                                     <tr>
-                                        <td><span class="font-monospace fw-bold"><?= htmlspecialchars($s->ip ?? '—') ?></span></td>
-                                        <td><small class="text-secondary"><?= htmlspecialchars(truncate($s->user_agent ?? '—', 40)) ?></small></td>
+                                        <td><span class="font-monospace fw-bold"><?= htmlspecialchars($s->ip ?? '—') ?></span>
+                                        </td>
+                                        <td><small
+                                                class="text-secondary"><?= htmlspecialchars(truncate($s->user_agent ?? '—', 40)) ?></small>
+                                        </td>
                                         <td><small><?= formatDate($s->inicio, 'short') ?></small></td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -245,7 +248,8 @@ function buildDetailPagination(array $pg, string $paramName, int $userId, int $p
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="<?= url("productos/ver/{$m->producto_id}") ?>" class="text-decoration-none">
+                                            <a href="<?= url("productos/ver/{$m->producto_id}") ?>"
+                                                class="text-decoration-none">
                                                 <?= htmlspecialchars($m->producto_nombre) ?>
                                             </a>
                                             <br><small class="text-muted"><?= htmlspecialchars($m->producto_sku) ?></small>

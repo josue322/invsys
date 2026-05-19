@@ -62,10 +62,10 @@
                             <td><code><?= htmlspecialchars($producto->sku) ?></code></td>
                         </tr>
                         <?php if (!empty($producto->codigo_barras)): ?>
-                        <tr>
-                            <td class="text-muted"><i class="bi bi-upc-scan me-1"></i>Cód. Barras</td>
-                            <td><code><?= htmlspecialchars($producto->codigo_barras) ?></code></td>
-                        </tr>
+                            <tr>
+                                <td class="text-muted"><i class="bi bi-upc-scan me-1"></i>Cód. Barras</td>
+                                <td><code><?= htmlspecialchars($producto->codigo_barras) ?></code></td>
+                            </tr>
                         <?php endif; ?>
                         <tr>
                             <td class="text-muted">Categoría</td>
@@ -161,51 +161,53 @@
                                         <th>Stock Actual</th>
                                         <th>Estado</th>
                                         <?php if (hasPermission('productos.editar')): ?>
-                                        <th class="text-end pe-3">Acciones</th>
+                                            <th class="text-end pe-3">Acciones</th>
                                         <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($lotes as $lote): ?>
-                                    <tr>
-                                        <td class="ps-3 fw-medium">#<?= htmlspecialchars($lote->numero_lote) ?></td>
-                                        <td>
-                                            <?php if ($lote->fecha_vencimiento): ?>
-                                                <?php 
+                                        <tr>
+                                            <td class="ps-3 fw-medium">#<?= htmlspecialchars($lote->numero_lote) ?></td>
+                                            <td>
+                                                <?php if ($lote->fecha_vencimiento): ?>
+                                                    <?php
                                                     $isExpired = strtotime($lote->fecha_vencimiento) < time();
                                                     $isExpiring = strtotime($lote->fecha_vencimiento) < strtotime('+30 days');
                                                     $badgeClass = $isExpired ? 'bg-danger' : ($isExpiring ? 'bg-warning text-dark' : 'bg-success bg-opacity-10 text-success');
-                                                ?>
-                                                <span class="badge <?= $badgeClass ?>">
-                                                    <i class="bi bi-calendar-event me-1"></i><?= formatDate($lote->fecha_vencimiento) ?>
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="text-muted">—</span>
+                                                    ?>
+                                                    <span class="badge <?= $badgeClass ?>">
+                                                        <i
+                                                            class="bi bi-calendar-event me-1"></i><?= formatDate($lote->fecha_vencimiento) ?>
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="text-muted">—</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border"><?= $lote->stock_actual ?></span>
+                                            </td>
+                                            <td>
+                                                <?php if ($lote->estado === 'disponible'): ?>
+                                                    <span class="text-success"><i
+                                                            class="bi bi-check-circle-fill me-1"></i>Disponible</span>
+                                                <?php elseif ($lote->estado === 'agotado'): ?>
+                                                    <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Agotado</span>
+                                                <?php else: ?>
+                                                    <span class="text-secondary"><?= ucfirst($lote->estado) ?></span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <?php if (hasPermission('productos.editar')): ?>
+                                                <td class="text-end pe-3">
+                                                    <button class="btn-action btn-edit btn-sm btn-editar-lote"
+                                                        title="Editar Vencimiento" data-lote-id="<?= $lote->id ?>"
+                                                        data-lote-numero="<?= htmlspecialchars($lote->numero_lote) ?>"
+                                                        data-lote-fecha="<?= $lote->fecha_vencimiento ?>">
+                                                        <i class="bi bi-pencil-fill"></i>
+                                                    </button>
+                                                </td>
                                             <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark border"><?= $lote->stock_actual ?></span>
-                                        </td>
-                                        <td>
-                                            <?php if ($lote->estado === 'disponible'): ?>
-                                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Disponible</span>
-                                            <?php elseif ($lote->estado === 'agotado'): ?>
-                                                <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Agotado</span>
-                                            <?php else: ?>
-                                                <span class="text-secondary"><?= ucfirst($lote->estado) ?></span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <?php if (hasPermission('productos.editar')): ?>
-                                        <td class="text-end pe-3">
-                                            <button class="btn-action btn-edit btn-sm btn-editar-lote" title="Editar Vencimiento" 
-                                                    data-lote-id="<?= $lote->id ?>" 
-                                                    data-lote-numero="<?= htmlspecialchars($lote->numero_lote) ?>" 
-                                                    data-lote-fecha="<?= $lote->fecha_vencimiento ?>">
-                                                <i class="bi bi-pencil-fill"></i>
-                                            </button>
-                                        </td>
-                                        <?php endif; ?>
-                                    </tr>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -219,7 +221,8 @@
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content border-0 shadow">
                         <div class="modal-header border-bottom-0 pb-0">
-                            <h5 class="modal-title fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i>Editar Vencimiento</h5>
+                            <h5 class="modal-title fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i>Editar
+                                Vencimiento</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <form method="POST" action="<?= url('productos/updateLote') ?>">
@@ -227,14 +230,16 @@
                                 <?= csrfField() ?>
                                 <input type="hidden" name="producto_id" value="<?= $producto->id ?>">
                                 <input type="hidden" name="lote_id" id="edit_lote_id">
-                                
+
                                 <div class="mb-3">
                                     <label class="form-label text-muted small mb-1">Número de Lote</label>
                                     <div class="fw-bold fs-6" id="edit_lote_numero">LOTE-000</div>
                                 </div>
                                 <div class="mb-2">
-                                    <label for="edit_fecha_vencimiento" class="form-label">Nueva Fecha de Vencimiento *</label>
-                                    <input type="date" class="form-control" id="edit_fecha_vencimiento" name="fecha_vencimiento" required>
+                                    <label for="edit_fecha_vencimiento" class="form-label">Nueva Fecha de Vencimiento
+                                        *</label>
+                                    <input type="date" class="form-control" id="edit_fecha_vencimiento"
+                                        name="fecha_vencimiento" required>
                                 </div>
                             </div>
                             <div class="modal-footer border-top-0 pt-0">
@@ -247,6 +252,78 @@
             </div>
         <?php endif; ?>
 
+        <!-- Números de Serie (si aplica) -->
+        <?php if (!empty($producto->requiere_serie)): ?>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-upc me-2 text-info"></i>Números de Serie</h6>
+                </div>
+                <div class="card-body p-0">
+                    <?php if (empty($seriales)): ?>
+                        <div class="p-3 text-center text-muted">
+                            <i class="bi bi-upc-scan mb-2 d-block fs-4 text-secondary"></i>
+                            No hay números de serie registrados.
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive" style="max-height: 300px;">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light text-muted small text-uppercase sticky-top">
+                                    <tr>
+                                        <th class="ps-3">Serial</th>
+                                        <th>Estado</th>
+                                        <th>Entrada</th>
+                                        <th>Salida</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($seriales as $serie): ?>
+                                        <tr>
+                                            <td class="ps-3"><code
+                                                    class="fw-bold fs-6"><?= htmlspecialchars($serie->numero_serie) ?></code></td>
+                                            <td>
+                                                <?php
+                                                $badgeClass = match ($serie->estado) {
+                                                    'disponible' => 'bg-success bg-opacity-10 text-success border border-success border-opacity-25',
+                                                    'asignado' => 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25',
+                                                    'en_reparacion' => 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25',
+                                                    'dado_de_baja' => 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25',
+                                                    default => 'bg-light text-dark'
+                                                };
+                                                $iconClass = match ($serie->estado) {
+                                                    'disponible' => 'bi-check-circle-fill',
+                                                    'asignado' => 'bi-arrow-right-circle-fill',
+                                                    'en_reparacion' => 'bi-tools',
+                                                    'dado_de_baja' => 'bi-x-circle-fill',
+                                                    default => 'bi-circle'
+                                                };
+                                                ?>
+                                                <span class="badge <?= $badgeClass ?>"><i
+                                                        class="bi <?= $iconClass ?> me-1"></i><?= ucfirst(str_replace('_', ' ', $serie->estado)) ?></span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted d-block" title="<?= formatDate($serie->fecha_entrada) ?>">
+                                                    <?= $serie->entrada_ref ?: 'Sin ref.' ?>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <?php if ($serie->estado === 'asignado' && $serie->movimiento_salida_id): ?>
+                                                    <small class="text-muted d-block" title="<?= formatDate($serie->fecha_salida) ?>">
+                                                        <?= $serie->salida_ref ?: 'Sin ref.' ?>
+                                                    </small>
+                                                <?php else: ?>
+                                                    <span class="text-muted">—</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Proveedores Vinculados -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -254,7 +331,8 @@
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge bg-primary" id="proveedoresCount"><?= count($proveedores ?? []) ?></span>
                     <?php if (hasPermission('productos.editar')): ?>
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalVincularProveedor" id="btnAbrirModalProv">
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#modalVincularProveedor" id="btnAbrirModalProv">
                             <i class="bi bi-plus-lg me-1"></i>Vincular
                         </button>
                     <?php endif; ?>
@@ -264,7 +342,8 @@
                 <?php if (empty($proveedores)): ?>
                     <div class="text-center py-4" id="proveedoresEmpty">
                         <i class="bi bi-truck text-muted" style="font-size:2rem"></i>
-                        <p class="text-muted mb-0 mt-2"><small>Sin proveedores vinculados.<br>Use el botón "Vincular" para agregar uno.</small></p>
+                        <p class="text-muted mb-0 mt-2"><small>Sin proveedores vinculados.<br>Use el botón "Vincular" para
+                                agregar uno.</small></p>
                     </div>
                 <?php else: ?>
                     <div class="table-wrapper">
@@ -282,24 +361,28 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($proveedores as $prov): ?>
-                                <tr id="vinculo-<?= $prov->id ?>">
-                                    <td>
-                                        <strong><?= htmlspecialchars($prov->proveedor_nombre) ?></strong>
-                                        <?php if ($prov->es_preferido): ?>
-                                            <span class="badge text-bg-warning ms-1" style="font-size:0.65rem"><i class="bi bi-star-fill me-1"></i>Preferido</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><small class="text-muted"><?= htmlspecialchars($prov->codigo_proveedor ?? '—') ?></small></td>
-                                    <td><?= $prov->costo ? formatMoney($prov->costo) : '—' ?></td>
-                                    <td><?= $prov->tiempo_entrega_dias ? $prov->tiempo_entrega_dias . ' días' : '—' ?></td>
-                                    <?php if (hasPermission('productos.editar')): ?>
+                                    <tr id="vinculo-<?= $prov->id ?>">
                                         <td>
-                                            <button class="btn btn-sm btn-outline-danger btn-desvincular" data-vinculo-id="<?= $prov->id ?>" title="Desvincular">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
+                                            <strong><?= htmlspecialchars($prov->proveedor_nombre) ?></strong>
+                                            <?php if ($prov->es_preferido): ?>
+                                                <span class="badge text-bg-warning ms-1" style="font-size:0.65rem"><i
+                                                        class="bi bi-star-fill me-1"></i>Preferido</span>
+                                            <?php endif; ?>
                                         </td>
-                                    <?php endif; ?>
-                                </tr>
+                                        <td><small
+                                                class="text-muted"><?= htmlspecialchars($prov->codigo_proveedor ?? '—') ?></small>
+                                        </td>
+                                        <td><?= $prov->costo ? formatMoney($prov->costo) : '—' ?></td>
+                                        <td><?= $prov->tiempo_entrega_dias ? $prov->tiempo_entrega_dias . ' días' : '—' ?></td>
+                                        <?php if (hasPermission('productos.editar')): ?>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger btn-desvincular"
+                                                    data-vinculo-id="<?= $prov->id ?>" title="Desvincular">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </td>
+                                        <?php endif; ?>
+                                    </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
@@ -310,68 +393,78 @@
 
         <!-- Modal Vincular Proveedor -->
         <?php if (hasPermission('productos.editar')): ?>
-        <div class="modal fade" id="modalVincularProveedor" tabindex="-1" aria-labelledby="modalVincularLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title fw-bold" id="modalVincularLabel"><i class="bi bi-link-45deg me-2"></i>Vincular Proveedor</h6>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="formVincularProveedor">
-                            <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
-                            <input type="hidden" name="producto_id" value="<?= $producto->id ?>">
-                            
-                            <div class="mb-3">
-                                <label for="prov_proveedor_id" class="form-label">Proveedor *</label>
-                                <select class="form-select" id="prov_proveedor_id" name="proveedor_id" required>
-                                    <option value="">— Seleccionar proveedor —</option>
-                                    <?php foreach ($todosProveedores as $tp): ?>
-                                        <option value="<?= $tp->id ?>"><?= htmlspecialchars($tp->nombre) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="prov_codigo" class="form-label">Código del Proveedor</label>
-                                    <input type="text" class="form-control" id="prov_codigo" name="codigo_proveedor" placeholder="Ej: HP-PB450" maxlength="50">
+            <div class="modal fade" id="modalVincularProveedor" tabindex="-1" aria-labelledby="modalVincularLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title fw-bold" id="modalVincularLabel"><i
+                                    class="bi bi-link-45deg me-2"></i>Vincular Proveedor</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="formVincularProveedor">
+                                <input type="hidden" name="_csrf_token" value="<?= $csrfToken ?>">
+                                <input type="hidden" name="producto_id" value="<?= $producto->id ?>">
+
+                                <div class="mb-3">
+                                    <label for="prov_proveedor_id" class="form-label">Proveedor *</label>
+                                    <select class="form-select" id="prov_proveedor_id" name="proveedor_id" required>
+                                        <option value="">— Seleccionar proveedor —</option>
+                                        <?php foreach ($todosProveedores as $tp): ?>
+                                            <option value="<?= $tp->id ?>"><?= htmlspecialchars($tp->nombre) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="prov_precio" class="form-label">Costo</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" class="form-control" id="prov_precio" name="costo" step="0.01" min="0">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="prov_codigo" class="form-label">Código del Proveedor</label>
+                                        <input type="text" class="form-control" id="prov_codigo" name="codigo_proveedor"
+                                            placeholder="Ej: HP-PB450" maxlength="50">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="prov_precio" class="form-label">Costo</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="prov_precio" name="costo"
+                                                step="0.01" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="prov_entrega" class="form-label">Tiempo de Entrega</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="prov_entrega"
+                                                name="tiempo_entrega_dias" min="0">
+                                            <span class="input-group-text">días</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="prov_preferido"
+                                                name="es_preferido" value="1">
+                                            <label class="form-check-label" for="prov_preferido"><i
+                                                    class="bi bi-star-fill text-warning me-1"></i>Proveedor
+                                                Preferido</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="prov_notas" class="form-label">Notas</label>
+                                        <textarea class="form-control" id="prov_notas" name="notas" rows="2"
+                                            placeholder="Observaciones opcionales..."></textarea>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="prov_entrega" class="form-label">Tiempo de Entrega</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="prov_entrega" name="tiempo_entrega_dias" min="0">
-                                        <span class="input-group-text">días</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 d-flex align-items-end">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="prov_preferido" name="es_preferido" value="1">
-                                        <label class="form-check-label" for="prov_preferido"><i class="bi bi-star-fill text-warning me-1"></i>Proveedor Preferido</label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <label for="prov_notas" class="form-label">Notas</label>
-                                    <textarea class="form-control" id="prov_notas" name="notas" rows="2" placeholder="Observaciones opcionales..."></textarea>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" id="btnVincularProveedor">
-                            <i class="bi bi-link-45deg me-1"></i>Vincular Proveedor
-                        </button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="btnVincularProveedor">
+                                <i class="bi bi-link-45deg me-1"></i>Vincular Proveedor
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         <?php endif; ?>
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -423,7 +516,8 @@
                                         <td>
                                             <strong
                                                 class="<?= $m->tipo === 'entrada' ? 'text-success' : ($m->tipo === 'salida' ? 'text-danger' : '') ?>">
-                                                <?= $m->tipo === 'entrada' ? '+' : ($m->tipo === 'salida' ? '-' : '') ?>        <?= $m->cantidad ?>
+                                                <?= $m->tipo === 'entrada' ? '+' : ($m->tipo === 'salida' ? '-' : '') ?>
+                                                <?= $m->cantidad ?>
                                             </strong>
                                         </td>
                                         <td><small

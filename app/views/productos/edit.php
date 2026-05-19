@@ -141,6 +141,25 @@
                                         <i class="bi bi-check-circle-fill me-2 fs-5"></i>
                                         <div><small><strong>Configurado:</strong> Los lotes y fechas de vencimiento se solicitarán al registrar una <strong>Entrada</strong> en Movimientos.</small></div>
                                     </div>
+
+                                    <hr class="my-3">
+
+                                    <!-- Sección: Números de Serie -->
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-upc me-2 text-info"></i>Trazabilidad Unitaria</h6>
+                                    <div class="form-check form-switch fs-5 mb-2">
+                                        <input class="form-check-input mt-1" type="checkbox" role="switch"
+                                            id="requiere_serie" name="requiere_serie" value="1" <?= !empty($producto->requiere_serie) ? 'checked' : '' ?>>
+                                        <label class="form-check-label fw-bold d-flex align-items-center"
+                                            for="requiere_serie">
+                                            Requiere Número de Serie
+                                            <i class="bi bi-info-circle text-muted ms-2" data-bs-toggle="tooltip"
+                                                title="Activa esta opción para obligar el registro de un número de serie por cada unidad al registrar entradas y salidas. Útil para electrónica, equipos y herramientas de alto valor."></i>
+                                        </label>
+                                    </div>
+                                    <div id="serieAlert" class="alert alert-info mt-3 mb-0 py-2 d-flex align-items-center fade show" role="alert" style="display: <?= !empty($producto->requiere_serie) ? 'block' : 'none' ?> !important;">
+                                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                                        <div><small><strong>Configurado:</strong> Se exigirá un número de serie por cada unidad en entradas y se seleccionarán seriales disponibles en salidas.</small></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

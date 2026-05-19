@@ -5,9 +5,9 @@
         <small class="text-muted"><?= $movimientos['total'] ?> registros</small>
     </div>
     <?php if (hasPermission('movimientos.crear')): ?>
-    <a href="<?= url('movimientos/crear') ?>" class="btn btn-primary" id="btn-nuevo-movimiento">
-        <i class="bi bi-plus-lg me-1"></i>Nuevo Movimiento
-    </a>
+        <a href="<?= url('movimientos/crear') ?>" class="btn btn-primary" id="btn-nuevo-movimiento">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo Movimiento
+        </a>
     <?php endif; ?>
 </div>
 
@@ -35,7 +35,8 @@
         <select name="producto" class="form-select">
             <option value="">Todos</option>
             <?php foreach ($productos as $p): ?>
-            <option value="<?= $p->id ?>" <?= $productoId == $p->id ? 'selected' : '' ?>><?= htmlspecialchars($p->nombre) ?></option>
+                <option value="<?= $p->id ?>" <?= $productoId == $p->id ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($p->nombre) ?></option>
             <?php endforeach; ?>
         </select>
     </div>
@@ -58,110 +59,117 @@
                     <i class="bi bi-arrow-left-right" style="font-size:2rem;"></i>
                 </div>
                 <h5 class="fw-bold mb-2">Sin movimientos</h5>
-                <p class="text-muted mb-3" style="max-width:320px;">No se encontraron movimientos con los filtros seleccionados. Pruebe con otro rango de fechas.</p>
+                <p class="text-muted mb-3" style="max-width:320px;">No se encontraron movimientos con los filtros
+                    seleccionados. Pruebe con otro rango de fechas.</p>
             </div>
         <?php else: ?>
-        <div class="table-wrapper">
-            <table class="table" id="tabla-movimientos">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Producto</th>
-                        <th>Tipo</th>
-                        <th>Cantidad</th>
-                        <th>Stock</th>
-                        <th>Lote</th>
-                        <th>Origen / Destino</th>
-                        <th>Usuario</th>
-                        <th>Referencia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($movimientos['data'] as $m): ?>
-                    <tr>
-                        <td><span class="text-muted">#<?= $m->id ?></span></td>
-                        <td><?= formatDate($m->created_at) ?></td>
-                        <td>
-                            <strong><?= htmlspecialchars($m->producto_nombre) ?></strong>
-                            <br><small class="text-muted"><?= $m->producto_sku ?></small>
-                        </td>
-                        <td>
-                            <?php 
-                            $badgeClass = '';
-                            $iconClass = '';
-                            switch ($m->tipo) {
-                                case 'entrada':
-                                    $badgeClass = 'bg-success bg-opacity-10 text-success border border-success border-opacity-25';
-                                    $iconClass = 'bi-box-arrow-in-right';
-                                    break;
-                                case 'salida':
-                                    $badgeClass = 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
-                                    $iconClass = 'bi-box-arrow-right';
-                                    break;
-                                case 'ajuste':
-                                    $badgeClass = 'bg-info bg-opacity-10 text-info border border-info border-opacity-25';
-                                    $iconClass = 'bi-sliders';
-                                    break;
-                                case 'transferencia':
-                                    $badgeClass = 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25';
-                                    $iconClass = 'bi-arrow-left-right';
-                                    break;
-                                case 'devolucion':
-                                    $badgeClass = 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
-                                    $iconClass = 'bi-arrow-return-left';
-                                    break;
-                            }
-                            ?>
-                            <span class="badge <?= $badgeClass ?> fw-bold">
-                                <i class="bi <?= $iconClass ?> me-1"></i><?= ucfirst($m->tipo) ?>
-                            </span>
-                        </td>
-                        <td class="fw-bold tabular-nums">
-                            <?php if ($m->tipo === 'entrada'): ?>
-                                <span class="text-success">+<?= $m->cantidad ?></span>
-                            <?php elseif ($m->tipo === 'salida'): ?>
-                                <span class="text-danger">-<?= $m->cantidad ?></span>
-                            <?php elseif ($m->tipo === 'transferencia'): ?>
-                                <span class="text-warning"><i class="bi bi-arrow-left-right me-1"></i><?= $m->cantidad ?></span>
-                            <?php else: ?>
-                                <span class="text-info"><?= $m->cantidad ?></span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="tabular-nums">
-                            <small><?= $m->stock_anterior ?> → <strong><?= $m->stock_nuevo ?></strong></small>
-                        </td>
-                        <td>
-                            <?php if (!empty($m->lote_numero)): ?>
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25"><i class="bi bi-box-seam me-1"></i><?= htmlspecialchars($m->lote_numero) ?></span>
-                            <?php else: ?>
-                                <span class="text-muted"><small>-</small></span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($m->tipo === 'entrada' && !empty($m->proveedor_nombre)): ?>
-                                <small><i class="bi bi-truck me-1 text-muted"></i><?= htmlspecialchars($m->proveedor_nombre) ?></small>
-                            <?php elseif ($m->tipo === 'salida' && !empty($m->destino)): ?>
-                                <small><i class="bi bi-geo-alt me-1 text-muted"></i><?= htmlspecialchars($m->destino) ?></small>
-                            <?php elseif ($m->tipo === 'transferencia'): ?>
-                                <small><i class="bi bi-box-arrow-right me-1 text-muted"></i><?= htmlspecialchars($m->destino) ?></small>
-                            <?php else: ?>
-                                <span class="text-muted"><small>-</small></span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($m->usuario_nombre) ?></td>
-                        <td><small><?= htmlspecialchars($m->referencia ?? '-') ?></small></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+            <div class="table-wrapper">
+                <table class="table" id="tabla-movimientos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Stock</th>
+                            <th>Lote</th>
+                            <th>Origen / Destino</th>
+                            <th>Usuario</th>
+                            <th>Referencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($movimientos['data'] as $m): ?>
+                            <tr>
+                                <td><span class="text-muted">#<?= $m->id ?></span></td>
+                                <td><?= formatDate($m->created_at) ?></td>
+                                <td>
+                                    <strong><?= htmlspecialchars($m->producto_nombre) ?></strong>
+                                    <br><small class="text-muted"><?= $m->producto_sku ?></small>
+                                </td>
+                                <td>
+                                    <?php
+                                    $badgeClass = '';
+                                    $iconClass = '';
+                                    switch ($m->tipo) {
+                                        case 'entrada':
+                                            $badgeClass = 'bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+                                            $iconClass = 'bi-box-arrow-in-right';
+                                            break;
+                                        case 'salida':
+                                            $badgeClass = 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+                                            $iconClass = 'bi-box-arrow-right';
+                                            break;
+                                        case 'ajuste':
+                                            $badgeClass = 'bg-info bg-opacity-10 text-info border border-info border-opacity-25';
+                                            $iconClass = 'bi-sliders';
+                                            break;
+                                        case 'transferencia':
+                                            $badgeClass = 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25';
+                                            $iconClass = 'bi-arrow-left-right';
+                                            break;
+                                        case 'devolucion':
+                                            $badgeClass = 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+                                            $iconClass = 'bi-arrow-return-left';
+                                            break;
+                                    }
+                                    ?>
+                                    <span class="badge <?= $badgeClass ?> fw-bold">
+                                        <i class="bi <?= $iconClass ?> me-1"></i><?= ucfirst($m->tipo) ?>
+                                    </span>
+                                </td>
+                                <td class="fw-bold tabular-nums">
+                                    <?php if ($m->tipo === 'entrada'): ?>
+                                        <span class="text-success">+<?= $m->cantidad ?></span>
+                                    <?php elseif ($m->tipo === 'salida'): ?>
+                                        <span class="text-danger">-<?= $m->cantidad ?></span>
+                                    <?php elseif ($m->tipo === 'transferencia'): ?>
+                                        <span class="text-warning"><i
+                                                class="bi bi-arrow-left-right me-1"></i><?= $m->cantidad ?></span>
+                                    <?php else: ?>
+                                        <span class="text-info"><?= $m->cantidad ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="tabular-nums">
+                                    <small><?= $m->stock_anterior ?> → <strong><?= $m->stock_nuevo ?></strong></small>
+                                </td>
+                                <td>
+                                    <?php if (!empty($m->lote_numero)): ?>
+                                        <span
+                                            class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25"><i
+                                                class="bi bi-box-seam me-1"></i><?= htmlspecialchars($m->lote_numero) ?></span>
+                                    <?php else: ?>
+                                        <span class="text-muted"><small>-</small></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($m->tipo === 'entrada' && !empty($m->proveedor_nombre)): ?>
+                                        <small><i
+                                                class="bi bi-truck me-1 text-muted"></i><?= htmlspecialchars($m->proveedor_nombre) ?></small>
+                                    <?php elseif ($m->tipo === 'salida' && !empty($m->destino)): ?>
+                                        <small><i
+                                                class="bi bi-geo-alt me-1 text-muted"></i><?= htmlspecialchars($m->destino) ?></small>
+                                    <?php elseif ($m->tipo === 'transferencia'): ?>
+                                        <small><i
+                                                class="bi bi-box-arrow-right me-1 text-muted"></i><?= htmlspecialchars($m->destino) ?></small>
+                                    <?php else: ?>
+                                        <span class="text-muted"><small>-</small></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($m->usuario_nombre) ?></td>
+                                <td><small><?= htmlspecialchars($m->referencia ?? '-') ?></small></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
 
-        <?php
+            <?php
             $pg = $movimientos;
             $baseUrl = 'movimientos?tipo=' . urlencode($tipo) . '&fecha_desde=' . urlencode($fechaDesde) . '&fecha_hasta=' . urlencode($fechaHasta) . '&producto=' . $productoId;
             include APP_PATH . '/views/layouts/_pagination.php';
-        ?>
+            ?>
         <?php endif; ?>
     </div>
 </div>

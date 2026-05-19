@@ -173,4 +173,21 @@ class Movimiento extends Model
                 ORDER BY m.created_at ASC";
         return $this->query($sql, ['lote_id' => $loteId])->fetchAll();
     }
+
+    /**
+     * Tendencia de valor del inventario (cambios diarios).
+     */
+    public function getValueTrendLastDays(int $days = 30): array
+    {
+        $sql = "SELECT DATE(m.created_at) as fecha,
+                       SUM(CASE WHEN m.tipo = 'entrada' THEN m.cantidad * p.costo ELSE 0 END) as valor_entradas,
+                       SUM(CASE WHEN m.tipo = 'salida' THEN m.cantidad * p.costo ELSE 0 END) as valor_salidas,
+                       SUM(CASE WHEN m.tipo = 'ajuste' THEN m.cantidad * p.costo ELSE 0 END) as valor_ajustes
+                FROM {$this->table} m
+                INNER JOIN productos p ON m.producto_id = p.id
+                WHERE m.created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+                GROUP BY DATE(m.created_at)
+                ORDER BY fecha ASC";
+        return $this->query($sql, ['days' => $days])->fetchAll();
+    }
 }

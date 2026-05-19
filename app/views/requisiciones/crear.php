@@ -81,7 +81,8 @@
                                 <!-- Fila inicial -->
                                 <tr>
                                     <td>
-                                        <select name="producto_id[]" class="form-select select-producto" required autocomplete="off">
+                                        <select name="producto_id[]" class="form-select select-producto" required
+                                            autocomplete="off">
                                             <option value="">— Seleccionar —</option>
                                             <?php foreach ($productos as $p): ?>
                                                 <option value="<?= $p->id ?>" data-stock="<?= $p->stock ?>"

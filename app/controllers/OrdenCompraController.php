@@ -195,7 +195,7 @@ class OrdenCompraController extends Controller
 
         $this->ordenModel->update($id, ['estado' => 'aprobada']);
         $this->securityService->logAction(currentUserId(), 'approve', 'compras', "Aprobó orden de compra ID $id");
-        
+
         $this->setFlash('success', 'Orden de compra aprobada. Lista para recepción.');
         $this->redirect('compras/show/' . $id);
     }
@@ -354,10 +354,10 @@ class OrdenCompraController extends Controller
 
         try {
             $this->ordenModel->beginTransaction();
-            
+
             // Eliminar detalles explícitamente (por seguridad aunque haya CASCADE)
             $this->detalleModel->rawQuery("DELETE FROM orden_compra_detalles WHERE orden_compra_id = ?", [$id]);
-            
+
             // Eliminar la orden
             $this->ordenModel->rawQuery("DELETE FROM ordenes_compra WHERE id = ?", [$id]);
 
@@ -395,7 +395,7 @@ class OrdenCompraController extends Controller
         $pdf->Cell(35, 6, 'Numero OC:', 0, 0);
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(60, 6, $orden->numero_orden, 0, 0);
-        
+
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(35, 6, 'Fecha Emision:', 0, 0);
         $pdf->SetFont('Arial', '', 10);
@@ -429,7 +429,7 @@ class OrdenCompraController extends Controller
         $header = ['SKU', 'Producto', 'Cant.', 'Precio U.', 'Subtotal'];
         $widths = [30, 80, 25, 25, 30];
         $aligns = ['C', 'L', 'C', 'R', 'R'];
-        
+
         $data = [];
         foreach ($orden->detalles as $det) {
             $data[] = [
@@ -453,14 +453,14 @@ class OrdenCompraController extends Controller
         // Cajones de firma
         $pdf->Ln(30);
         $pdf->SetFont('Arial', '', 10);
-        
+
         $y = $pdf->GetY();
         $pdf->Line(20, $y, 80, $y);
         $pdf->Line(110, $y, 170, $y);
-        
+
         $pdf->SetXY(20, $y + 2);
         $pdf->Cell(60, 5, PdfGenerator::decode('Firma Autorización'), 0, 0, 'C');
-        
+
         $pdf->SetXY(110, $y + 2);
         $pdf->Cell(60, 5, PdfGenerator::decode('Firma Proveedor/Recepción'), 0, 0, 'C');
 
