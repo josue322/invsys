@@ -7,12 +7,12 @@
 ![Security](https://img.shields.io/badge/Security-Hardened_CSP-orange)
 
 <p align="center">
-  <img src="public/assets/img/logo-invsys.png" alt="InvSys Logo" width="300"/>
+  <img src="public/assets/img/logo_inventario.png" alt="InvSys Logo" width="300"/>
 </p>
 
 ## Descripción del Proyecto
 
-**InvSys WMS** (Warehouse Management System) es una plataforma de gestión de almacenes de alto rendimiento, construida sobre una arquitectura pura Modelo-Vista-Controlador (MVC) en PHP 8. Está diseñada para empresas que exigen precisión quirúrgica en sus inventarios, proporcionando trazabilidad total sin la carga de dependencias de frameworks pesados.
+**InvSys WMS** (Warehouse Management System) es una plataforma de gestión de almacenes de alto rendimiento, de **código abierto (Open Source)** y disponible para el público en general. Está construida sobre una arquitectura pura Modelo-Vista-Controlador (MVC) en PHP 8 y diseñada para empresas que exigen precisión quirúrgica en sus inventarios, proporcionando trazabilidad total sin la carga de dependencias de frameworks pesados.
 
 ## Objetivos del Sistema
 
@@ -166,9 +166,14 @@ composer dump-autoload -o
 - **Navegadores Soportados:** Chrome, Firefox, Safari, Edge (Desktop & Mobile).
 - **Dispositivos:** 100% responsivo para Tablets y Smartphones de almacén.
 
+## Autor
+
+Desarrollado por **Josué Lopez**.  
+*Programador JR. / Arquitectura de Sistemas Web*
+
 ## Licencia
 
-Este proyecto está bajo la Licencia Propietaria. Todos los derechos reservados.
+Este proyecto es de **código abierto** y está disponible para el público bajo la licencia **MIT**. Puedes utilizarlo, modificarlo y distribuirlo libremente de acuerdo con los términos de dicha licencia.
 
 ---
 **Desarrollado con precisión y robustez para ecosistemas empresariales críticos.**
