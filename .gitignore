@@ -35,3 +35,11 @@ desktop.ini
 
 # Archivos de documentación generados
 /hunt/
+
+# Carpetas de agentes y automatización (NUNCA subir)
+.agent/
+
+# Archivos de respaldo y temporales
+*.bak
+*.tmp
+*.temp
