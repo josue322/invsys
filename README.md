@@ -1,179 +1,168 @@
-# 📦 InvSys WMS — Sistema Inteligente de Gestión de Inventarios
+# 📦 InvSys WMS — Sistema Inteligente de Gestión de Inventarios y Almacenes
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![PHP](https://img.shields.io/badge/PHP-8.1+-777bb4)
-![Architecture](https://img.shields.io/badge/Architecture-MVC_Native-000000)
-![Security](https://img.shields.io/badge/Security-Hardened_CSP-orange)
+[![PHP Version](https://img.shields.io/badge/PHP-8.1+-777bb4.svg?style=for-the-badge&logo=php)](https://www.php.net/)
+[![Database](https://img.shields.io/badge/MySQL-8.0+-4479A1.svg?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
+[![Framework](https://img.shields.io/badge/MVC-Nativo-black.svg?style=for-the-badge)](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)
+[![Frontend](https://img.shields.io/badge/Bootstrap-5.3-7952B3.svg?style=for-the-badge&logo=bootstrap)](https://getbootstrap.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 <p align="center">
-  <img src="public/assets/img/logo_inventario.png" alt="InvSys Logo" width="300"/>
+  <img src="public/assets/img/logo_inventario.png" alt="InvSys WMS Logo" width="280"/>
 </p>
 
-## Descripción del Proyecto
+**InvSys WMS** (Warehouse Management System) es una plataforma de gestión de almacenes de nivel empresarial, de **código abierto (Open Source)** y alto rendimiento. Está construida sobre una arquitectura pura **Modelo-Vista-Controlador (MVC) en PHP 8.1+** sin la sobrecarga de frameworks externos pesados, lo que garantiza una velocidad de carga ultrarrápida (tiempos de respuesta inferiores a 50ms en servidor) y un control absoluto sobre el ciclo de vida de los inventarios.
 
-**InvSys WMS** (Warehouse Management System) es una plataforma de gestión de almacenes de alto rendimiento, de **código abierto (Open Source)** y disponible para el público en general. Está construida sobre una arquitectura pura Modelo-Vista-Controlador (MVC) en PHP 8 y diseñada para empresas que exigen precisión quirúrgica en sus inventarios, proporcionando trazabilidad total sin la carga de dependencias de frameworks pesados.
+Diseñado específicamente para empresas que exigen precisión quirúrgica, **InvSys WMS** resuelve pérdidas de stock, mermas por caducidad y la falta de trazabilidad en artículos de alto valor a través de flujos de trabajo blindados y control transaccional atómico.
 
-## Objetivos del Sistema
+---
 
-Proporcionar un control absoluto sobre el flujo de mercancías desde que ingresan al almacén hasta que son despachadas, asegurando la integridad de la base de datos mediante transacciones bloqueantes y una interfaz de usuario extremadamente veloz.
+## 🎯 Objetivos del Sistema
 
-## Problema que Resuelve
+* **Trazabilidad Total**: Control absoluto del flujo de mercancías, desde su recepción y ubicación en estantes hasta su requisición y despacho departamental.
+* **Consistencia de Datos**: Evitar condiciones de carrera y discrepancias de inventario mediante bloqueos transaccionales directos en base de datos (`SELECT ... FOR UPDATE`).
+* **Operación Veloz**: Integración directa con lectores de códigos de barras (UPC/EAN) y cámaras de dispositivos móviles para agilizar los conteos y despachos.
 
-- Pérdida de trazabilidad de artículos de alto valor (resuelta mediante trazabilidad de Números de Serie).
-- Mermas por caducidad (resuelto mediante gestión de lotes FEFO - First Expired, First Out).
-- Inconsistencias de stock (resuelto mediante conteo cíclico y validaciones a nivel de base de datos).
-- Lentitud operativa (resuelto con escáneres de códigos de barras integrados).
+---
 
-## Público Objetivo
+## 🌟 Módulos del Sistema (23 Módulos Core)
 
-PyMEs, distribuidoras, empresas de logística, ensambladoras y corporativos que requieren auditar flujos de entrada, salida y ajustes de inventario con roles de seguridad estrictos.
+El sistema está compuesto por 23 controladores especializados que gestionan el flujo completo del almacén:
 
-## Características Principales
+| Módulo / Controlador | Descripción Operativa |
+| :--- | :--- |
+| 📊 **Dashboard** | Panel administrativo con analíticas en tiempo real, widgets financieros, alertas de stock mínimo y gráficos de rendimiento de movimientos. |
+| 📦 **Productos** | Catálogo maestro de productos con soporte para SKU, control de stock mínimo, serialización, peso, volumen y selector de categorías. |
+| 🏷️ **Categorías** | Organización taxonómica de productos con filtros inteligentes de estado activo/inactivo. |
+| 🗺️ **Ubicaciones** | Mapa físico del almacén (Pasillos, Estantes, Niveles, Bahías) para saber exactamente dónde se encuentra cada lote. |
+| 🔄 **Movimientos** | Entradas, salidas y ajustes manuales blindados con transacciones de base de datos e historial inmutable. |
+| 📞 **WhatsApp (Notificaciones)** | Envío automatizado diario (Daily Digest) de alertas críticas al administrador mediante el servicio gratuito **CallMeBot**. |
+| 📨 **Correo (Mail Service)** | Soporte dual para envío de notificaciones mediante `mail()` nativo de PHP o conexiones socket directas con cifrado **SMTP** (TLS/SSL). |
+| 🔎 **Escáner Integrado** | Lector web nativo mediante cámara de celular/dispositivo para escanear y procesar códigos de barras (EAN/UPC) y códigos QR en tiempo real. |
+| 📝 **Requisiciones** | Flujo completo de solicitud interna de materiales por parte de departamentos con estados de aprobación y despacho. |
+| 🛒 **Órdenes de Compra** | Gestión de aprovisionamiento de stock con proveedores, control de precios de adquisición y generación de PDFs formales. |
+| 🔄 **Devoluciones** | Módulo de logística inversa para procesar mercancías retornadas y reincorporarlas al stock de forma auditada. |
+| 🏢 **Departamentos** | Gestión de centros de costo y departamentos de la empresa que solicitan insumos. |
+| 👥 **Usuarios** | Administración de cuentas de usuario con roles de seguridad estrictos. |
+| 🔐 **Seguridad y Logs** | Registro inmutable de acciones críticas del sistema (quién, cuándo y qué acción de base de datos se alteró) para auditoría interna. |
+| 🔑 **Autenticación (Auth)** | Login seguro con protección contra ataques de fuerza bruta (Rate Limiting por IP) y control de intentos fallidos con bloqueo temporal. |
+| 🤝 **Proveedores** | Catálogo de proveedores con información de contacto, términos de pago e histórico de compras. |
+| 🗃️ **Respaldos (Backups)** | Generación, descarga y restauración segura de copias de seguridad de la base de datos SQL con protección contra inyección de rutas (Path Traversal). |
+| 📊 **Reportería Avanzada** | Exportación de datos de inventario, mermas, y movimientos en formatos **PDF** y **CSV** con filtros por fechas. |
+| 🎯 **Alertas del Sistema** | Monitoreo en tiempo real de niveles bajos de inventario y lotes próximos a vencer. |
+| 📍 **Transferencias** | Control del movimiento de mercancía entre diferentes almacenes o ubicaciones internas. |
+| 📋 **Conteo / Auditoría** | Planificación de conteos físicos y conciliación de stock para detectar fugas de mercancía. |
+| 👤 **Perfil** | Gestión de credenciales personales de usuario (correo, contraseña, avatar). |
+| 🎨 **Temas** | Conmutador de modo visual (Modo Oscuro / Modo Claro) para mejorar la visualización en entornos de almacén de poca iluminación. |
 
-- 🔐 **Login y Seguridad:** Autenticación robusta con protección contra fuerza bruta (Rate Limiting) y tokens CSRF dinámicos.
-- 👥 **Roles y Permisos:** Control de acceso granular (Administrador, Supervisor, Operador, Auditor).
-- 📦 **CRUD Completo:** Gestión de Productos, Categorías, Ubicaciones y Proveedores.
-- 📊 **Dashboard Administrativo:** Analíticas en tiempo real, alertas de stock mínimo y gráficos de movimiento.
-- 🔍 **Buscador Avanzado y Escáner:** Integración de escáner de códigos de barras (UPC/EAN) y QR.
-- 📄 **Reportes PDF / CSV:** Generación de requisiciones, órdenes de compra e historiales mediante FPDF.
-- 🔄 **Historial de Movimientos:** Trazabilidad inmutable de quién, qué y cuándo se movió el inventario.
-- 📱 **Responsive Design:** Interfaz adaptativa con Modo Oscuro/Claro nativo y densidades compactas.
+---
 
-## Tecnologías Utilizadas
+## 🔒 Arquitectura y Capa de Seguridad Hardened
 
-- **Backend:** PHP >= 8.1 (Nativo)
-- **Base de Datos:** MySQL >= 8.0 (con soporte para For Update Locks)
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
-- **Estilos:** Bootstrap 5.3 + Iconos de Bootstrap
-- **Gestión de Dependencias:** Composer
-- **Librerías Adicionales:** Dompdf, FPDF (Generación de Reportes PDF)
+**InvSys WMS** no compromete la seguridad. Cuenta con defensas integradas diseñadas bajo principios de ciberseguridad industrial:
 
-## Arquitectura del Proyecto
+* **Protección contra Inyección SQL**: El core del framework extiende un `Model` base con un validador estricto de identificadores mediante expresiones regulares (`validateIdentifier()`), impidiendo inyecciones incluso al concatenar dinámicamente nombres de columnas u órdenes de ordenamiento.
+* **Seguridad Antihackeo en Archivos (Path Traversal)**: El gestor de respaldos (`BackupController`) cuenta con la función `isValidBackupFilename()` que solo permite descargar archivos con nombres exactos de marca de tiempo (`invsys_backup_YYYY-MM-DD.sql`), bloqueando caracteres de salto de directorio (`..`, `/`, `\`).
+* **Protección CSRF Dinámica**: Cada formulario `POST` incluye un token criptográfico de un solo uso asociado a la sesión del usuario para evitar falsificaciones de peticiones en sitios cruzados.
+* **Rate Limiting de Login**: Protección automática contra fuerza bruta; bloquea direcciones IP tras múltiples intentos erróneos durante un tiempo parametrizable.
+* **Auditoría Inmutable**: Cualquier cambio en campos críticos (como existencias o precios) dispara un registro automático mediante `SecurityService::logAction()`, capturando IP, navegador, fecha y la consulta original.
 
-- **Patrón MVC (Modelo-Vista-Controlador)** construido desde cero para máxima velocidad.
-- **Monolito Modular:** Diseñado con Clean Architecture a nivel de servicios (`AlertService`, `SecurityService`, `ExportService`).
-- **State Persistence:** Implementación personalizada de `Old Input` flash data para una UX sin interrupciones.
+---
 
-## Requisitos del Sistema
+## 🛠️ Tecnologías Utilizadas
 
-- **Servidor Web:** Apache (con `mod_rewrite` habilitado) o Nginx.
-- **PHP:** Versión 8.1 o superior (Extensiones: `pdo_mysql`, `mbstring`, `gd`, `zip`).
-- **Base de Datos:** MySQL 8.0+ o MariaDB 10.5+.
-- **Herramientas:** Composer (para instalar FPDF/Dompdf).
+### Backend Core
+* **PHP >= 8.1** (Sin frameworks; programación orientada a objetos pura con autocargador de clases PSR-12).
+* **MySQL >= 8.0 / MariaDB 10.4+** con motor transaccional `InnoDB`.
 
-## Instalación Paso a Paso
+### Frontend & UX/UI
+* **HTML5 / CSS3 / Vanilla JavaScript (ES6+)** (Cero dependencias pesadas de NPM).
+* **Bootstrap v5.3** (Estilizado responsivo con densidades visuales optimizadas para pantallas de tablets industriales).
+* **Old Input Flash-UX**: Sistema personalizado que retiene y rellena los datos ingresados al fallar una validación para evitar reescritura.
 
-### 1. Clonar repositorio
+---
+
+## 🚀 Instalación y Configuración Local
+
+### 1. Clonar el repositorio
 ```bash
 git clone https://github.com/tu-usuario/invsys.git
-```
-
-### 2. Entrar al proyecto
-```bash
 cd invsys
 ```
 
-### 3. Instalar dependencias
+### 2. Instalar dependencias de desarrollo/reportes
 ```bash
 composer install
 ```
 
-### 4. Configurar base de datos
-Importa el esquema de la base de datos utilizando el archivo provisto:
-```bash
-mysql -u root -p invsys_db < database/esquema.sql
+### 3. Configurar Variables de Entorno (`.env`)
+Duplica el archivo `.env.example` y renómbralo a `.env`. Ajusta tus datos locales:
+```env
+APP_ENV=development
+
+DB_DRIVER=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=invsys_db
+DB_USERNAME=root
+DB_PASSWORD=
+DB_CHARSET=utf8mb4
+
+APP_BASE_URL=/invsys/public
 ```
 
-### 5. Configurar entorno
-Renombra el archivo `config.example.php` (si existe) a `config.php` y ajusta las constantes de la base de datos y la `BASE_URL`.
+### 4. Inicializar la Base de Datos
+Importa la estructura inicial de tablas y semillas desde el archivo **`database/invsys.sql`** usando phpMyAdmin de tu servidor local (XAMPP/Laragon) o por consola:
+```bash
+mysql -u root -p invsys_db < database/invsys.sql
+```
 
-### 6. Levantar servidor local (Desarrollo)
-Si utilizas XAMPP, asegúrate de configurar el DocumentRoot apuntando a la carpeta `/public` del proyecto, o levanta el servidor integrado de PHP:
+### 5. Correr las Migraciones
+Ejecuta las migraciones dinámicas para inicializar los módulos de WhatsApp CallMeBot de forma local:
+```bash
+php database/migrations/fase11_whatsapp.php
+php database/migrations/migrate_callmebot.php
+```
+
+### 6. Iniciar Servidor Local
+Si usas XAMPP, coloca el proyecto dentro de `htdocs/invsys` y accede mediante `http://localhost/invsys/public`. También puedes usar el servidor integrado de PHP:
 ```bash
 cd public
 php -S localhost:8000
 ```
 
-## Estructura de Carpetas
+---
 
-```text
-/app
-  /Controllers     # Lógica de las rutas
-  /Models          # Interactores con la DB (ActiveRecord custom)
-  /Views           # Plantillas HTML/PHP de presentación
-  /core            # Núcleo MVC (Router, Controller base, DB connection)
-  /services        # Lógica de negocio encapsulada (Mailing, Reports)
-  /helpers         # Funciones globales (url_helper.php)
-/public
-  /assets          # CSS, JS (Vanilla), Imágenes e Íconos
-  index.php        # Front Controller
-/routes
-  web.php          # Definición de rutas del sistema
-/database          # Scripts SQL de migraciones y esquemas
-```
+## 🌍 Despliegue a Hosting / Producción
 
-## Módulos del Sistema
+Para subir el proyecto a un hosting compartido con cPanel o servidor VPS, he preparado una guía detallada paso a paso que cubre la carga de archivos, permisos CHMOD de escritura en logs y copias de seguridad, y la automatización diaria del script de alertas vía **Cron Jobs**.
 
-1. **Gestión de Productos:** Catálogo principal con soporte para SKU y Códigos de Barras.
-2. **Trazabilidad Unitaria (Fase 3):** Seguimiento exhaustivo de Números de Serie individuales.
-3. **Control FEFO:** Administración de Lotes y Fechas de Vencimiento para perecederos.
-4. **Movimientos de Inventario:** Entradas, Salidas y Ajustes blindados por transacciones atómicas.
-5. **Requisiciones y Despachos:** Flujo interno de solicitudes de material para departamentos.
-6. **Auditoría Física (Conteos):** Conciliación de inventario en tiempo real.
-
-## Roles de Usuario
-
-- **Administrador:** Acceso total a configuración, usuarios y reportería sensible.
-- **Supervisor:** Capacidad de realizar ajustes y auditorías cíclicas.
-- **Operador:** Limitado al registro diario de entradas, salidas y escaneo de códigos de barras.
-
-## Seguridad Implementada
-
-- **Hash de Contraseñas:** Encriptación robusta usando `password_hash()` (Bcrypt).
-- **Protección CSRF:** Token generado dinámicamente y validado en todas las peticiones `POST`.
-- **Content Security Policy (CSP):** Eliminación completa de `unsafe-inline` scripts.
-- **Protección Fuerza Bruta:** Rate Limiter basado en IPs en el módulo de Autenticación.
-- **Bloqueo Transaccional (FOR UPDATE):** Evita condiciones de carrera durante actualizaciones simultáneas de stock.
-- **Auditoría Interna:** `SecurityService::logAction()` registra quién, cómo y cuándo alteró un dato crítico.
-
-## Scripts y Comandos Útiles
-
-Dado que es un sistema MVC nativo (no requiere de un CLI pesado como Laravel artisan), las tareas se realizan mediante composer:
-
-```bash
-# Instalar / Actualizar librerías de reportes (FPDF)
-composer install
-
-# Optimizar el autoloader de clases
-composer dump-autoload -o
-```
-
-## Estado del Proyecto
-
-- **Estado actual:** Producción (Release v1.5.0).
-- Todos los módulos CORE de gestión y trazabilidad han sido implementados y auditados.
-
-## Buenas Prácticas Aplicadas
-
-- **Clean Code & PSR-12:** Código altamente legible y estructurado bajo los estándares de PHP.
-- **Separación de Responsabilidades:** Vistas estrictamente separadas de los Controladores.
-- **UX/UI Consistente:** Retención de variables (Old Input) al fallar las validaciones.
-- **Optimización SQL:** Consultas tipadas y preparadas mediante PDO, evitando inyecciones SQL.
-
-## Compatibilidad
-
-- **Navegadores Soportados:** Chrome, Firefox, Safari, Edge (Desktop & Mobile).
-- **Dispositivos:** 100% responsivo para Tablets y Smartphones de almacén.
-
-## Autor
-
-Desarrollado por **Josué Lopez**.  
-*Programador JR. / Arquitectura de Sistemas Web*
-
-## Licencia
-
-Este proyecto es de **código abierto** y está disponible para el público bajo la licencia **MIT**. Puedes utilizarlo, modificarlo y distribuirlo libremente de acuerdo con los términos de dicha licencia.
+👉 Consulta la **[Guía Completa de Despliegue en Hosting (GUIA_DESPLIEGUE.md)](file:///c:/xampp/htdocs/invsys/GUIA_DESPLIEGUE.md)**.
 
 ---
-**Desarrollado con precisión y robustez para ecosistemas empresariales críticos.**
+
+## 📈 Estructura de Directorios
+
+```text
+├── /app
+│   ├── /Controllers       # Controladores del MVC
+│   ├── /Models            # Modelos e interactores de BD (ActiveRecord)
+│   ├── /Views             # Vistas del frontend (HTML/PHP)
+│   ├── /core              # Núcleo MVC (Router, Modelo base, Carga de Entornos)
+│   ├── /services          # Servicios desacoplados (Alertas, Correo, Logs)
+│   └── /helpers           # Funciones de ayuda global (urls, formatos, auth)
+├── /config                # Configuración de base de datos
+├── /database              # Esquema SQL y migraciones
+├── /public                # Carpeta pública (Assets: JS, CSS, Imágenes) e index.php
+├── /routes                # Enrutador del sistema (web.php)
+├── /scripts               # Scripts CLI automatizables (cron_alertas.php)
+├── /storage               # Almacenamiento de Backups y Logs
+└── .env                   # Variables de entorno (Ignorado en Git)
+```
+
+---
+
+## 👨‍💻 Autor y Licencia
+
+Desarrollado y diseñado con precisión por **Josué Lopez** (*Programador JR. / Arquitectura de Sistemas Web*).
+
+Este software es de **código abierto** y se distribuye bajo la licencia **MIT**. Eres libre de usarlo, modificarlo y adaptarlo a las necesidades críticas de tu negocio.

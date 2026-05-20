@@ -40,17 +40,17 @@ class PdfGenerator extends FPDF
     {
         $this->SetFont('Arial', 'B', 15);
         $this->SetTextColor(33, 37, 41);
-        
+
         $this->Cell(80);
         $this->Cell(30, 10, self::decode($this->documentTitle), 0, 0, 'C');
-        
+
         $this->SetFont('Arial', 'I', 10);
         $this->SetTextColor(108, 117, 125);
         $this->Cell(0, 10, self::decode($this->empresa), 0, 1, 'R');
-        
+
         $this->SetDrawColor(200, 200, 200);
         $this->Line(10, 22, 200, 22);
-        
+
         $this->Ln(10);
     }
 
@@ -58,10 +58,10 @@ class PdfGenerator extends FPDF
     public function Footer(): void
     {
         $this->SetY(-15);
-        
+
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(108, 117, 125);
-        
+
         $this->Cell(0, 10, 'Impreso el: ' . date('d/m/Y H:i'), 0, 0, 'L');
         $this->Cell(0, 10, self::decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
     }
@@ -76,7 +76,7 @@ class PdfGenerator extends FPDF
         $this->SetFont('Arial', 'B', 10);
 
         // Cabecera
-        for($i=0; $i<count($header); $i++) {
+        for ($i = 0; $i < count($header); $i++) {
             $this->Cell($widths[$i], 7, self::decode($header[$i]), 1, 0, 'C', true);
         }
         $this->Ln();
@@ -85,9 +85,9 @@ class PdfGenerator extends FPDF
         $this->SetFillColor(255, 255, 255);
         $this->SetTextColor(0);
         $this->SetFont('Arial', '', 9);
-        
-        foreach($data as $row) {
-            for($i=0; $i<count($row); $i++) {
+
+        foreach ($data as $row) {
+            for ($i = 0; $i < count($row); $i++) {
                 $this->Cell($widths[$i], 6, self::decode($row[$i]), 'LRB', 0, $aligns[$i], true);
             }
             $this->Ln();

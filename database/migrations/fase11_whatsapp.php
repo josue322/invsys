@@ -1,5 +1,36 @@
 <?php
-$pdo = new PDO('mysql:host=localhost;dbname=invsys_db', 'root', '', [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+/**
+ * Migración: Inicializar configuración de WhatsApp
+ * 
+ * Carga dinámicamente las credenciales desde el archivo .env.
+ */
+
+// Cargar dependencias y bootstrap
+require_once dirname(__DIR__, 2) . '/app/core/EnvLoader.php';
+EnvLoader::load(dirname(__DIR__, 2));
+
+// Obtener configuración de base de datos
+$config = require dirname(__DIR__, 2) . '/config/database.php';
+
+try {
+    $dsn = sprintf(
+        '%s:host=%s;port=%s;dbname=%s;charset=%s',
+        $config['driver'],
+        $config['host'],
+        $config['port'],
+        $config['database'],
+        $config['charset']
+    );
+
+    $pdo = new PDO(
+        $dsn,
+        $config['username'],
+        $config['password'],
+        $config['options']
+    );
+} catch (PDOException $e) {
+    die("Error de conexión a la base de datos: " . $e->getMessage() . "\n");
+}
 
 try {
     // 1. Añadir columna telefono a usuarios
