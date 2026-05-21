@@ -19,7 +19,7 @@ class AnalisisInventario extends Model
      * 
      * @return array ['items' => [...], 'totals' => [...]]
      */
-    public function getClasificacionABC(): array
+    public function getClasificacionABC(?int $page = null, ?int $perPage = null): array
     {
         $sql = "SELECT p.id, p.nombre, p.sku, p.stock, p.costo,
                        c.nombre as categoria_nombre,
@@ -32,7 +32,15 @@ class AnalisisInventario extends Model
         $productos = $this->query($sql)->fetchAll();
 
         if (empty($productos)) {
-            return ['items' => [], 'totals' => ['A' => 0, 'B' => 0, 'C' => 0, 'total' => 0]];
+            return [
+                'data' => [],
+                'items' => [],
+                'totals' => ['A' => 0, 'B' => 0, 'C' => 0, 'total' => 0, 'count_A' => 0, 'count_B' => 0, 'count_C' => 0],
+                'total' => 0,
+                'pages' => 0,
+                'current' => $page ?? 1,
+                'perPage' => $perPage ?? 15
+            ];
         }
 
         $valorTotal = array_sum(array_map(fn($p) => (float) $p->valor_inventario, $productos));
@@ -79,7 +87,25 @@ class AnalisisInventario extends Model
             ];
         }
 
-        return ['items' => $items, 'totals' => $totals];
+        $totalCount = count($items);
+        if ($page !== null && $perPage !== null) {
+            $offset = ($page - 1) * $perPage;
+            $paginatedItems = array_slice($items, $offset, $perPage);
+        } else {
+            $paginatedItems = $items;
+            $page = 1;
+            $perPage = $totalCount;
+        }
+
+        return [
+            'data' => $paginatedItems,
+            'items' => $paginatedItems,
+            'totals' => $totals,
+            'total' => $totalCount,
+            'pages' => (int) ceil($totalCount / $perPage),
+            'current' => $page,
+            'perPage' => $perPage
+        ];
     }
 
     /**

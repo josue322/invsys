@@ -1,3 +1,10 @@
+<?php
+/**
+ * Vista: Análisis ABC (Pareto)
+ * @var array $totals   Totales por clase (A, B, C, total, count_A, count_B, count_C)
+ * @var array $items    Paginación de la lista de productos clasificados (data, total, pages, current, perPage)
+ */
+?>
 <!-- Toolbar -->
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
@@ -77,7 +84,7 @@
                     </div>
                     <div>
                         <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fs-6">
-                            <?= count($items) ?>
+                            <?= $items['total'] ?? 0 ?>
                         </span>
                     </div>
                 </div>
@@ -105,10 +112,10 @@
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-list-columns me-2"></i>Detalle por Producto</h6>
-                <span class="badge bg-primary"><?= count($items) ?> productos</span>
+                <span class="badge bg-primary"><?= $items['total'] ?? 0 ?> productos</span>
             </div>
             <div class="card-body p-0">
-                <?php if (empty($items)): ?>
+                <?php if (empty($items['data'])): ?>
                     <div class="empty-state py-5">
                         <div class="empty-state-icon" style="width:64px;height:64px;margin-bottom:1rem;">
                             <svg viewBox="0 0 100 100">
@@ -121,9 +128,9 @@
                         <p class="text-muted mb-0" style="font-size:0.8rem">No hay productos con stock para analizar</p>
                     </div>
                 <?php else: ?>
-                    <div class="table-wrapper" style="max-height:500px;overflow-y:auto;">
+                    <div class="table-responsive">
                         <table class="table table-sm mb-0">
-                            <thead style="position:sticky;top:0;z-index:1;">
+                            <thead>
                                 <tr>
                                     <th style="width:50px">Clase</th>
                                     <th>SKU</th>
@@ -136,7 +143,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($items as $item): ?>
+                                <?php foreach ($items['data'] as $item): ?>
                                 <tr>
                                     <td>
                                         <?php
@@ -171,6 +178,12 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Paginación -->
+                    <?php
+                    $pg = $items;
+                    $baseUrl = 'reportes/analisis/abc';
+                    include APP_PATH . '/views/layouts/_pagination.php';
+                    ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -180,4 +193,4 @@
 <script id="page-data" type="application/json"><?= json_encode([
     'totals' => $totals,
 ]) ?></script>
-<script src="<?= asset('js/reportes.js') ?>?v=<?= ASSET_VERSION ?>"></script>
+<script src="<?= asset('js/reportes.js') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/js/reportes.js') ?>"></script>

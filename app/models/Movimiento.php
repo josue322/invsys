@@ -190,4 +190,23 @@ class Movimiento extends Model
                 ORDER BY fecha ASC";
         return $this->query($sql, ['days' => $days])->fetchAll();
     }
+
+    /**
+     * Obtener sumatoria de entradas y salidas agrupadas por mes para los últimos N meses.
+     *
+     * @param int $months Cantidad de meses hacia atrás
+     * @return array
+     */
+    public function getMonthlyTrend(int $months = 6): array
+    {
+        $sql = "SELECT 
+                    DATE_FORMAT(created_at, '%Y-%m') as mes,
+                    SUM(CASE WHEN tipo = 'entrada' THEN cantidad ELSE 0 END) as entradas,
+                    SUM(CASE WHEN tipo = 'salida' THEN cantidad ELSE 0 END) as salidas
+                FROM {$this->table}
+                WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :months MONTH)
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                ORDER BY mes ASC";
+        return $this->query($sql, ['months' => $months])->fetchAll();
+    }
 }

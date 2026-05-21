@@ -211,6 +211,23 @@ class Producto extends Model
     }
 
     /**
+     * Obtener análisis financiero y físico por categoría para gráficos avanzados (barras y radar).
+     */
+    public function getCategoryAnalysis(): array
+    {
+        $sql = "SELECT c.nombre as categoria, 
+                       COUNT(p.id) as total_productos, 
+                       IFNULL(SUM(p.stock), 0) as stock_total, 
+                       IFNULL(SUM(p.costo * p.stock), 0) as valor_total
+                FROM {$this->table} p 
+                INNER JOIN categorias c ON p.categoria_id = c.id 
+                WHERE p.activo = 1 
+                GROUP BY c.id, c.nombre 
+                ORDER BY valor_total DESC";
+        return $this->query($sql)->fetchAll();
+    }
+
+    /**
      * Obtener productos perecederos activos (para verificación de vencimiento).
      */
     public function findPerishableActive(): array

@@ -25,13 +25,28 @@ class ReporteController extends Controller
         $productosStockBajo = $productoModel->getLowStock();
         $topProductos = $movimientoModel->getTopProducts(10);
         $productosPorCategoria = $productoModel->getCountByCategory();
+        $categoriaAnalisis = $productoModel->getCategoryAnalysis();
         $flash = $this->getFlash();
+
+        // Cargar KPIs de Cabecera
+        $kpis = [
+            'totalProductos' => $productoModel->countActive(),
+            'valorInventario' => $productoModel->getTotalInventoryValue(),
+            'saludStock' => $productoModel->getStockHealthSummary(), // total, saludable, bajo, agotado
+            'movimientosHoy' => $movimientoModel->countToday(),
+        ];
+
+        // Cargar tendencia de movimientos mensual (últimos 6 meses)
+        $tendenciaMensual = $movimientoModel->getMonthlyTrend(6);
 
         $this->view('reportes/index', [
             'titulo' => 'Reportes',
             'productosStockBajo' => $productosStockBajo,
             'topProductos' => $topProductos,
             'productosPorCategoria' => $productosPorCategoria,
+            'categoriaAnalisis' => $categoriaAnalisis,
+            'kpis' => $kpis,
+            'tendenciaMensual' => $tendenciaMensual,
             'flash' => $flash,
             'loadChartJS' => true,
         ]);
@@ -842,12 +857,15 @@ class ReporteController extends Controller
      */
     public function analisisABC(): void
     {
+        $page = (int) $this->query('page', 1);
+        $perPage = (int) $this->query('per_page', 15);
+
         $analisis = new AnalisisInventario();
-        $data = $analisis->getClasificacionABC();
+        $data = $analisis->getClasificacionABC($page, $perPage);
 
         $this->view('reportes/analisis-abc', [
             'titulo' => 'Análisis ABC',
-            'items' => $data['items'],
+            'items' => $data,
             'totals' => $data['totals'],
             'flash' => $this->getFlash(),
             'loadChartJS' => true,
