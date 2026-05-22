@@ -100,6 +100,19 @@ class Alerta extends Model
     }
 
     /**
+     * Obtener las N alertas más recientes (leídas y no leídas) para el dropdown global de la campana.
+     */
+    public function getRecentOverall(int $limit = 5): array
+    {
+        $sql = "SELECT a.*, p.nombre as producto_nombre, p.sku as producto_sku 
+                FROM {$this->table} a 
+                INNER JOIN productos p ON a.producto_id = p.id 
+                ORDER BY a.created_at DESC 
+                LIMIT {$limit}";
+        return $this->query($sql)->fetchAll();
+    }
+
+    /**
      * Obtener todas las alertas no notificadas por correo.
      */
     public function getUnnotified(): array

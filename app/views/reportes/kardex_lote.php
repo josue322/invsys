@@ -33,7 +33,7 @@
                                 <option value="">Seleccione un lote...</option>
                                 <?php foreach ($lotes as $l): ?>
                                     <option value="<?= $l->id ?>" <?= $filtros['lote_id'] == $l->id ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($l->numero_lote) ?> 
+                                        <?= htmlspecialchars($l->numero_lote) ?>
                                         (Stock: <?= $l->stock_actual ?> - Vence: <?= formatDate($l->fecha_vencimiento) ?>)
                                     </option>
                                 <?php endforeach; ?>
@@ -117,9 +117,9 @@
                                     </tr>
                                 </thead>
                                 <tbody class="border-top-0">
-                                    <?php 
+                                    <?php
                                     $runningStock = 0;
-                                    foreach ($movimientosLote as $m): 
+                                    foreach ($movimientosLote as $m):
                                         if ($m->tipo === 'entrada') {
                                             $runningStock += $m->cantidad;
                                             $color = 'text-success';

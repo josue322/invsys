@@ -24,6 +24,7 @@ class Controller
         // Obtener datos globales disponibles en todas las vistas
         $currentUser = currentUser();
         $alertasNoLeidas = $this->getUnreadAlertCount();
+        $alertasRecientes = $this->getRecentAlerts(5);
         $temaActual = $this->getCurrentTheme();
         $uiSettings = $this->getUISettings();
 
@@ -230,6 +231,25 @@ class Controller
             return $alerta->countUnread();
         } catch (\Exception $e) {
             return 0;
+        }
+    }
+
+    /**
+     * Obtener las alertas más recientes del sistema para mostrarlas en el menú de la campana.
+     *
+     * @param int $limit Límite de alertas a obtener
+     * @return array
+     */
+    private function getRecentAlerts(int $limit = 5): array
+    {
+        if (!isLoggedIn()) {
+            return [];
+        }
+        try {
+            $alerta = new Alerta();
+            return $alerta->getRecentOverall($limit);
+        } catch (\Exception $e) {
+            return [];
         }
     }
 

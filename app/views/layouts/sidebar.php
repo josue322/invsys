@@ -1,3 +1,13 @@
+<?php
+/** @var int $alertasNoLeidas */
+/** @var array $alertasRecientes */
+if (!isset($alertasNoLeidas)) {
+    $alertasNoLeidas = 0;
+}
+if (!isset($alertasRecientes)) {
+    $alertasRecientes = [];
+}
+?>
 <!-- Sidebar Navigation -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -290,23 +300,85 @@
             <!-- Alertas dropdown -->
             <?php if (hasPermission('alertas.ver')): ?>
             <div class="dropdown">
-                <button class="navbar-action-btn dropdown-toggle" data-bs-toggle="dropdown" id="alertDropdown">
+                <button class="navbar-action-btn dropdown-toggle" data-bs-toggle="dropdown" id="alertDropdown" aria-expanded="false">
                     <i class="bi bi-bell"></i>
                     <?php if (($alertasNoLeidas ?? 0) > 0): ?>
-                        <span class="notification-badge"><?= $alertasNoLeidas ?></span>
+                        <span class="notification-badge"><?= (int) $alertasNoLeidas ?></span>
                     <?php endif; ?>
                 </button>
-                <div class="dropdown-menu dropdown-menu-end notification-dropdown">
-                    <div class="dropdown-header d-flex justify-content-between align-items-center">
-                        <span>Alertas</span>
-                        <?php if (($alertasNoLeidas ?? 0) > 0): ?>
-                            <span class="badge bg-danger"><?= $alertasNoLeidas ?> nuevas</span>
+                <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0 border-0 shadow-lg rounded-4 overflow-hidden" style="width: 340px; background: var(--bs-body-bg);">
+                    <!-- Header -->
+                    <div class="dropdown-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-translucent" style="font-size: 0.88rem;">
+                        <span class="fw-bold text-body" style="font-size: 0.95rem;">Notificaciones</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <?php if (($alertasNoLeidas ?? 0) > 0): ?>
+                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 600;"><?= (int) $alertasNoLeidas ?> nuevas</span>
+                                <?php if (hasPermission('alertas.gestionar')): ?>
+                                    <form method="POST" action="<?= url('alertas/leer-todas') ?>" class="m-0 d-inline-block">
+                                        <?= csrfField() ?>
+                                        <button type="submit" class="btn p-0 text-primary border-0 bg-transparent" style="font-size: 0.72rem; font-weight: 600; text-decoration: none;" title="Marcar todas como leídas">
+                                            <i class="bi bi-check-all fs-6"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="text-success" style="font-size: 0.72rem; font-weight: 600;"><i class="bi bi-check-circle-fill me-1"></i>Al día</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Notification List -->
+                    <div class="notification-list" style="max-height: 280px; overflow-y: auto;">
+                        <?php if (empty($alertasRecientes)): ?>
+                            <div class="text-center py-4 px-3 text-muted">
+                                <div class="mb-2 opacity-50"><i class="bi bi-bell-slash fs-2"></i></div>
+                                <p class="mb-0" style="font-size: 0.78rem;">¡No tienes notificaciones registradas!</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($alertasRecientes as $a): 
+                                $isUnread = !($a->leida ?? false);
+                                $tipo = $a->tipo ?? 'info';
+                                $theme = match($tipo) {
+                                    'stock_agotado' => ['bg' => 'rgba(239, 68, 68, 0.08)', 'color' => '#ef4444', 'icon' => 'bi-x-octagon-fill'],
+                                    'stock_minimo' => ['bg' => 'rgba(245, 158, 11, 0.08)', 'color' => '#f59e0b', 'icon' => 'bi-exclamation-triangle-fill'],
+                                    default => ['bg' => 'rgba(99, 102, 241, 0.08)', 'color' => 'var(--primary)', 'icon' => 'bi-info-circle-fill']
+                                };
+                            ?>
+                                <a href="<?= url('productos/ver/' . ($a->producto_id ?? 0)) ?>" class="dropdown-item d-flex align-items-start gap-2 px-3 py-2 border-bottom border-translucent position-relative <?= $isUnread ? 'bg-body-tertiary' : '' ?>" style="white-space: normal; transition: background 0.15s ease;">
+                                    <!-- Indicator border for unread alerts -->
+                                    <?php if ($isUnread): ?>
+                                        <div class="position-absolute top-0 start-0 bottom-0 bg-primary" style="width: 3.5px;"></div>
+                                    <?php endif; ?>
+                                    
+                                    <!-- Mini Badge Icon -->
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 30px; height: 30px; background-color: <?= $theme['bg'] ?>; color: <?= $theme['color'] ?>;">
+                                        <i class="<?= $theme['icon'] ?>" style="font-size: 0.85rem;"></i>
+                                    </div>
+
+                                    <!-- Main Text -->
+                                    <div class="flex-grow-1 min-w-0" style="font-size: 0.78rem;">
+                                        <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                                            <span class="fw-bold text-body text-truncate d-block" style="max-width: 170px;"><?= htmlspecialchars($a->producto_nombre ?? 'Producto') ?></span>
+                                            <span class="text-muted text-nowrap" style="font-size: 0.68rem;"><?= date('d/m H:i', strtotime($a->created_at ?? 'now')) ?></span>
+                                        </div>
+                                        <p class="mb-0 text-muted" style="font-size: 0.74rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?= htmlspecialchars($a->mensaje ?? '') ?></p>
+                                    </div>
+                                    
+                                    <!-- Glowing blue unread dot -->
+                                    <?php if ($isUnread): ?>
+                                        <div class="align-self-center rounded-circle flex-shrink-0 bg-primary ms-1" style="width: 6px; height: 6px; box-shadow: 0 0 6px #6366f1;"></div>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                    <div class="dropdown-divider"></div>
-                    <a href="<?= url('alertas') ?>" class="dropdown-item text-center">
-                        <small>Ver todas las alertas</small>
-                    </a>
+
+                    <!-- Footer Link -->
+                    <div class="border-top border-translucent">
+                        <a href="<?= url('alertas') ?>" class="dropdown-item text-center text-primary fw-semibold py-2" style="font-size: 0.78rem; transition: background 0.15s ease;">
+                            <i class="bi bi-collection me-1"></i>Ver todas las alertas
+                        </a>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>

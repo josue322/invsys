@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var array $kpis
  * @var array $productosStockBajo
@@ -22,7 +23,9 @@
                 <i class="bi bi-file-earmark-spreadsheet me-1"></i>Exportar Excel
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnExportCSV">
-                <li><h6 class="dropdown-header"><i class="bi bi-table me-1"></i>Exportar a Excel</h6></li>
+                <li>
+                    <h6 class="dropdown-header"><i class="bi bi-table me-1"></i>Exportar a Excel</h6>
+                </li>
                 <li>
                     <a class="dropdown-item" href="<?= url('reportes/exportar/inventario/csv') ?>">
                         <i class="bi bi-box-seam me-2 text-primary"></i>Inventario General
@@ -43,7 +46,9 @@
                         <i class="bi bi-pie-chart me-2 text-success"></i>Distribución por Categoría
                     </a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
                 <li>
                     <a class="dropdown-item" href="<?= url('reportes/exportar/movimientos/csv') ?>">
                         <i class="bi bi-arrow-left-right me-2 text-secondary"></i>Movimientos (Todos)
@@ -58,7 +63,9 @@
                 <i class="bi bi-file-earmark-pdf me-1"></i>Exportar PDF
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnExportPDF">
-                <li><h6 class="dropdown-header"><i class="bi bi-printer me-1"></i>Exportar a PDF</h6></li>
+                <li>
+                    <h6 class="dropdown-header"><i class="bi bi-printer me-1"></i>Exportar a PDF</h6>
+                </li>
                 <li>
                     <a class="dropdown-item" href="<?= url('reportes/exportar/inventario/pdf') ?>" target="_blank">
                         <i class="bi bi-box-seam me-2 text-primary"></i>Inventario General
@@ -74,7 +81,9 @@
                         <i class="bi bi-arrow-left-right me-2 text-secondary"></i>Movimientos (Todos)
                     </a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
                 <li>
                     <a class="dropdown-item fw-bold" href="<?= url('reportes/exportar/completo/pdf') ?>" target="_blank">
                         <i class="bi bi-file-earmark-richtext me-2 text-danger"></i>Reporte Completo
@@ -88,9 +97,9 @@
 <!-- KPI Summary Cards Grid -->
 <div class="row g-3 mb-4" id="kpi-grid">
     <?php
-        $bajos = (int)($kpis['saludStock']->bajo ?? 0);
-        $agotados = (int)($kpis['saludStock']->agotado ?? 0);
-        $totalCritico = $bajos + $agotados;
+    $bajos = (int)($kpis['saludStock']->bajo ?? 0);
+    $agotados = (int)($kpis['saludStock']->agotado ?? 0);
+    $totalCritico = $bajos + $agotados;
     ?>
     <!-- Valor Total Inventario -->
     <div class="col-sm-6 col-lg-3">
@@ -104,7 +113,10 @@
                     </small>
                 </div>
                 <div class="d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(16,185,129,0.18) 100%);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -122,7 +134,11 @@
                     </small>
                 </div>
                 <div class="d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.15) 100%);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -141,7 +157,11 @@
                     </small>
                 </div>
                 <div class="d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(245,158,11,0.12) 100%);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="<?= $totalCritico > 0 ? '#ef4444' : '#22c55e' ?>" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="<?= $totalCritico > 0 ? '#ef4444' : '#22c55e' ?>" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -159,7 +179,9 @@
                     </small>
                 </div>
                 <div class="d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(20,184,166,0.15) 100%);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -171,37 +193,61 @@
     <div class="col-md-4">
         <a href="<?= url('reportes/exportar/inventario/csv') ?>" class="export-card" id="export-inventario-csv">
             <div class="export-card-icon export-csv">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="8" y1="13" x2="16" y2="13" />
+                    <line x1="8" y1="17" x2="16" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
             </div>
             <div class="export-card-body">
                 <h6>Inventario Excel</h6>
                 <small>Todos los productos activos con costos, stock y categorías</small>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="export-card-arrow"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="export-card-arrow">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
         </a>
     </div>
     <div class="col-md-4">
         <a href="<?= url('reportes/exportar/completo/pdf') ?>" target="_blank" class="export-card" id="export-completo-pdf">
             <div class="export-card-icon export-pdf">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15v-2h2a1 1 0 1 0 0-2H9v6"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M9 15v-2h2a1 1 0 1 0 0-2H9v6" />
+                </svg>
             </div>
             <div class="export-card-body">
                 <h6>Reporte Completo PDF</h6>
                 <small>Inventario, stock bajo, top productos y categorías</small>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="export-card-arrow"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="export-card-arrow">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
         </a>
     </div>
     <div class="col-md-4">
         <a href="<?= url('reportes/exportar/movimientos/csv') ?>" class="export-card" id="export-movimientos-csv">
             <div class="export-card-icon export-mov">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
             </div>
             <div class="export-card-body">
                 <h6>Movimientos Excel</h6>
                 <small>Historial completo de entradas, salidas y ajustes</small>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="export-card-arrow"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="export-card-arrow">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
         </a>
     </div>
 </div>
@@ -234,8 +280,8 @@
                 <label for="filtroFechaExacta" class="form-label fw-semibold">
                     <i class="bi bi-calendar-date me-1"></i>Fecha
                 </label>
-                <input type="date" class="form-control" id="filtroFechaExacta" 
-                       value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>">
+                <input type="date" class="form-control" id="filtroFechaExacta"
+                    value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>">
             </div>
 
             <!-- Rango: Desde -->
@@ -251,8 +297,8 @@
                 <label for="filtroFechaHasta" class="form-label fw-semibold">
                     <i class="bi bi-calendar-plus me-1"></i>Hasta
                 </label>
-                <input type="date" class="form-control" id="filtroFechaHasta" 
-                       value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>">
+                <input type="date" class="form-control" id="filtroFechaHasta"
+                    value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>">
             </div>
 
             <!-- Botones de exportar -->
@@ -270,7 +316,7 @@
         <div class="mt-3">
             <small class="text-muted">
                 <i class="bi bi-info-circle me-1"></i>
-                Selecciona una fecha exacta o un rango de fechas y elige el formato de exportación. 
+                Selecciona una fecha exacta o un rango de fechas y elige el formato de exportación.
                 Si no hay movimientos en la fecha seleccionada, recibirás un aviso.
             </small>
         </div>
@@ -362,24 +408,30 @@
                         <p class="text-muted mb-0" style="font-size:0.75rem">Se requiere más tiempo para evaluar</p>
                     </div>
                 <?php else: ?>
-                <div class="table-wrapper">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr><th>#</th><th>Producto</th><th>Entradas</th><th>Salidas</th><th>Total</th></tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($topProductos as $i => $tp): ?>
-                            <tr>
-                                <td><span class="badge bg-primary rounded-pill"><?= $i + 1 ?></span></td>
-                                <td><strong><?= htmlspecialchars($tp->nombre) ?></strong><br><small class="text-muted"><?= $tp->sku ?></small></td>
-                                <td class="text-success fw-bold">+<?= $tp->total_entradas ?></td>
-                                <td class="text-danger fw-bold">-<?= $tp->total_salidas ?></td>
-                                <td><strong><?= $tp->total_movimientos ?></strong></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="table-wrapper">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Producto</th>
+                                    <th>Entradas</th>
+                                    <th>Salidas</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($topProductos as $i => $tp): ?>
+                                    <tr>
+                                        <td><span class="badge bg-primary rounded-pill"><?= $i + 1 ?></span></td>
+                                        <td><strong><?= htmlspecialchars($tp->nombre) ?></strong><br><small class="text-muted"><?= $tp->sku ?></small></td>
+                                        <td class="text-success fw-bold">+<?= $tp->total_entradas ?></td>
+                                        <td class="text-danger fw-bold">-<?= $tp->total_salidas ?></td>
+                                        <td><strong><?= $tp->total_movimientos ?></strong></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -415,32 +467,40 @@
                         <h5>Todos los productos tienen stock normal</h5>
                     </div>
                 <?php else: ?>
-                <div class="table-wrapper">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Valor</th></tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($productosStockBajo as $p): ?>
-                            <tr>
-                                <td><code class="text-primary"><?= $p->sku ?></code></td>
-                                <td><strong><?= htmlspecialchars($p->nombre) ?></strong></td>
-                                <td><?= htmlspecialchars($p->categoria_nombre ?? '-') ?></td>
-                                <td class="fw-bold"><?= $p->stock ?></td>
-                                <td><?= $p->stock_minimo ?></td>
-                                <td>
-                                    <?php if ($p->stock <= 0): ?>
-                                        <span class="badge badge-stock-out">Agotado</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-stock-low">Bajo</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= formatMoney($p->costo * $p->stock) ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="table-wrapper">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Mínimo</th>
+                                    <th>Estado</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($productosStockBajo as $p): ?>
+                                    <tr>
+                                        <td><code class="text-primary"><?= $p->sku ?></code></td>
+                                        <td><strong><?= htmlspecialchars($p->nombre) ?></strong></td>
+                                        <td><?= htmlspecialchars($p->categoria_nombre ?? '-') ?></td>
+                                        <td class="fw-bold"><?= $p->stock ?></td>
+                                        <td><?= $p->stock_minimo ?></td>
+                                        <td>
+                                            <?php if ($p->stock <= 0): ?>
+                                                <span class="badge badge-stock-out">Agotado</span>
+                                            <?php else: ?>
+                                                <span class="badge badge-stock-low">Bajo</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= formatMoney($p->costo * $p->stock) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -455,7 +515,7 @@ $reportData = [
     'exportPdfUrl'      => url('reportes/exportar/movimientos/pdf'),
 ];
 ?>
-<script id="page-data" type="application/json"><?= json_encode($reportData) ?></script>
+<script id="page-data" type="application/json">
+    <?= json_encode($reportData) ?>
+</script>
 <script src="<?= asset('js/reportes.js') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/js/reportes.js') ?>"></script>
-
-
