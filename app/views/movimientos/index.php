@@ -85,7 +85,9 @@
                                 <td><span class="text-muted">#<?= $m->id ?></span></td>
                                 <td><?= formatDate($m->created_at) ?></td>
                                 <td>
-                                    <strong><?= htmlspecialchars($m->producto_nombre) ?></strong>
+                                    <a href="<?= url("productos/ver/{$m->producto_id}") ?>" class="text-decoration-none text-dark">
+                                        <strong style="transition:color .2s;"><?= htmlspecialchars($m->producto_nombre) ?></strong>
+                                    </a>
                                     <br><small class="text-muted"><?= $m->producto_sku ?></small>
                                 </td>
                                 <td>

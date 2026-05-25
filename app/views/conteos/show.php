@@ -189,7 +189,9 @@
                     <tr class="<?= $rowClass ?>" id="row-<?= $item->id ?>">
                         <td>
                             <div>
-                                <strong><?= htmlspecialchars($item->producto_nombre) ?></strong>
+                                <a href="<?= url("productos/ver/{$item->producto_id}") ?>" class="text-decoration-none text-dark hover-primary">
+                                    <strong><?= htmlspecialchars($item->producto_nombre) ?></strong>
+                                </a>
                                 <br><small class="text-muted"><?= htmlspecialchars($item->sku) ?> · <?= htmlspecialchars($item->unidad_medida ?? 'Und') ?></small>
                             </div>
                         </td>

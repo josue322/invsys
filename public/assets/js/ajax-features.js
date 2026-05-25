@@ -7,7 +7,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const BASE = document.querySelector('meta[name="base-url"]')?.content || '/invsys/public';
+    const BASE = (document.querySelector('meta[name="base-url"]')?.content || '/invsys/public').replace(/\/+$/, '');
 
     // =========================================================
     // 1. LIVE SEARCH — Búsqueda de productos en tiempo real
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <small>${p.sku} · ${p.categoria}</small>
                             </div>
                             <div class="search-meta">
-                                <span class="search-price">${p.precio}</span>
+                                <span class="search-price">${p.costo}</span>
                                 <span class="search-stock ${p.stock <= 0 ? 'text-danger' : ''}">${p.stock} uds</span>
                             </div>
                         </a>

@@ -25,7 +25,7 @@ define('IS_PRODUCTION', APP_ENV === 'production');
 
 // Definir la URL base del proyecto desde .env
 define('BASE_URL', EnvLoader::get('APP_BASE_URL', '/invsys/public'));
-define('ASSET_URL', BASE_URL . '/assets');
+define('ASSET_URL', (BASE_URL === '/' ? '' : BASE_URL) . '/assets');
 
 // =====================================================
 // CONFIGURAR ERRORES SEGÚN ENTORNO

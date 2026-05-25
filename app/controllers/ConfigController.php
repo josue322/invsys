@@ -84,9 +84,15 @@ class ConfigController extends Controller
         $maxSize = 2 * 1024 * 1024; // 2MB
 
         // Validar tipo
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+        } elseif (function_exists('mime_content_type')) {
+            $mimeType = mime_content_type($file['tmp_name']);
+        } else {
+            $mimeType = $file['type'] ?? 'image/png';
+        }
 
         if (!in_array($mimeType, $allowedTypes)) {
             $this->setFlash('error', 'Formato de logo no válido. Use PNG, JPG, SVG o WebP.');

@@ -138,7 +138,9 @@ $badgeColor = match($devolucion->estado) {
                             ?>
                             <tr>
                                 <td class="ps-4">
-                                    <div class="fw-semibold text-dark"><?= htmlspecialchars($det->producto_nombre) ?></div>
+                                    <a href="<?= url("productos/ver/{$det->producto_id}") ?>" class="text-decoration-none text-dark hover-primary">
+                                        <div class="fw-semibold text-dark"><?= htmlspecialchars($det->producto_nombre) ?></div>
+                                    </a>
                                     <div class="text-muted small font-monospace">SKU: <?= $det->producto_sku ?></div>
                                     <?php if ($det->numero_lote): ?>
                                         <span class="badge border text-body-secondary mt-1">Lote: <?= htmlspecialchars($det->numero_lote) ?></span>

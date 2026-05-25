@@ -119,7 +119,9 @@
                                 <?php foreach ($requisicion->detalles as $det): ?>
                                     <tr>
                                         <td class="ps-4">
-                                            <div class="fw-semibold text-dark"><?= htmlspecialchars($det->producto_nombre) ?></div>
+                                            <a href="<?= url("productos/ver/{$det->producto_id}") ?>" class="text-decoration-none text-dark hover-primary">
+                                                <div class="fw-semibold text-dark"><?= htmlspecialchars($det->producto_nombre) ?></div>
+                                            </a>
                                             <div class="text-muted small">SKU: <?= htmlspecialchars($det->sku) ?></div>
                                             <?php if ($det->es_perecedero): ?>
                                                 <span class="badge bg-warning text-dark" style="font-size:0.6rem">WMS Lotes</span>

@@ -110,4 +110,4 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-<script src="<?= asset('js/escaner.js') ?>?v=<?= ASSET_VERSION ?>"></script>
+<script src="<?= asset('js/escaner.js') ?>?v=<?= filemtime(PUBLIC_PATH . '/assets/js/escaner.js') ?>"></script>

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const BASE = document.querySelector('meta[name="base-url"]')?.content || '/invsys/public';
+    const BASE = (document.querySelector('meta[name="base-url"]')?.content || '/invsys/public').replace(/\/+$/, '');
     const btnStart = document.getElementById('btnStartScan');
     const btnStop = document.getElementById('btnStopScan');
     const container = document.getElementById('scanner-container');
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let scanner = null;
     let isScanning = false;
     let lastScanned = '';
+    let isPaused = false;
 
     // Load history from sessionStorage
     const savedHistory = sessionStorage.getItem('invsys_scan_history');
@@ -227,6 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }).catch(() => {});
         }
         isScanning = false;
+        isPaused = false;
+        lastScanned = '';
         setScannerState('idle');
         container.classList.add('d-none');
         btnStart.classList.remove('d-none');
@@ -234,9 +237,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function onScanSuccess(decodedText) {
+        if (isPaused) return;
+
         // Prevent duplicate scans
         if (decodedText === lastScanned) return;
         lastScanned = decodedText;
+        isPaused = true;
 
         // Visual feedback
         setScannerState('detected');
@@ -244,12 +250,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         manualInput.value = decodedText;
         searchProduct(decodedText);
+    }
 
-        // Reset border back to scanning after 2 seconds
-        setTimeout(() => {
-            if (isScanning) setScannerState('scanning');
-            lastScanned = '';
-        }, 2500);
+    function resumeScanning() {
+        isPaused = false;
+        lastScanned = '';
+        if (isScanning) setScannerState('scanning');
+        resultDiv.classList.add('d-none');
+        emptyDiv.classList.add('d-none');
+        manualInput.value = '';
+        sessionStorage.removeItem('invsys_scan_result');
     }
 
     function searchProduct(code) {
@@ -264,11 +274,27 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>`;
         resultDiv.classList.remove('d-none');
 
-        fetch(`${BASE}/escaner/buscar/${encodeURIComponent(code)}`, {
+        // Pausar escáner para evitar peticiones repetidas simultáneas
+        isPaused = true;
+
+        fetch(`${BASE}/escaner/buscar/${encodeURIComponent(code)}?_t=${Date.now()}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(r => r.json())
-        .then(data => {
+        .then(r => {
+            if (!r.ok) {
+                throw new Error(`HTTP ${r.status} ${r.statusText}`);
+            }
+            return r.text();
+        })
+        .then(text => {
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error("JSON parse error. Response was:", text);
+                throw new Error("Respuesta no es JSON válido (puede ser redirección a Login o error PHP)");
+            }
+
             if (data.found) {
                 playBeep('success');
                 addToHistory(code, data.product);
@@ -284,15 +310,24 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 playBeep('error');
                 addToHistory(code, null);
-                emptyMsg.textContent = data.error || 'Producto no encontrado';
+                emptyMsg.innerHTML = `${escapeHtml(data.error || 'Producto no encontrado')}<br>
+                    <button type="button" class="btn btn-sm btn-outline-secondary btn-resume-scan mt-2">
+                        <i class="bi bi-camera me-1"></i>Escanear de Nuevo
+                    </button>`;
                 resultDiv.classList.add('d-none');
                 emptyDiv.classList.remove('d-none');
                 saveState(null); // Clear saved result HTML
             }
         })
-        .catch(() => {
+        .catch(err => {
             resultDiv.classList.add('d-none');
-            showToast('Error al buscar el producto', 'error');
+            showToast('Error al buscar producto: ' + err.message, 'error');
+            // Reanudar escaneo automáticamente después de 3.5 segundos en caso de error de red
+            setTimeout(() => {
+                isPaused = false;
+                lastScanned = '';
+                if (isScanning) setScannerState('scanning');
+            }, 3500);
         });
     }
 
@@ -321,6 +356,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         </a>
                         <button type="button" class="btn btn-success btn-toggle-quick-move" data-id="${p.id}" data-nombre="${escapeHtml(p.nombre)}" data-stock="${p.stock}">
                             <i class="bi bi-lightning-fill me-1"></i>Movimiento Rápido
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-resume-scan">
+                            <i class="bi bi-camera me-1"></i>Escanear de Nuevo
                         </button>
                     </div>
 
@@ -358,6 +396,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event Delegation para botones dinámicos (soluciona error CSP inline onclick)
     document.addEventListener('click', function(e) {
+        // Resume scan
+        const btnResume = e.target.closest('.btn-resume-scan');
+        if (btnResume) {
+            resumeScanning();
+            return;
+        }
+
         // Toggle Quick Movement
         const btnToggle = e.target.closest('.btn-toggle-quick-move');
         if (btnToggle) {
@@ -449,6 +494,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </a>`;
         });
         html += '</div>';
+        html += `
+            <div class="d-flex gap-2 flex-wrap mt-3">
+                <button type="button" class="btn btn-secondary btn-resume-scan w-100">
+                    <i class="bi bi-camera me-1"></i>Escanear de Nuevo
+                </button>
+            </div>`;
         resultDiv.innerHTML = html;
         resultDiv.classList.remove('d-none');
         saveState(html);
@@ -538,12 +589,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button type="button" class="btn btn-outline-secondary btn-retry-lookup" data-codigo="${escapeHtml(codigo)}">
                             <i class="bi bi-arrow-clockwise me-1"></i>Reintentar búsqueda externa
                         </button>
+                        <button type="button" class="btn btn-secondary btn-resume-scan">
+                            <i class="bi bi-camera me-1"></i>Escanear de Nuevo
+                        </button>
                     </div>`;
         } else {
             html += `
-                    <div class="alert alert-danger py-2 mb-0 d-flex align-items-center gap-2">
+                    <div class="alert alert-danger py-2 mb-2 d-flex align-items-center gap-2">
                         <i class="bi bi-lock-fill"></i>
                         <small>No tiene permisos para crear productos. Contacte al administrador.</small>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-secondary btn-resume-scan w-100">
+                            <i class="bi bi-camera me-1"></i>Escanear de Nuevo
+                        </button>
                     </div>`;
         }
 

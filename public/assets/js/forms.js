@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // === Conteos: Show (inline counting) ===
     if (document.getElementById('conteoTable') && document.querySelector('.conteo-input')) {
         const PAGE_DATA = JSON.parse(document.getElementById('page-data')?.textContent || '{}');
-        const BASE = document.querySelector('meta[name="base-url"]')?.content || '/invsys/public';
+        const BASE = (document.querySelector('meta[name="base-url"]')?.content || '/invsys/public').replace(/\/+$/, '');
         const csrfToken = PAGE_DATA.csrfToken || '';
         document.querySelectorAll('.conteo-input').forEach(input => {
             input.addEventListener('input', function() { const b=document.querySelector(`.save-btn[data-item-id="${this.dataset.itemId}"]`); if(b) b.classList.remove('d-none'); });
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const il=document.getElementById('numero_lote'), iv=document.getElementById('fecha_vencimiento');
         const sw=document.getElementById('seriesWrapper'), se=document.getElementById('seriesEntradaUI'), ss=document.getElementById('seriesSalidaUI');
         const sic=document.getElementById('seriesInputContainer'), scc=document.getElementById('seriesCheckContainer');
-        const BASE = document.querySelector('meta[name="base-url"]')?.content || '/invsys/public';
+        const BASE = (document.querySelector('meta[name="base-url"]')?.content || '/invsys/public').replace(/\/+$/, '');
 
         function updateFormUI() {
             var tipo=ts.value, opt=ps.options[ps.selectedIndex], isPer=opt&&opt.dataset.perecedero==='1', isSerie=opt&&opt.dataset.serie==='1';

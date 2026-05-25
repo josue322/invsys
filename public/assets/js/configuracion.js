@@ -47,6 +47,10 @@ document.querySelector('[data-config="smtp_activo"]')?.addEventListener('click',
 function updateRegistroRolVisibility() { const t=document.querySelector('[data-config="permitir_registro"]'); const r=document.getElementById('rolRegistroWrapper'); if(t&&r){ r.style.display=t.querySelector('.toggle-track').classList.contains('active')?'block':'none'; } }
 updateRegistroRolVisibility();
 document.querySelector('[data-config="permitir_registro"]')?.addEventListener('click', () => setTimeout(updateRegistroRolVisibility, 50));
+// WhatsApp Toggle
+function updateWhatsAppVisibility() { const t=document.querySelector('[data-config="whatsapp_enabled"]'); const f=document.getElementById('whatsappFields'); if(t&&f){ f.style.display=t.querySelector('.toggle-track').classList.contains('active')?'block':'none'; } }
+updateWhatsAppVisibility();
+document.querySelector('[data-config="whatsapp_enabled"]')?.addEventListener('click', () => setTimeout(updateWhatsAppVisibility, 50));
 // Password Toggle
 document.querySelectorAll('.toggle-pass').forEach(btn => {
     btn.addEventListener('click', function() { const i=document.getElementById(this.dataset.target); const ic=this.querySelector('i'); if(i.type==='password'){i.type='text';ic.className='bi bi-eye-slash';}else{i.type='password';ic.className='bi bi-eye';} });

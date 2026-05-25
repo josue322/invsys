@@ -1,4 +1,5 @@
 <?php
+
 /**
  * InvSys - MailService
  * 
@@ -290,7 +291,8 @@ HTML;
             $message .= "Content-Type: text/html; charset=UTF-8\r\n";
             $message .= "X-Mailer: {$this->systemName}\r\n";
             $message .= "\r\n";
-            $message .= $body;
+            // Asegurar que todos los saltos de línea sean \r\n (CRLF) para cumplir con el protocolo SMTP
+            $message .= str_replace(["\r\n", "\r", "\n"], "\r\n", $body);
             $message .= "\r\n.\r\n";
 
             fwrite($socket, $message);
@@ -302,7 +304,6 @@ HTML;
 
             $this->logMailAttempt($to, $subject, true, '', 'SMTP');
             return true;
-
         } catch (\Throwable $e) {
             $errorMsg = $e->getMessage();
             $this->logMailAttempt($to, $subject, false, $errorMsg, 'SMTP');
@@ -369,6 +370,11 @@ HTML;
      */
     private function getLoginUrl(): string
     {
+        // En producción o ejecuciones desde CLI (Cron Job), usar la URL solicitada
+        if (php_sapi_name() === 'cli' || (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') === false)) {
+            return "https://jlc322.com";
+        }
+
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $base = rtrim(BASE_URL, '/');

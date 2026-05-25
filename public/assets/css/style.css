@@ -951,6 +951,17 @@ body {
     border-bottom: none;
 }
 
+/* Clickable product links in table */
+.table td a.text-decoration-none code:hover {
+    text-decoration: underline !important;
+    opacity: .85;
+}
+.table td a.text-dark strong:hover,
+.table td a.text-decoration-none strong:hover {
+    color: var(--primary, #6366f1) !important;
+    text-decoration: underline;
+}
+
 /* === Status Badges === */
 .badge-stock-ok {
     background: rgba(16, 185, 129, 0.1);

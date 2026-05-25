@@ -352,6 +352,44 @@
                                 </span>
                             </div>
                         </div>
+
+                        <hr class="my-3">
+
+                        <!-- Toggle: Alertas por WhatsApp -->
+                        <div class="config-toggle-item mb-2">
+                            <div>
+                                <span class="config-toggle-label">Notificaciones por WhatsApp</span>
+                                <span class="config-toggle-desc">Enviar alertas diarias al administrador principal</span>
+                            </div>
+                            <div class="toggle-switch" data-config="whatsapp_enabled"
+                                data-checked="<?= ($cfg['whatsapp_enabled'] ?? '0') === '1' ? '1' : '0' ?>">
+                                <input type="hidden" name="config[whatsapp_enabled]"
+                                    value="<?= ($cfg['whatsapp_enabled'] ?? '0') === '1' ? '1' : '0' ?>">
+                                <span
+                                    class="toggle-track <?= ($cfg['whatsapp_enabled'] ?? '0') === '1' ? 'active' : '' ?>">
+                                    <span class="toggle-thumb"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div id="whatsappFields" style="display: <?= ($cfg['whatsapp_enabled'] ?? '0') === '1' ? 'block' : 'none' ?>;">
+                            <div class="row g-3 mb-2">
+                                <div class="col-sm-6">
+                                    <label class="form-label">Teléfono del Administrador</label>
+                                    <input type="text" class="form-control" name="config[whatsapp_phone]"
+                                        value="<?= htmlspecialchars($cfg['whatsapp_phone'] ?? '') ?>"
+                                        placeholder="Ej: +51931993019">
+                                    <small class="text-muted">Incluye el código de país con el signo +</small>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label">API Key de CallMeBot</label>
+                                    <input type="text" class="form-control" name="config[whatsapp_apikey]"
+                                        value="<?= htmlspecialchars($cfg['whatsapp_apikey'] ?? '') ?>"
+                                        placeholder="Ej: 123456">
+                                    <small class="text-muted">Obtenida del bot al registrarte</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

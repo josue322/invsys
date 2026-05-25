@@ -106,8 +106,9 @@
                                 <tr>
                                     <td class="ps-3"><code class="text-primary"><?= $det->sku ?></code></td>
                                     <td>
-                                        <span
-                                            class="fw-medium d-block"><?= htmlspecialchars($det->producto_nombre) ?></span>
+                                        <a href="<?= url("productos/ver/{$det->producto_id}") ?>" class="text-decoration-none text-dark hover-primary">
+                                            <span class="fw-medium d-block"><?= htmlspecialchars($det->producto_nombre) ?></span>
+                                        </a>
                                         <?php if ($det->es_perecedero): ?>
                                             <span
                                                 class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle mt-1"
@@ -174,7 +175,9 @@
                                 <?php if ($det->es_perecedero): ?>
                                     <div class="bg-light p-3 rounded-3 mb-3 border">
                                         <div class="fw-bold mb-2 text-primary" style="font-size:0.85rem">
-                                            <?= htmlspecialchars($det->producto_nombre) ?> (Cant: <?= $det->cantidad ?>)
+                                            <a href="<?= url("productos/ver/{$det->producto_id}") ?>" class="text-decoration-none text-primary">
+                                                <?= htmlspecialchars($det->producto_nombre) ?>
+                                            </a> (Cant: <?= $det->cantidad ?>)
                                         </div>
                                         <div class="row g-2">
                                             <div class="col-6">

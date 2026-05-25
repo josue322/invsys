@@ -66,9 +66,15 @@ class AyudaController extends Controller
             }
 
             // Validar MIME type real
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($finfo, $file['tmp_name']);
-            finfo_close($finfo);
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_file($finfo, $file['tmp_name']);
+                finfo_close($finfo);
+            } elseif (function_exists('mime_content_type')) {
+                $mime = mime_content_type($file['tmp_name']);
+            } else {
+                $mime = $file['type'] ?? 'image/jpeg';
+            }
 
             if (!in_array($mime, $allowedTypes)) {
                 $this->redirect('ayuda/soporte?error=' . urlencode('Formato de imagen no permitido. Solo JPG, PNG o WEBP.'));

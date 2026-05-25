@@ -76,7 +76,9 @@
                                 <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($m->referencia) ?></span>
                                 </td>
                                 <td>
-                                    <div class="fw-medium text-dark"><?= htmlspecialchars($m->producto_nombre) ?></div>
+                                    <a href="<?= url("productos/ver/{$m->producto_id}") ?>" class="text-decoration-none text-dark hover-primary">
+                                        <div class="fw-medium text-dark"><strong><?= htmlspecialchars($m->producto_nombre) ?></strong></div>
+                                    </a>
                                     <small class="text-muted font-monospace"><?= htmlspecialchars($m->producto_sku) ?></small>
                                 </td>
                                 <td>

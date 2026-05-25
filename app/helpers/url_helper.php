@@ -13,9 +13,12 @@
  */
 function url(string $path = ''): string
 {
-    $base = rtrim(BASE_URL, '/');
+    $base = BASE_URL;
     $path = ltrim($path, '/');
-    return $path ? "{$base}/{$path}" : $base;
+    if ($path === '') {
+        return $base;
+    }
+    return rtrim($base, '/') . '/' . $path;
 }
 
 /**

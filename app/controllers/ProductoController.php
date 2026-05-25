@@ -489,9 +489,15 @@ class ProductoController extends Controller
         }
 
         // Validar tipo MIME real
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+        } elseif (function_exists('mime_content_type')) {
+            $mimeType = mime_content_type($file['tmp_name']);
+        } else {
+            $mimeType = $file['type'] ?? 'image/jpeg';
+        }
 
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
             $this->setFlash('error', 'Formato de imagen no válido. Use JPG, PNG, WebP o GIF.');

@@ -5,7 +5,7 @@
  * flash messages, and global tooltip initialization.
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // ─── Sidebar Toggle ───
     const sidebar = document.getElementById('sidebar');
     const sidebarOpen = document.getElementById('sidebarOpen');
@@ -62,38 +62,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Theme Toggle ───
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
-        const baseUrl = document.querySelector('meta[name="base-url"]')?.content || '';
-        themeToggle.addEventListener('click', function() {
+        const baseUrl = (document.querySelector('meta[name="base-url"]')?.content || '').replace(/\/+$/, '');
+        themeToggle.addEventListener('click', function () {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
             fetch(baseUrl + '/tema/toggle', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken
-                }
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: '_csrf_token=' + encodeURIComponent(csrfToken)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.documentElement.setAttribute('data-bs-theme', data.theme);
-                    const icon = themeToggle.querySelector('i');
-                    const text = themeToggle.querySelector('span');
-                    if (data.theme === 'dark') {
-                        icon.className = 'bi bi-sun-fill';
-                        text.textContent = 'Modo Claro';
-                    } else {
-                        icon.className = 'bi bi-moon-fill';
-                        text.textContent = 'Modo Oscuro';
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.documentElement.setAttribute('data-bs-theme', data.theme);
+                        const icon = themeToggle.querySelector('i');
+                        const text = themeToggle.querySelector('span');
+                        if (data.theme === 'dark') {
+                            icon.className = 'bi bi-sun-fill';
+                            text.textContent = 'Modo Claro';
+                        } else {
+                            icon.className = 'bi bi-moon-fill';
+                            text.textContent = 'Modo Oscuro';
+                        }
                     }
-                }
-            })
-            .catch(err => console.error('Error al cambiar tema:', err));
+                })
+                .catch(err => console.error('Error al cambiar tema:', err));
         });
     }
 
     // ─── Toast Notification System ───
-    window.showToast = function(message, type = 'success', title = null) {
+    window.showToast = function (message, type = 'success', title = null) {
         const container = document.getElementById('toast-container');
         if (!container) return;
 
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const toast = document.createElement('div');
         toast.className = `toast-notification toast-${type}`;
-        
+
         toast.innerHTML = `
             <div class="toast-icon">
                 <i class="bi ${icons[type]}"></i>
@@ -172,14 +172,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Global Print Handler ───
     const printButtons = document.querySelectorAll('.btn-print, #btnPrint');
     printButtons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             window.print();
         });
     });
 
     // ─── Global Action Handlers (CSP Compliant) ───
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         // Native Confirm
         // Generic History Back
         if (e.target.closest('.btn-history-back')) {
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Pagination Per-Page Selector ───
     const perPageSelectors = document.querySelectorAll('.per-page-selector');
     perPageSelectors.forEach(selector => {
-        selector.addEventListener('change', function() {
+        selector.addEventListener('change', function () {
             window.location.href = this.value;
         });
     });
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Auto-Submit Select (CSP-compliant replacement for onchange="this.form.submit()") ───
     const autoSubmitSelects = document.querySelectorAll('.auto-submit-select');
     autoSubmitSelects.forEach(select => {
-        select.addEventListener('change', function() {
+        select.addEventListener('change', function () {
             const form = this.closest('form');
             if (form) form.submit();
         });
